@@ -80,6 +80,12 @@
         <artifactId>metrics-web</artifactId>
         <version>${yammer-metrics.version}</version>
       </dependency>
+
+      <dependency>
+        <groupId>com.yammer.metrics</groupId>
+        <artifactId>metrics-ehcache</artifactId>
+        <version>${yammer-metrics.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 

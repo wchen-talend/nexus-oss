@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.sonatype.security.SecuritySystem;
-import org.sonatype.sisu.ehcache.CacheManagerComponent;
+import org.sonatype.sisu.ehcache.CacheManagerHolder;
 import org.sonatype.sisu.litmus.testsupport.TestSupport;
 
 import com.google.inject.AbstractModule;
@@ -81,7 +81,7 @@ public class SecurityModuleTest
     assertThat(
         ((EhCacheManager) ((EnterpriseCacheSessionDAO) sessionManager.getSessionDAO()).getCacheManager())
             .getCacheManager(),
-        sameInstance(injector.getInstance(CacheManagerComponent.class).getCacheManager()));
+        sameInstance(injector.getInstance(CacheManagerHolder.class).getCacheManager()));
   }
 
   @After

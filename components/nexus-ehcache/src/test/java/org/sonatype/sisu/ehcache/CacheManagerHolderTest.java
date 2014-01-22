@@ -25,12 +25,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 /**
- * Test for {@link CacheManagerComponentImpl}.
+ * Test for {@link CacheManagerHolder}.
  */
-public class CacheManagerComponentImplTest
+public class CacheManagerHolderTest
     extends TestSupport
 {
-  private CacheManagerComponent underTest;
+  private CacheManagerHolder underTest;
 
   private String originalTmpDir = System.getProperty("java.io.tmpdir");
 
@@ -51,14 +51,14 @@ public class CacheManagerComponentImplTest
 
   @Test
   public void testConfigFromClasspath() throws Exception {
-    underTest = new CacheManagerComponentImpl(null);
+    underTest = new CacheManagerHolder(null);
     assertConfigurationValid();
   }
 
   @Test
   public void testConfigFromFile() throws Exception {
     File file = util.resolveFile("src/test/resources/ehcache.xml");
-    underTest = new CacheManagerComponentImpl(file);
+    underTest = new CacheManagerHolder(file);
     assertConfigurationValid();
   }
 

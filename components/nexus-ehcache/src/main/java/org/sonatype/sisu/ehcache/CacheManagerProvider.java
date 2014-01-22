@@ -31,10 +31,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class CacheManagerProvider
   implements Provider<CacheManager>
 {
-  private final CacheManagerComponent factory;
+  private final CacheManagerHolder factory;
 
   @Inject
-  public CacheManagerProvider(final CacheManagerComponent factory) {
+  public CacheManagerProvider(final CacheManagerHolder factory) {
     this.factory = checkNotNull(factory);
   }
 
