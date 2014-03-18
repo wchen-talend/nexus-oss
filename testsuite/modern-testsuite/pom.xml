@@ -290,7 +290,7 @@
               <artifactId>maven-failsafe-plugin</artifactId>
               <configuration>
                 <systemPropertyVariables combine.children="append">
-                  <it.test.jacoco.enable>${it.test.log.level}</it.test.jacoco.enable>
+                  <it.test.jacoco.enable>true</it.test.jacoco.enable>
                 </systemPropertyVariables>
               </configuration>
             </plugin>
