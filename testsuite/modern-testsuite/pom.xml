@@ -274,6 +274,483 @@
         </plugins>
       </build>
     </profile>
+
+    <profile>
+      <id>coverage</id>
+      <activation>
+        <property>
+          <name>coverage</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>prepare-reports</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <typedef resource="org/jacoco/ant/antlib.xml"/>
+                    <echo message="Coverage report"/>
+                    <report>
+                      <executiondata>
+                        <fileset dir="${project.build.directory}" includes="**/it-data/**/jacoco.exec"/>
+                      </executiondata>
+                      <structure name="Nexus">
+                        <group name="components/base-configuration">
+                          <classfiles>
+                            <fileset dir="../../components/base-configuration/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../components/base-configuration/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="components/nexus-bootstrap">
+                          <classfiles>
+                            <fileset dir="../../components/nexus-bootstrap/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../components/nexus-bootstrap/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="components/nexus-client-core">
+                          <classfiles>
+                            <fileset dir="../../components/nexus-client-core/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../components/nexus-client-core/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="components/nexus-configuration-model">
+                          <classfiles>
+                            <fileset dir="../../components/nexus-configuration-model/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../components/nexus-configuration-model/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="components/nexus-core">
+                          <classfiles>
+                            <fileset dir="../../components/nexus-core/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../components/nexus-core/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="components/nexus-ehcache">
+                          <classfiles>
+                            <fileset dir="../../components/nexus-ehcache/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../components/nexus-ehcache/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="components/nexus-launcher">
+                          <classfiles>
+                            <fileset dir="../../components/nexus-launcher/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../components/nexus-launcher/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="components/nexus-ldap-common">
+                          <classfiles>
+                            <fileset dir="../../components/nexus-ldap-common/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../components/nexus-ldap-common/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="components/nexus-locks">
+                          <classfiles>
+                            <fileset dir="../../components/nexus-locks/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../components/nexus-locks/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="components/nexus-oss-edition">
+                          <classfiles>
+                            <fileset dir="../../components/nexus-oss-edition/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../components/nexus-oss-edition/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="components/nexus-plugin-api">
+                          <classfiles>
+                            <fileset dir="../../components/nexus-plugin-api/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../components/nexus-plugin-api/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="components/nexus-repository-metadata-api">
+                          <classfiles>
+                            <fileset dir="../../components/nexus-repository-metadata-api/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../components/nexus-repository-metadata-api/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="components/nexus-scheduler">
+                          <classfiles>
+                            <fileset dir="../../components/nexus-scheduler/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../components/nexus-scheduler/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="components/nexus-security">
+                          <classfiles>
+                            <fileset dir="../../components/nexus-security/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../components/nexus-security/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="components/nexus-security-realms">
+                          <classfiles>
+                            <fileset dir="../../components/nexus-security-realms/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../components/nexus-security-realms/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="components/nexus-webapp">
+                          <classfiles>
+                            <fileset dir="../../components/nexus-webapp/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../components/nexus-webapp/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/basic/nexus-content-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/basic/nexus-content-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/basic/nexus-content-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/basic/nexus-crypto-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/basic/nexus-crypto-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/basic/nexus-crypto-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/basic/nexus-groovy-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/basic/nexus-groovy-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/basic/nexus-groovy-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/basic/nexus-h2-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/basic/nexus-h2-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/basic/nexus-h2-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/basic/nexus-logging-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/basic/nexus-logging-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/basic/nexus-logging-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/basic/nexus-lvo-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/basic/nexus-lvo-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/basic/nexus-lvo-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/basic/nexus-plugin-console-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/basic/nexus-plugin-console-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/basic/nexus-plugin-console-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/basic/nexus-rrb-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/basic/nexus-rrb-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/basic/nexus-rrb-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/basic/nexus-siesta-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/basic/nexus-siesta-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/basic/nexus-siesta-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/basic/nexus-site-repository-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/basic/nexus-site-repository-client/target/classes" includes="**/*.class"/>
+                            <fileset dir="../../plugins/basic/nexus-site-repository-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/basic/nexus-site-repository-plugin/src/main/java"/>
+                            <fileset dir="../../plugins/basic/nexus-site-repository-client/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/basic/nexus-timeline-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/basic/nexus-timeline-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/basic/nexus-timeline-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/basic/nexus-ui-extjs3-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/basic/nexus-ui-extjs3-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/basic/nexus-ui-extjs3-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/basic/nexus-unpack-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/basic/nexus-unpack-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/basic/nexus-unpack-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/basic/nexus-webresources-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/basic/nexus-webresources-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/basic/nexus-webresources-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/capabilities/nexus-capabilities-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/capabilities/nexus-capabilities-client/target/classes" includes="**/*.class"/>
+                            <fileset dir="../../plugins/capabilities/nexus-capabilities-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/capabilities/nexus-capabilities-plugin/src/main/java"/>
+                            <fileset dir="../../plugins/capabilities/nexus-capabilities-client/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/indexer/nexus-indexer-lucene-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/indexer/nexus-indexer-lucene-client/target/classes" includes="**/*.class"/>
+                            <fileset dir="../../plugins/indexer/nexus-indexer-lucene-model/target/classes" includes="**/*.class"/>
+                            <fileset dir="../../plugins/indexer/nexus-indexer-lucene-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/indexer/nexus-indexer-lucene-model/src/main/java"/>
+                            <fileset dir="../../plugins/indexer/nexus-indexer-lucene-plugin/src/main/java"/>
+                            <fileset dir="../../plugins/indexer/nexus-indexer-lucene-client/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/internal/nexus-atlas-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/internal/nexus-atlas-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/internal/nexus-atlas-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/internal/nexus-groovyremote-client">
+                          <classfiles>
+                            <fileset dir="../../plugins/internal/nexus-groovyremote-client/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/internal/nexus-groovyremote-client/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/internal/nexus-groovyremote-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/internal/nexus-groovyremote-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/internal/nexus-groovyremote-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/internal/nexus-kazuki-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/internal/nexus-kazuki-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/internal/nexus-kazuki-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/internal/nexus-plexusplugin-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/internal/nexus-plexusplugin-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/internal/nexus-plexusplugin-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/internal/nexus-wonderland-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/internal/nexus-wonderland-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/internal/nexus-wonderland-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/maven/nexus-archetype-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/maven/nexus-archetype-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/maven/nexus-archetype-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/maven/nexus-maven-bridge-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/maven/nexus-maven-bridge-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/maven/nexus-maven-bridge-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/osgi/nexus-obr-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/osgi/nexus-obr-client/target/classes" includes="**/*.class"/>
+                            <fileset dir="../../plugins/osgi/nexus-obr-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/osgi/nexus-obr-client/src/main/java"/>
+                            <fileset dir="../../plugins/osgi/nexus-obr-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/p2/nexus-p2-bridge-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/p2/nexus-p2-bridge-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/p2/nexus-p2-bridge-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/p2/nexus-p2-repository-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/p2/nexus-p2-client/target/classes" includes="**/*.class"/>
+                            <fileset dir="../../plugins/p2/nexus-p2-repository-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/p2/nexus-p2-client/src/main/java"/>
+                            <fileset dir="../../plugins/p2/nexus-p2-repository-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/rapture/nexus-coreui-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/rapture/nexus-coreui-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/rapture/nexus-coreui-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/rapture/nexus-extdirect-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/rapture/nexus-extdirect-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/rapture/nexus-extdirect-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/rapture/nexus-rapture-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/rapture/nexus-rapture-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/rapture/nexus-rapture-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/restlet1x/nexus-restlet1x-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/restlet1x/nexus-restlet-bridge/target/classes" includes="**/*.class"/>
+                            <fileset dir="../../plugins/restlet1x/nexus-restlet1x-model/target/classes" includes="**/*.class"/>
+                            <fileset dir="../../plugins/restlet1x/nexus-restlet1x-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/restlet1x/nexus-restlet-bridge/src/main/java"/>
+                            <fileset dir="../../plugins/restlet1x/nexus-restlet1x-model/src/main/java"/>
+                            <fileset dir="../../plugins/restlet1x/nexus-restlet1x-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/security/nexus-kenai-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/security/nexus-kenai-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/security/nexus-kenai-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/security/nexus-ldap-realm-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/security/nexus-ldap-realm-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/security/nexus-ldap-realm-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/security/nexus-rutauth-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/security/nexus-rutauth-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/security/nexus-rutauth-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                        <group name="plugins/yum/nexus-yum-repository-plugin">
+                          <classfiles>
+                            <fileset dir="../../plugins/yum/nexus-yum-repository-client/target/classes" includes="**/*.class"/>
+                            <fileset dir="../../plugins/yum/nexus-yum-repository-plugin/target/classes" includes="**/*.class"/>
+                          </classfiles>
+                          <sourcefiles>
+                            <fileset dir="../../plugins/yum/nexus-yum-repository-client/src/main/java"/>
+                            <fileset dir="../../plugins/yum/nexus-yum-repository-plugin/src/main/java"/>
+                          </sourcefiles>
+                        </group>
+                      </structure>
+                      <html destdir="${project.build.directory}/coverage"
+                            footer="Code Coverage Report for Nexus ${project.version}"
+                            locale="en"/>
+                      <csv destfile="${project.build.directory}/coverage/coverage.csv"/>
+                      <xml destfile="${project.build.directory}/coverage/coverage.xml"/>
+                    </report>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+            <dependencies>
+              <dependency>
+                <groupId>org.jacoco</groupId>
+                <artifactId>org.jacoco.ant</artifactId>
+                <version>0.6.5.201403032054</version>
+              </dependency>
+            </dependencies>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 
 </project>
