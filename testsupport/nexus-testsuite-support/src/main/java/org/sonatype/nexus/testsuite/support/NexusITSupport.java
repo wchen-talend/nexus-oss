@@ -28,7 +28,9 @@ import org.sonatype.nexus.bundle.launcher.support.NexusSpecific;
 import org.sonatype.nexus.client.core.NexusClient;
 import org.sonatype.nexus.client.rest.NexusClientFactory;
 import org.sonatype.nexus.client.rest.UsernamePasswordAuthenticationInfo;
+import org.sonatype.sisu.bl.support.JacocoJavaAgent;
 import org.sonatype.sisu.bl.support.resolver.BundleResolver;
+import org.sonatype.sisu.bl.support.resolver.FileResolver;
 import org.sonatype.sisu.bl.support.resolver.MavenBridgedBundleResolver;
 import org.sonatype.sisu.bl.support.resolver.TargetDirectoryResolver;
 import org.sonatype.sisu.filetasks.FileTaskBuilder;
@@ -43,6 +45,7 @@ import org.sonatype.sisu.maven.bridge.MavenModelResolver;
 
 import com.google.common.base.Throwables;
 import com.google.inject.Binder;
+import com.google.inject.name.Names;
 import org.codehaus.plexus.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.junit.After;
@@ -109,6 +112,12 @@ public abstract class NexusITSupport
    */
   @Inject
   private List<Filter> filters;
+
+  /**
+   * Jacoco java agent.
+   */
+  @Inject
+  private JacocoJavaAgent jacocoJavaAgent;
 
   /**
    * Test specific artifact resolver utility.
@@ -210,6 +219,15 @@ public abstract class NexusITSupport
           }
         }
     );
+    binder.bind(FileResolver.class).annotatedWith(Names.named("jacoco")).toInstance(new FileResolver()
+    {
+      @Override
+      public File resolve() {
+        return testArtifactResolver.resolveFromDependencyManagement(
+            "org.jacoco", "org.jacoco.agent", "jar", "runtime", null, null
+        );
+      }
+    });
   }
 
   /**
@@ -364,6 +382,12 @@ public abstract class NexusITSupport
     }
     catch (final IOException e) {
       throw Throwables.propagate(e);
+    }
+
+    if (Boolean.getBoolean("coverage")) {
+      nexus.getConfiguration()
+          .addJavaOptions("-XX:MaxPermSize=192m")
+          .addJavaAgents(jacocoJavaAgent);
     }
 
     return nexus;
