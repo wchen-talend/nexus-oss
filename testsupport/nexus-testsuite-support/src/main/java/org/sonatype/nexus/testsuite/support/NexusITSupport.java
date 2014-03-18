@@ -384,7 +384,7 @@ public abstract class NexusITSupport
       throw Throwables.propagate(e);
     }
 
-    if (Boolean.getBoolean("coverage")) {
+    if (Boolean.getBoolean("it.test.jacoco.enable")) {
       nexus.getConfiguration()
           .addJavaOptions("-XX:MaxPermSize=192m")
           .addJavaAgents(jacocoJavaAgent);
