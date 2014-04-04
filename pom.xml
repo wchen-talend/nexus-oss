@@ -1149,6 +1149,22 @@
         </pluginManagement>
       </build>
     </profile>
+
+    <profile>
+      <id>sonar</id>
+      <activation>
+        <property>
+          <name>sonar</name>
+        </property>
+      </activation>
+
+      <properties>
+        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+        <sonar.jacoco.reportPath>target/jacoco-ut.exec</sonar.jacoco.reportPath>
+        <sonar.jacoco.itReportPath>target/jacoco-it.exec</sonar.jacoco.itReportPath>
+      </properties>
+    </profile>
+
   </profiles>
 
 </project>
