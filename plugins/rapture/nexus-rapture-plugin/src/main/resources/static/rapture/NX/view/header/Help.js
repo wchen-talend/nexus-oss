@@ -1,6 +1,6 @@
 /*
  * Sonatype Nexus (TM) Open Source Version
- * Copyright (c) 2007-2013 Sonatype, Inc.
+ * Copyright (c) 2007-2014 Sonatype, Inc.
  * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
  *
  * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
@@ -34,7 +34,23 @@ Ext.define('NX.view.header.Help', {
       iconCls: 'nx-icon-nexus-x16',
       action: 'about'
     },
-    { text: 'Product Manual', iconCls: 'nx-icon-help-manual-x16', action: 'manual' },
-    { text: 'Product Support', iconCls: 'nx-icon-help-support-x16', action: 'support' }
+    {
+      text: 'Browse Issue Tracker',
+      iconCls: 'nx-icon-help-support-x16',
+      href: 'https://issues.sonatype.org/browse/NEXUS/',
+      hrefTarget: 'https://issues.sonatype.org/browse/NEXUS/'
+    },
+    {
+      text: 'Product Manual',
+      iconCls: 'nx-icon-help-manual-x16',
+      href: 'http://www.sonatype.com/resources/books/repository-management-with-nexus',
+      hrefTarget: 'http://www.sonatype.com/resources/books/repository-management-with-nexus'
+    },
+    {
+      text: 'Product Support',
+      iconCls: 'nx-icon-help-support-x16',
+      href: 'https://support.sonatype.com/home',
+      hrefTarget: 'https://support.sonatype.com/home'
+    }
   ]
 });

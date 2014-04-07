@@ -1,6 +1,6 @@
 /*
  * Sonatype Nexus (TM) Open Source Version
- * Copyright (c) 2007-2013 Sonatype, Inc.
+ * Copyright (c) 2007-2014 Sonatype, Inc.
  * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
  *
  * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
@@ -13,7 +13,6 @@
 
 package org.sonatype.nexus.timeline.tasks;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Named;
@@ -23,7 +22,14 @@ import org.sonatype.nexus.formfields.FormField;
 import org.sonatype.nexus.formfields.NumberTextFormField;
 import org.sonatype.nexus.tasks.descriptors.AbstractScheduledTaskDescriptor;
 
-@Named("PurgeTimeline")
+import com.google.common.collect.ImmutableList;
+
+/**
+ * Task descriptor for {@link PurgeTimelineTask}.
+ *
+ * @since 3.0
+ */
+@Named(PurgeTimelineTaskDescriptor.ID)
 @Singleton
 public class PurgeTimelineTaskDescriptor
     extends AbstractScheduledTaskDescriptor
@@ -32,25 +38,30 @@ public class PurgeTimelineTaskDescriptor
 
   public static final String OLDER_THAN_FIELD_ID = "purgeOlderThan";
 
-  private final NumberTextFormField olderThanField = new NumberTextFormField(OLDER_THAN_FIELD_ID,
-      "Purge items older than (days)",
-      "Set the number of days, to purge all items that were trashed before the given number of days.",
-      FormField.MANDATORY);
+  private final NumberTextFormField olderThanField;
 
+  private final List<FormField> formFields;
+
+  public PurgeTimelineTaskDescriptor() {
+    this.olderThanField = new NumberTextFormField(OLDER_THAN_FIELD_ID,
+        "Purge items older than (days)",
+        "Set the number of days, to purge all items that were trashed before the given number of days.",
+        FormField.MANDATORY);
+    this.formFields = ImmutableList.<FormField>of(olderThanField);
+  }
+
+  @Override
   public String getId() {
     return ID;
   }
 
+  @Override
   public String getName() {
-    return "Purge Nexus Timeline";
+    return "Purge Timeline";
   }
 
   @Override
   public List<FormField> formFields() {
-    List<FormField> fields = new ArrayList<FormField>();
-
-    fields.add(olderThanField);
-
-    return fields;
+    return formFields;
   }
 }

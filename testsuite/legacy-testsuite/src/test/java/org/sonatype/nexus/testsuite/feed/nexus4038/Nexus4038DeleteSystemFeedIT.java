@@ -1,6 +1,6 @@
 /*
  * Sonatype Nexus (TM) Open Source Version
- * Copyright (c) 2007-2013 Sonatype, Inc.
+ * Copyright (c) 2007-2014 Sonatype, Inc.
  * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
  *
  * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
@@ -10,7 +10,6 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-
 package org.sonatype.nexus.testsuite.feed.nexus4038;
 
 import java.util.ArrayList;
@@ -76,7 +75,7 @@ public class Nexus4038DeleteSystemFeedIT
     Assert.assertTrue("Expected more than 2 entries, but got " + entries.size() + " - "
         + entries, entries.size() >= 2);
 
-    final String expected = "deleted.Action was initiated by user \"" + TEST_USER_NAME + "\"";
+    final String expected = "Deleted by " + TEST_USER_NAME;
     boolean foundExpected = false;
     List<String> desc = new ArrayList<String>();
     for (SyndEntry entry : entries) {

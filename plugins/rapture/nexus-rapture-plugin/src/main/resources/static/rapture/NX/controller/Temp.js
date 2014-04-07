@@ -1,6 +1,6 @@
 /*
  * Sonatype Nexus (TM) Open Source Version
- * Copyright (c) 2007-2013 Sonatype, Inc.
+ * Copyright (c) 2007-2014 Sonatype, Inc.
  * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
  *
  * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
@@ -64,16 +64,6 @@ Ext.define('NX.controller.Temp', {
         variants: ['x16', 'x32']
       },
 
-      // procurement
-      'feature-procurement': {
-        file: 'database_blue.png',
-        variants: ['x16', 'x32']
-      },
-      'feature-procurement-repositories': {
-        file: 'database_blue.png',
-        variants: ['x16', 'x32']
-      },
-
       // system
       'feature-system-pgp': {
         file: 'gnupg_keys.png',
@@ -91,22 +81,6 @@ Ext.define('NX.controller.Temp', {
       },
       'feature-support-overview': {
         file: 'information.png',
-        variants: ['x16', 'x32']
-      },
-      'feature-support-supportzip': {
-        file: 'file_extension_zip.png',
-        variants: ['x16', 'x32']
-      },
-      'feature-support-logging': {
-        file: 'book.png',
-        variants: ['x16', 'x32']
-      },
-      'feature-support-supporttools': {
-        file: 'globe_place.png',
-        variants: ['x16', 'x32']
-      },
-      'feature-support-analytics': {
-        file: 'system_monitor.png',
         variants: ['x16', 'x32']
       },
 
@@ -145,28 +119,16 @@ Ext.define('NX.controller.Temp', {
     me.getApplication().getFeaturesController().registerFeature([
       {
         path: '/Repository',
-        view: 'NX.view.feature.Group',
-        weight: 50,
-        visible: visibleIfLoggedIn
+        group: true,
+        weight: 50
       },
       {
         path: '/Staging',
-        view: 'NX.view.feature.Group',
-        weight: 60,
-        visible: visibleIfLoggedIn
+        group: true,
+        weight: 60
       },
       {
         path: '/Staging/Repositories',
-        visible: visibleIfLoggedIn
-      },
-      {
-        path: '/Procurement',
-        view: 'NX.view.feature.Group',
-        weight: 60,
-        visible: visibleIfLoggedIn
-      },
-      {
-        path: '/Procurement/Repositories',
         visible: visibleIfLoggedIn
       },
 
@@ -180,24 +142,7 @@ Ext.define('NX.controller.Temp', {
       },
       {
         path: '/Support',
-        view: 'NX.view.feature.Group',
-        visible: visibleIfLoggedIn
-      },
-      {
-        path: '/Support/Overview',
-        visible: visibleIfLoggedIn
-      },
-      {
-        path: '/Support/Logging',
-        visible: visibleIfLoggedIn
-      },
-      {
-        path: '/Support/Support ZIP',
-        visible: visibleIfLoggedIn
-      },
-      {
-        path: '/Support/Analytics',
-        visible: visibleIfLoggedIn
+        group: true
       },
 
       // browse mode
@@ -215,7 +160,7 @@ Ext.define('NX.controller.Temp', {
       {
         mode: 'browse',
         path: '/Repository',
-        view: 'NX.view.feature.Group',
+        group: true,
         authenticationRequired: false
       },
       {
@@ -223,13 +168,6 @@ Ext.define('NX.controller.Temp', {
         path: '/Repository/Staging',
         description: 'Browse staging repositories',
         iconName: 'feature-staging-repositories',
-        visible: visibleIfLoggedIn
-      },
-      {
-        mode: 'browse',
-        path: '/Repository/Procurement',
-        description: 'Browse procurement repositories',
-        iconName: 'feature-procurement-repositories',
         visible: visibleIfLoggedIn
       },
       {
@@ -258,9 +196,8 @@ Ext.define('NX.controller.Temp', {
       {
         mode: 'user',
         path: '/Client Settings',
-        view: 'NX.view.feature.Group',
-        weight: 200,
-        visible: visibleIfLoggedIn
+        group: true,
+        weight: 200
       },
       {
         mode: 'user',

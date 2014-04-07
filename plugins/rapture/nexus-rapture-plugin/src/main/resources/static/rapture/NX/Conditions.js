@@ -1,6 +1,6 @@
 /*
  * Sonatype Nexus (TM) Open Source Version
- * Copyright (c) 2007-2013 Sonatype, Inc.
+ * Copyright (c) 2007-2014 Sonatype, Inc.
  * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
  *
  * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
@@ -57,6 +57,16 @@ Ext.define('NX.Conditions', {
    */
   formHasRecord: function (form, fn) {
     return Ext.create('NX.util.condition.FormHasRecord', { form: form, fn: fn });
+  },
+
+  /**
+   * @param {String} key state value key
+   * @param {Function} [fn] An optional function to be called when a state value changes. If not specified, a boolean
+   * check against value will be performed
+   * @returns {NX.util.condition.WatchState}
+   */
+  watchState: function (key, fn) {
+    return Ext.create('NX.util.condition.WatchState', { key: key, fn: fn });
   },
 
   /**

@@ -1,6 +1,6 @@
 /*
  * Sonatype Nexus (TM) Open Source Version
- * Copyright (c) 2007-2013 Sonatype, Inc.
+ * Copyright (c) 2007-2014 Sonatype, Inc.
  * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
  *
  * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
@@ -66,7 +66,8 @@ Ext.define('NX.coreui.controller.Privileges', {
     view: { xtype: 'nx-coreui-privilege-feature' },
     visible: function () {
       return NX.Permissions.check('security:privileges', 'read');
-    }
+    },
+    weight: 10
   },
   permission: 'security:privileges',
 

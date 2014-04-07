@@ -1,6 +1,6 @@
 /*
  * Sonatype Nexus (TM) Open Source Version
- * Copyright (c) 2007-2013 Sonatype, Inc.
+ * Copyright (c) 2007-2014 Sonatype, Inc.
  * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
  *
  * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
@@ -51,15 +51,12 @@ Ext.define('NX.coreui.controller.Security', {
       {
         mode: 'admin',
         path: '/Security',
-        view: 'NX.view.feature.Group',
+        group: true,
         iconConfig: {
           file: 'security.png',
           variants: ['x16', 'x32']
         },
-        weight: 90,
-        visible: function () {
-          return NX.Permissions.check('nexus:settings', 'read');
-        }
+        weight: 90
       },
       {
         mode: 'admin',

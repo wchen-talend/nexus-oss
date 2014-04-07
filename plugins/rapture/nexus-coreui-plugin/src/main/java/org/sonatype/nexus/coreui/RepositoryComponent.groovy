@@ -1,6 +1,6 @@
-/**
+/*
  * Sonatype Nexus (TM) Open Source Version
- * Copyright (c) 2007-2013 Sonatype, Inc.
+ * Copyright (c) 2007-2014 Sonatype, Inc.
  * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
  *
  * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
@@ -10,7 +10,6 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-
 package org.sonatype.nexus.coreui
 
 import com.softwarementors.extjs.djn.config.annotations.DirectAction
@@ -31,7 +30,7 @@ import org.sonatype.nexus.proxy.maven.maven2.M2LayoutedM1ShadowRepositoryConfigu
 import org.sonatype.nexus.proxy.registry.RepositoryRegistry
 import org.sonatype.nexus.proxy.registry.RepositoryTypeRegistry
 import org.sonatype.nexus.proxy.repository.*
-import org.sonatype.nexus.rapture.TrustStore
+import org.sonatype.nexus.rapture.TrustStoreKeys
 import org.sonatype.nexus.rest.RepositoryURLBuilder
 import org.sonatype.nexus.templates.TemplateManager
 import org.sonatype.nexus.templates.repository.DefaultRepositoryTemplateProvider
@@ -78,7 +77,7 @@ extends DirectComponentSupport
 
   @Inject
   @Nullable
-  TrustStore trustStore
+  TrustStoreKeys trustStoreKeys
 
   private def typesToClass = [
       'proxy': ProxyRepository.class,
@@ -360,7 +359,7 @@ extends DirectComponentSupport
           retrievalRetryCount: repositoryXO.retries
       )
     }
-    trustStore?.setEnabled(TRUST_STORE_TYPE, repo.id, repositoryXO.useTrustStoreForRemoteStorageUrl)
+    trustStoreKeys?.setEnabled(TRUST_STORE_TYPE, repo.id, repositoryXO.useTrustStoreForRemoteStorageUrl)
   }
 
   def static doUpdateProxyMaven = { MavenProxyRepository repo, RepositoryProxyMavenXO repositoryXO ->
@@ -450,7 +449,7 @@ extends DirectComponentSupport
         def rcs = rsc?.remoteConnectionSettings
         proxyMode = repo.proxyMode
         remoteStorageUrl = repo.remoteUrl
-        useTrustStoreForRemoteStorageUrl = trustStore?.isEnabled(TRUST_STORE_TYPE, repo.id)
+        useTrustStoreForRemoteStorageUrl = trustStoreKeys?.isEnabled(TRUST_STORE_TYPE, repo.id)
         autoBlockActive = repo.autoBlockActive
         fileTypeValidation = repo.fileTypeValidation
         userAgentCustomisation = rcs?.userAgentCustomizationString

@@ -1,6 +1,6 @@
-/**
+/*
  * Sonatype Nexus (TM) Open Source Version
- * Copyright (c) 2007-2013 Sonatype, Inc.
+ * Copyright (c) 2007-2014 Sonatype, Inc.
  * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
  *
  * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
@@ -10,7 +10,6 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-
 package org.sonatype.nexus.coreui
 
 import com.softwarementors.extjs.djn.config.annotations.DirectAction
@@ -23,7 +22,7 @@ import org.sonatype.nexus.email.NexusEmailer
 import org.sonatype.nexus.extdirect.DirectComponent
 import org.sonatype.nexus.extdirect.DirectComponentSupport
 import org.sonatype.nexus.extdirect.model.Password
-import org.sonatype.nexus.rapture.TrustStore
+import org.sonatype.nexus.rapture.TrustStoreKeys
 
 import javax.annotation.Nullable
 import javax.inject.Inject
@@ -54,7 +53,7 @@ extends DirectComponentSupport
 
   @Inject
   @Nullable
-  TrustStore trustStore
+  TrustStoreKeys trustStoreKeys
 
   @DirectMethod
   @RequiresPermissions('nexus:settings:read')
@@ -65,7 +64,7 @@ extends DirectComponentSupport
         username: emailer.SMTPUsername,
         password: Password.fakePassword(),
         connectionType: getConnectionType(emailer),
-        useTrustStoreForSmtp: trustStore?.isEnabled(TRUST_STORE_TYPE, TRUST_STORE_ID),
+        useTrustStoreForSmtp: trustStoreKeys?.isEnabled(TRUST_STORE_TYPE, TRUST_STORE_ID),
         systemEmail: emailer.SMTPSystemEmailAddress.mailAddress
     )
   }
@@ -85,7 +84,7 @@ extends DirectComponentSupport
       SMTPTlsEnabled = notificationsXO.connectionType == SystemNotificationsXO.ConnectionType.TLS
     }
     nexusConfiguration.saveConfiguration()
-    trustStore?.setEnabled(TRUST_STORE_TYPE, TRUST_STORE_ID, notificationsXO.useTrustStoreForSmtp)
+    trustStoreKeys?.setEnabled(TRUST_STORE_TYPE, TRUST_STORE_ID, notificationsXO.useTrustStoreForSmtp)
     return read()
   }
 

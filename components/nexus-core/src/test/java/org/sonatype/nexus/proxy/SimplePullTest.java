@@ -1,6 +1,6 @@
 /*
  * Sonatype Nexus (TM) Open Source Version
- * Copyright (c) 2007-2013 Sonatype, Inc.
+ * Copyright (c) 2007-2014 Sonatype, Inc.
  * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
  *
  * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
@@ -10,7 +10,6 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-
 package org.sonatype.nexus.proxy;
 
 import java.io.ByteArrayInputStream;
@@ -58,6 +57,8 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class SimplePullTest
     extends AbstractProxyTestEnvironment
@@ -91,7 +92,7 @@ public class SimplePullTest
               new ResourceStoreRequest(
                   "/repositories/repo1/activemq/activemq-core/1.2/broken/activemq-core-1.2", false));
 
-      Assert.fail("We should not be able to pull this path!");
+      fail("We should not be able to pull this path!");
     }
     catch (ItemNotFoundException e) {
       // good, the layout says this is not a file!
@@ -434,7 +435,7 @@ public class SimplePullTest
     try {
       group.retrieveItem(new ResourceStoreRequest("/some/path/that/we/know/is/not/existing/123456/12.foo"));
       // anything else should fail
-      Assert.fail("We expected an exception here!");
+      fail("We expected an exception here!");
     }
     catch (GroupItemNotFoundException e) {
       final String dumpStr = dumpNotFoundReasoning(e, 0);
@@ -498,7 +499,7 @@ public class SimplePullTest
         }
       }, null);
 
-      Assert.fail("We expected a LocalStorageEofException to be thrown");
+      fail("We expected a LocalStorageEofException to be thrown");
     }
     catch (LocalStorageEOFException e) {
       // good, we expected this
@@ -533,7 +534,7 @@ public class SimplePullTest
 
       try {
         final StorageItem item = repository.retrieveItem(request);
-        Assert.fail("We expected a LocalStorageEofException to be thrown");
+        fail("We expected a LocalStorageEofException to be thrown");
       }
       catch (LocalStorageEOFException e) {
         // good, we expected this

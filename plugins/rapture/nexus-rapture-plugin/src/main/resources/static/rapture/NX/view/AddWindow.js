@@ -1,6 +1,6 @@
 /*
  * Sonatype Nexus (TM) Open Source Version
- * Copyright (c) 2007-2013 Sonatype, Inc.
+ * Copyright (c) 2007-2014 Sonatype, Inc.
  * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
  *
  * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
@@ -31,7 +31,7 @@ Ext.define('NX.view.AddWindow', {
     if (Ext.isDefined(me.items) && !Ext.isArray(me.items)) {
       if (!me.items.buttons) {
         me.items.buttons = [
-          { text: 'Add', action: 'add', formBind: true, ui: 'primary' },
+          { text: 'Add', action: 'add', formBind: true, ui: 'primary', bindToEnter:  me.items.settingsFormSubmitOnEnter },
           { text: 'Cancel', handler: function () {
             this.up('window').close();
           }}

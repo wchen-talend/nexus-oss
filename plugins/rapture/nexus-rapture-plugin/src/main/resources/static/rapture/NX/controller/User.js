@@ -1,6 +1,6 @@
 /*
  * Sonatype Nexus (TM) Open Source Version
- * Copyright (c) 2007-2013 Sonatype, Inc.
+ * Copyright (c) 2007-2014 Sonatype, Inc.
  * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
  *
  * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
@@ -86,12 +86,6 @@ Ext.define('NX.controller.User', {
         },
         'nx-authenticate button[action=authenticate]': {
           click: me.doAuthenticateAction
-        },
-        'nx-login form': {
-          afterrender: me.installLoginEnterKey
-        },
-        'nx-authenticate form': {
-          afterrender: me.installAuthenticateEnterKey
         }
       }
     });
@@ -201,38 +195,6 @@ Ext.define('NX.controller.User', {
         win.down('#password').focus();
       }
     }
-  },
-
-  /**
-   * @private
-   */
-  installLoginEnterKey: function (form) {
-    var me = this;
-
-    me.keyNav = Ext.create('Ext.util.KeyNav', form.el, {
-      enter: function () {
-        if (form.isValid()) {
-          me.login(form.down('button[action=login]'));
-        }
-      },
-      scope: this
-    });
-  },
-
-  /**
-   * @private
-   */
-  installAuthenticateEnterKey: function (form) {
-    var me = this;
-
-    me.keyNav = Ext.create('Ext.util.KeyNav', form.el, {
-      enter: function () {
-        if (form.isValid()) {
-          me.doAuthenticateAction(form.down('button[action=authenticate]'));
-        }
-      },
-      scope: this
-    });
   },
 
   /**

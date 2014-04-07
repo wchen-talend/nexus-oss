@@ -1,6 +1,6 @@
 /*
  * Sonatype Nexus (TM) Open Source Version
- * Copyright (c) 2007-2013 Sonatype, Inc.
+ * Copyright (c) 2007-2014 Sonatype, Inc.
  * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
  *
  * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
@@ -32,11 +32,26 @@ Ext.define('NX.view.SettingsForm', {
   settingsFormSubmit: true,
 
   /**
+   * @cfg {boolean} [settingsFormSubmitOnEnter=false] True if form should be submitted on Enter.
+   */
+  settingsFormSubmitOnEnter: false,
+
+  /**
    * @cfg {string/function} Text to be used when displaying submit/load messages. If is a function it will be called
    * with submit/load response data as parameter and it should return a String.
    * If text contains "${action}", it will be replaced with performed action.
    */
   settingsFormSuccessMessage: undefined,
+
+  /**
+   * @cfg {string/function} [settingsFormLoadMessage: 'Loading...'] Text to be used as mask while loading data.
+   */
+  settingsFormLoadMessage: 'Loading...',
+
+  /**
+   * @cfg {string/function} [settingsFormSubmitMessage: 'Saving...'] Text to be used as mask while submitting data.
+   */
+  settingsFormSubmitMessage: 'Saving...',
 
   /**
    * @cfg {NX.util.condition.Condition} The condition to be satisfied in order for this form to be editable.
@@ -50,6 +65,7 @@ Ext.define('NX.view.SettingsForm', {
 
   bodyPadding: 10,
   autoScroll: true,
+  waitMsgTarget: true,
 
   defaults: {
     xtype: 'textfield',
@@ -59,7 +75,7 @@ Ext.define('NX.view.SettingsForm', {
   buttonAlign: 'left',
 
   buttons: [
-    { text: 'Save', formBind: true, action: 'save', ui: 'primary' },
+    { text: 'Save', formBind: true, action: 'save', ui: 'primary', bindToEnter: false },
     { text: 'Discard',
       handler: function () {
         var form = this.up('form'),
@@ -84,6 +100,10 @@ Ext.define('NX.view.SettingsForm', {
   initComponent: function () {
     var me = this;
 
+    if (me.buttons && Ext.isArray(me.buttons) && me.buttons[0] && Ext.isDefined(me.buttons[0].bindToEnter)) {
+      me.buttons[0].bindToEnter = me.settingsFormSubmitOnEnter;
+    }
+
     me.callParent(arguments);
 
     me.addEvents(
@@ -91,9 +111,23 @@ Ext.define('NX.view.SettingsForm', {
          * @event recordloaded
          * Fires when a record is loaded via {@link Ext.form.Panel#loadRecord}.
          * @param {Ext.form.Panel} this form
-         * @param { Ext.data.Model} loaded record
+         * @param {Ext.data.Model} loaded record
          */
-        'recordloaded'
+        'recordloaded',
+        /**
+         * @event loaded
+         * Fires after form was loaded via configured api.
+         * @param {Ext.form.Panel} this form
+         * @param {Ext.form.action.Action} load action
+         */
+        'loaded',
+        /**
+         * @event submitted
+         * Fires after form was submitted via configured api.
+         * @param {Ext.form.Panel} this form
+         * @param {Ext.form.action.Action} submit action
+         */
+        'submitted'
     );
   },
 

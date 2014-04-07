@@ -1,6 +1,6 @@
 /*
  * Sonatype Nexus (TM) Open Source Version
- * Copyright (c) 2007-2013 Sonatype, Inc.
+ * Copyright (c) 2007-2014 Sonatype, Inc.
  * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
  *
  * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
@@ -10,7 +10,6 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-
 package org.sonatype.nexus.test;
 
 import java.io.File;
@@ -129,10 +128,6 @@ public abstract class NexusTestSupport
     }
   }
 
-  public File getPlexusHomeDir() {
-    return plexusHomeDir;
-  }
-
   public File getWorkHomeDir() {
     return workHomeDir;
   }
@@ -173,17 +168,4 @@ public abstract class NexusTestSupport
       IOUtils.copy(in, out);
     }
   }
-
-  protected void copyFromClasspathToFile(String path, String outputFilename)
-      throws IOException
-  {
-    copyFromClasspathToFile(path, new File(outputFilename));
-  }
-
-  protected void copyFromClasspathToFile(String path, File output)
-      throws IOException
-  {
-    FileUtils.copyInputStreamToFile(getClass().getResourceAsStream(path), output);
-  }
-
 }

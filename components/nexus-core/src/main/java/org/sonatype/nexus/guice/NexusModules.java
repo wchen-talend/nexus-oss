@@ -1,6 +1,6 @@
 /*
  * Sonatype Nexus (TM) Open Source Version
- * Copyright (c) 2007-2013 Sonatype, Inc.
+ * Copyright (c) 2007-2014 Sonatype, Inc.
  * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
  *
  * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
@@ -10,7 +10,6 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-
 package org.sonatype.nexus.guice;
 
 import java.util.Map;
@@ -25,13 +24,18 @@ import org.sonatype.nexus.web.internal.BaseUrlHolderFilter;
 import org.sonatype.nexus.web.internal.CommonHeadersFilter;
 import org.sonatype.nexus.web.internal.ErrorPageFilter;
 import org.sonatype.nexus.web.internal.ErrorPageServlet;
+import org.sonatype.nexus.web.metrics.MetricsModule;
 import org.sonatype.security.SecuritySystem;
 import org.sonatype.security.web.guice.SecurityWebModule;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.matcher.Matchers;
 import com.google.inject.name.Names;
 import com.google.inject.servlet.ServletModule;
 import com.yammer.metrics.guice.InstrumentationModule;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+import org.apache.bval.guice.Validate;
 import org.apache.bval.guice.ValidationModule;
 import org.apache.shiro.guice.aop.ShiroAopModule;
 import org.apache.shiro.web.filter.mgt.FilterChainResolver;
@@ -72,11 +76,11 @@ public class NexusModules
   {
     private final ServletContext servletContext;
 
-    private final Map<String, String> properties;
+    private final Map<?, ?> properties;
 
     private final Bundle systemBundle;
 
-    public CoreModule(final ServletContext servletContext, final Map<String, String> properties, final Bundle systemBundle) {
+    public CoreModule(final ServletContext servletContext, final Map<?, ?> properties, final Bundle systemBundle) {
       this.servletContext = checkNotNull(servletContext);
       this.properties = checkNotNull(properties);
       this.systemBundle = checkNotNull(systemBundle);
@@ -90,7 +94,6 @@ public class NexusModules
       bind(Bundle.class).toInstance(systemBundle);
 
       install(new CommonModule());
-
       install(new ServletModule()
       {
         @Override
@@ -105,6 +108,7 @@ public class NexusModules
           bind(RankingFunction.class).toInstance(new DefaultRankingFunction(0x70000000));
         }
       });
+      install(new MetricsModule());
 
       install(new SecurityWebModule(servletContext, true));
     }
@@ -147,6 +151,23 @@ public class NexusModules
         @Override
         public ValidationProviderResolver getDefaultValidationProviderResolver() {
           return null;
+        }
+      });
+
+      // TCCL workaround for Apache/BVal visibility issue
+      binder().bindInterceptor(Matchers.any(), Matchers.annotatedWith(Validate.class), new MethodInterceptor()
+      {
+        public Object invoke(MethodInvocation mi) throws Throwable {
+          Thread self = Thread.currentThread();
+          ClassLoader tccl = self.getContextClassLoader();
+          try {
+            // continue validation using our classloader as context
+            self.setContextClassLoader(getClass().getClassLoader());
+            return mi.proceed();
+          }
+          finally {
+            self.setContextClassLoader(tccl);
+          }
         }
       });
 

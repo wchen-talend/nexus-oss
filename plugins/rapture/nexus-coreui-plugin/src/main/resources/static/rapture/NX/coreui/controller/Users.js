@@ -1,6 +1,6 @@
 /*
  * Sonatype Nexus (TM) Open Source Version
- * Copyright (c) 2007-2013 Sonatype, Inc.
+ * Copyright (c) 2007-2014 Sonatype, Inc.
  * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
  *
  * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
@@ -84,14 +84,15 @@ Ext.define('NX.coreui.controller.Users', {
       view: { xtype: 'nx-coreui-user-feature' },
       visible: function () {
         return NX.Permissions.check('security:users', 'read');
-      }
+      },
+      weight: 30
     },
     {
       mode: 'user',
       path: '/Account',
       view: { xtype: 'nx-coreui-user-account' },
       visible: function () {
-        return NX.Permissions.check('security:users', 'read');
+        return NX.Security.hasUser();
       }
     }
   ],
@@ -359,12 +360,12 @@ Ext.define('NX.coreui.controller.Users', {
   /**
    * @override
    * @private
-   * Enable 'Change Password' when user has 'security:userschangepw:update' permission.
+   * Enable 'Change Password' when user has 'security:userschangepw:create' permission.
    */
   bindChangePasswordButton: function (button) {
     button.mon(
         NX.Conditions.and(
-            NX.Conditions.isPermitted('security:userschangepw', 'update')
+            NX.Conditions.isPermitted('security:userschangepw', 'create')
         ),
         {
           satisfied: button.enable,

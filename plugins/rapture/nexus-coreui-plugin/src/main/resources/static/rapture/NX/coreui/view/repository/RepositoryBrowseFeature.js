@@ -1,6 +1,6 @@
 /*
  * Sonatype Nexus (TM) Open Source Version
- * Copyright (c) 2007-2013 Sonatype, Inc.
+ * Copyright (c) 2007-2014 Sonatype, Inc.
  * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
  *
  * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
@@ -31,19 +31,39 @@ Ext.define('NX.coreui.view.repository.RepositoryBrowseFeature', {
       height: '40%'
     },
     {
-      xtype: 'nx-coreui-repository-browse-tabs',
-      region: 'center'
+      xtype: 'panel',
+      region: 'center',
+      layout: 'border',
+      items: [
+        {
+          xtype: 'tabpanel',
+          region: 'center',
+          collapsible: true,
+          headerPosition: 'left',
+          header: false
+        },
+        {
+          xtype: 'nx-coreui-component-detail',
+          region: 'east',
+          collapsible: true,
+          split: true,
+          width: '50%',
+          headerPosition: 'right',
+          hidden: true
+        }
+      ]
     }
   ],
 
   addTab: function (tab) {
     var me = this,
-        tabpanel = me.down('nx-coreui-repository-browse-tabs'),
+        tabpanel = me.down('tabpanel'),
         added = tabpanel.add(tab);
 
     tabpanel.show();
     if (tabpanel.items.length === 1) {
       tabpanel.setActiveTab(added);
+      added.fireEvent('activate', added);
     }
 
     return added;
@@ -51,7 +71,7 @@ Ext.define('NX.coreui.view.repository.RepositoryBrowseFeature', {
 
   removeTab: function (tab) {
     var me = this,
-        tabpanel = me.down('nx-coreui-repository-browse-tabs');
+        tabpanel = me.down('tabpanel');
 
     tabpanel.remove(tab);
     if (tabpanel.items.length === 0) {

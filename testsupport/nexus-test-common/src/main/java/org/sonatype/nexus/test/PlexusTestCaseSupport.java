@@ -1,6 +1,6 @@
 /*
  * Sonatype Nexus (TM) Open Source Version
- * Copyright (c) 2007-2013 Sonatype, Inc.
+ * Copyright (c) 2007-2014 Sonatype, Inc.
  * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
  *
  * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
@@ -10,7 +10,6 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-
 package org.sonatype.nexus.test;
 
 import java.io.File;
@@ -55,7 +54,10 @@ import org.junit.Before;
  * alternative Hamcrest libraries.
  * <p/>
  * TODO: integrate this directly with sisu-inject-plexus
+ *
+ * @deprecated Avoid any future usage, remove any existing use.
  */
+@Deprecated
 public abstract class PlexusTestCaseSupport
 {
   protected final TestUtil util = new TestUtil(this);
@@ -129,7 +131,7 @@ public abstract class PlexusTestCaseSupport
     }
     catch (final PlexusContainerException e) {
       e.printStackTrace();
-      fail("Failed to create plexus container.");
+      Assert.fail("Failed to create plexus container.");
     }
   }
 
@@ -322,80 +324,6 @@ public abstract class PlexusTestCaseSupport
   @After
   final public void tearDownJunit() throws Exception {
     tearDown();
-  }
-
-  @Deprecated
-  protected void fail() {
-    Assert.fail();
-  }
-
-  @Deprecated
-  protected void fail(String message) {
-    Assert.fail(message);
-  }
-
-  /**
-   * @deprecated Use {@link org.hamcrest.MatcherAssert} directly instead.
-   */
-  @Deprecated
-  protected void assertTrue(boolean condition) {
-    Assert.assertTrue(condition);
-  }
-
-  /**
-   * @deprecated Use {@link org.hamcrest.MatcherAssert} directly instead.
-   */
-  @Deprecated
-  protected void assertTrue(String message, boolean condition) {
-    Assert.assertTrue(message, condition);
-  }
-
-  /**
-   * @deprecated Use {@link org.hamcrest.MatcherAssert} directly instead.
-   */
-  @Deprecated
-  protected void assertFalse(boolean condition) {
-    Assert.assertFalse(condition);
-  }
-
-  /**
-   * @deprecated Use {@link org.hamcrest.MatcherAssert} directly instead.
-   */
-  @Deprecated
-  protected void assertFalse(String message, boolean condition) {
-    Assert.assertFalse(message, condition);
-  }
-
-  /**
-   * @deprecated Use {@link org.hamcrest.MatcherAssert} directly instead.
-   */
-  @Deprecated
-  protected void assertNotNull(Object obj) {
-    Assert.assertNotNull(obj);
-  }
-
-  /**
-   * @deprecated Use {@link org.hamcrest.MatcherAssert} directly instead.
-   */
-  @Deprecated
-  protected void assertNotNull(String message, Object obj) {
-    Assert.assertNotNull(message, obj);
-  }
-
-  /**
-   * @deprecated Use {@link org.hamcrest.MatcherAssert} directly instead.
-   */
-  @Deprecated
-  protected void assertNull(Object obj) {
-    Assert.assertNull(obj);
-  }
-
-  /**
-   * @deprecated Use {@link org.hamcrest.MatcherAssert} directly instead.
-   */
-  @Deprecated
-  protected void assertNull(String message, Object obj) {
-    Assert.assertNull(message, obj);
   }
 
   /**

@@ -1,6 +1,6 @@
 /*
  * Sonatype Nexus (TM) Open Source Version
- * Copyright (c) 2007-2013 Sonatype, Inc.
+ * Copyright (c) 2007-2014 Sonatype, Inc.
  * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
  *
  * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
@@ -24,7 +24,7 @@ import org.jetbrains.annotations.NonNls;
 /**
  * Timeline plugin.
  *
- * @since 2.8
+ * @since 3.0
  */
 @Named
 @EagerSingleton
@@ -48,6 +48,12 @@ public class TimelinePlugin
    */
   @NonNls
   public static final String ARTIFACT_ID = "nexus-" + ID_PREFIX + "-plugin";
+
+  /**
+   * REST path prefix.
+   */
+  @NonNls
+  public static final String SERVICE_PREFIX = "/" + ID_PREFIX;
 
   @Inject
   public TimelinePlugin() throws Exception {

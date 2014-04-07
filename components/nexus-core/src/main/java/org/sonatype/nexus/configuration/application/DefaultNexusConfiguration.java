@@ -1,6 +1,6 @@
 /*
  * Sonatype Nexus (TM) Open Source Version
- * Copyright (c) 2007-2013 Sonatype, Inc.
+ * Copyright (c) 2007-2014 Sonatype, Inc.
  * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
  *
  * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
@@ -10,7 +10,6 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-
 package org.sonatype.nexus.configuration.application;
 
 import java.io.File;
@@ -807,8 +806,8 @@ public class DefaultNexusConfiguration
     if (rtd.getInstanceCount() >= maxCount) {
       String msg =
           "Repository \"" + repositoryModel.getName() + "\" (id=" + repositoryModel.getId()
-              + ") cannot be created. It's repository type " + rtd.toString() + " is limited to " + maxCount
-              + " instances, and it already has " + String.valueOf(rtd.getInstanceCount()) + " of them.";
+              + ") cannot be created. It's repository type " + rtd + " is limited to " + maxCount
+              + " instances, and it already has " + rtd.getInstanceCount() + " of them.";
 
       log.warn(msg);
 

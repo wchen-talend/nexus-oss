@@ -1,6 +1,6 @@
-/**
+/*
  * Sonatype Nexus (TM) Open Source Version
- * Copyright (c) 2007-2013 Sonatype, Inc.
+ * Copyright (c) 2007-2014 Sonatype, Inc.
  * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
  *
  * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
@@ -10,7 +10,6 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-
 package org.sonatype.nexus.coreui
 
 import com.softwarementors.extjs.djn.config.annotations.DirectAction
@@ -54,6 +53,10 @@ extends DirectComponentSupport
   @Inject
   List<AuthorizationManager> authorizationManagers
 
+  /**
+   * Retrieves roles form all available {@link AuthorizationManager}s.
+   * @return a list of roles
+   */
   @DirectMethod
   @RequiresPermissions('security:roles:read')
   List<RoleXO> read() {
@@ -76,19 +79,46 @@ extends DirectComponentSupport
     }
   }
 
+  /**
+   * Retrieves available role sources.
+   * @return list of sources
+   */
+  @DirectMethod
+  List<ReferenceXO> readSources() {
+    return authorizationManagers.findResults { manager ->
+      return manager.source == DEFAULT_SOURCE ? null : manager
+    }.collect { manager ->
+      return new ReferenceXO(
+          id: manager.source,
+          name: manager.source
+      )
+    }
+  }
+
+  /**
+   * Retrieves roles from specified source.
+   * @param source to retrieve roles from
+   * @return a list of roles
+   */
   @DirectMethod
   @RequiresPermissions('security:roles:read')
-  List<RoleXO> readFromSource(String source) {
+  @Validate
+  List<RoleXO> readFromSource(final @NotNull(message = '[source] may not be null') String source) {
     return securitySystem.listRoles(source).collect { input ->
       return asRoleXO(input, input.source)
     }
   }
 
+  /**
+   * Creates a role.
+   * @param roleXO to be created
+   * @return created role
+   */
   @DirectMethod
   @RequiresAuthentication
   @RequiresPermissions('security:roles:create')
   @Validate(groups = [Create.class, Default.class])
-  RoleXO create(final @NotNull(message = 'RoleXO may not be null') @Valid RoleXO roleXO) {
+  RoleXO create(final @NotNull(message = '[roleXO] may not be null') @Valid RoleXO roleXO) {
     return asRoleXO(securitySystem.getAuthorizationManager(DEFAULT_SOURCE).addRole(
         new Role(
             roleId: roleXO.id,
@@ -102,11 +132,16 @@ extends DirectComponentSupport
     ), roleXO.source)
   }
 
+  /**
+   * Updates a role.
+   * @param roleXO to be updated
+   * @return updated role
+   */
   @DirectMethod
   @RequiresAuthentication
   @RequiresPermissions('security:roles:update')
   @Validate(groups = [Update.class, Default.class])
-  RoleXO update(final @NotNull(message = 'RoleXO may not be null') @Valid RoleXO roleXO) {
+  RoleXO update(final @NotNull(message = '[roleXO] may not be null') @Valid RoleXO roleXO) {
     return asRoleXO(securitySystem.getAuthorizationManager(DEFAULT_SOURCE).updateRole(
         new Role(
             roleId: roleXO.id,
@@ -120,24 +155,16 @@ extends DirectComponentSupport
     ), roleXO.source)
   }
 
+  /**
+   * Deletes a role.
+   * @param id of role to be deleted
+   */
   @DirectMethod
   @RequiresAuthentication
   @RequiresPermissions('security:roles:delete')
   @Validate
-  void delete(final @NotNull(message = 'ID may not be null') String id) {
+  void delete(final @NotNull(message = '[id] may not be null') String id) {
     securitySystem.getAuthorizationManager(DEFAULT_SOURCE).deleteRole(id)
-  }
-
-  @DirectMethod
-  List<ReferenceXO> sources() {
-    return authorizationManagers.findResults { manager ->
-      return manager.source == DEFAULT_SOURCE ? null : manager
-    }.collect { manager ->
-      return new ReferenceXO(
-          id: manager.source,
-          name: manager.source
-      )
-    }
   }
 
   private static RoleXO asRoleXO(Role input, String source) {

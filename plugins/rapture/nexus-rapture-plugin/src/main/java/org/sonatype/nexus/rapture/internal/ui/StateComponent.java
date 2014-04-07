@@ -1,6 +1,6 @@
 /*
  * Sonatype Nexus (TM) Open Source Version
- * Copyright (c) 2007-2013 Sonatype, Inc.
+ * Copyright (c) 2007-2014 Sonatype, Inc.
  * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
  *
  * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
@@ -10,9 +10,9 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-
 package org.sonatype.nexus.rapture.internal.ui;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,9 +27,12 @@ import javax.servlet.http.HttpSession;
 import org.sonatype.nexus.ApplicationStatusSource;
 import org.sonatype.nexus.SystemStatus;
 import org.sonatype.nexus.extdirect.DirectComponentSupport;
+import org.sonatype.nexus.plugins.NexusPluginManager;
+import org.sonatype.nexus.plugins.PluginResponse;
 import org.sonatype.nexus.rapture.Rapture;
 import org.sonatype.nexus.rapture.StateContributor;
 import org.sonatype.nexus.util.DigesterUtils;
+import org.sonatype.plugin.metadata.GAVCoordinate;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -59,6 +62,8 @@ public class StateComponent
 
   private final ApplicationStatusSource applicationStatusSource;
 
+  private final NexusPluginManager pluginManager;
+
   private final List<Provider<StateContributor>> stateContributors;
 
   private final static Gson gson = new GsonBuilder().create();
@@ -68,10 +73,12 @@ public class StateComponent
   @Inject
   public StateComponent(final Rapture rapture,
                         final ApplicationStatusSource applicationStatusSource,
+                        final NexusPluginManager pluginManager,
                         final List<Provider<StateContributor>> stateContributors)
   {
     this.rapture = checkNotNull(rapture, "rapture");
     this.applicationStatusSource = checkNotNull(applicationStatusSource);
+    this.pluginManager = checkNotNull(pluginManager);
     this.stateContributors = checkNotNull(stateContributors);
   }
 
@@ -111,6 +118,7 @@ public class StateComponent
     send(values, hashes, "status", getStatus());
     send(values, hashes, "license", getLicense());
     send(values, hashes, "uiSettings", rapture.getSettings());
+    send(values, hashes, "plugins", getPlugins());
 
     return values;
   }
@@ -209,6 +217,25 @@ public class StateComponent
     licenseXO.setInstalled(status.isLicenseInstalled());
 
     return licenseXO;
+  }
+
+  /**
+   * @return a sorted list of successfully activated plugins.
+   */
+  private List<String> getPlugins() {
+    List<String> plugins = Lists.newArrayList();
+
+    Map<GAVCoordinate, PluginResponse> pluginResponses = pluginManager.getPluginResponses();
+
+    for (Entry<GAVCoordinate, PluginResponse> entry : pluginResponses.entrySet()) {
+      if (entry.getValue().isSuccessful()) {
+        plugins.add(entry.getKey().getGroupId() + ":" + entry.getKey().getArtifactId());
+      }
+    }
+
+    Collections.sort(plugins);
+
+    return plugins;
   }
 
 }

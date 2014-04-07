@@ -1,6 +1,6 @@
 /*
  * Sonatype Nexus (TM) Open Source Version
- * Copyright (c) 2007-2013 Sonatype, Inc.
+ * Copyright (c) 2007-2014 Sonatype, Inc.
  * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
  *
  * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
@@ -22,14 +22,33 @@ Ext.define('NX.coreui.app.PluginConfig', {
   ],
 
   controllers: [
-    'NX.coreui.controller.Capabilities',
+    { id: 'NX.coreui.controller.Capabilities',
+      active: function () {
+        return NX.app.Application.pluginActive('org.sonatype.nexus.plugins:nexus-capabilities-plugin');
+      }
+    },
     'NX.coreui.controller.BrowseRepositories',
-    'NX.coreui.controller.BrowseRepositoryItemInfo',
-    'NX.coreui.controller.BrowseRepositoryItemClm',
     'NX.coreui.controller.BrowseStorage',
     'NX.coreui.controller.BrowseIndex',
+    'NX.coreui.controller.ComponentSummary',
+    'NX.coreui.controller.ComponentLicense',
+    'NX.coreui.controller.ComponentSecurity',
+    { id: 'NX.coreui.controller.Log',
+      active: function () {
+        return NX.app.Application.pluginActive('org.sonatype.nexus.plugins:nexus-logging-plugin');
+      }
+    },
+    { id: 'NX.coreui.controller.Loggers',
+      active: function () {
+        return NX.app.Application.pluginActive('org.sonatype.nexus.plugins:nexus-logging-plugin');
+      }
+    },
     'NX.coreui.controller.MavenUpload',
-    'NX.coreui.controller.PluginConsole',
+    { id: 'NX.coreui.controller.PluginConsole',
+      active: function () {
+        return NX.app.Application.pluginActive('org.sonatype.nexus.plugins:nexus-plugin-console-plugin');
+      }
+    },
     'NX.coreui.controller.Repositories',
     'NX.coreui.controller.RepositoryTargets',
     'NX.coreui.controller.RepositoryRoutes',
@@ -37,6 +56,17 @@ Ext.define('NX.coreui.app.PluginConfig', {
     'NX.coreui.controller.Roles',
     'NX.coreui.controller.Security',
     'NX.coreui.controller.System',
+    { id: 'NX.coreui.controller.SysInfo',
+      active: function () {
+        return NX.app.Application.pluginActive('org.sonatype.nexus.plugins:nexus-atlas-plugin');
+      }
+    },
+    { id: 'NX.coreui.controller.SupportZip',
+      active: function () {
+        return NX.app.Application.pluginActive('org.sonatype.nexus.plugins:nexus-atlas-plugin');
+      }
+    },
+    'NX.coreui.controller.Search',
     'NX.coreui.controller.Tasks',
     'NX.coreui.controller.UploadArtifact',
     'NX.coreui.controller.Users'

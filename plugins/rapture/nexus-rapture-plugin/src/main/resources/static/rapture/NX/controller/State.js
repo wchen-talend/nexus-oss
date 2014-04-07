@@ -1,6 +1,6 @@
 /*
  * Sonatype Nexus (TM) Open Source Version
- * Copyright (c) 2007-2013 Sonatype, Inc.
+ * Copyright (c) 2007-2014 Sonatype, Inc.
  * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
  *
  * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
@@ -152,11 +152,11 @@ Ext.define('NX.controller.State', {
     if (map) {
       Ext.Object.each(map, function (key, value) {
         valueToSet = value;
-        if (Ext.isObject(value) && value.hash && value.value) {
+        if (Ext.isObject(value) && Ext.isDefined(value.hash) && Ext.isDefined(value.value)) {
           hash = value.hash;
           valueToSet = value.value;
         }
-        if (valueToSet) {
+        if (Ext.isDefined(valueToSet)) {
           if (!Ext.isPrimitive(valueToSet) && !Ext.isArray(valueToSet)
               && Ext.ClassManager.getByAlias('nx.state.' + key)) {
             valueToSet = Ext.ClassManager.instantiateByAlias('nx.state.' + key, valueToSet);

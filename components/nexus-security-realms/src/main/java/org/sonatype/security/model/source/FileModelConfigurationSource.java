@@ -1,6 +1,6 @@
 /*
  * Sonatype Nexus (TM) Open Source Version
- * Copyright (c) 2007-2013 Sonatype, Inc.
+ * Copyright (c) 2007-2014 Sonatype, Inc.
  * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
  *
  * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
@@ -10,7 +10,6 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-
 package org.sonatype.security.model.source;
 
 import java.io.BufferedInputStream;
@@ -19,7 +18,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.FileAttribute;
 
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
@@ -200,6 +202,26 @@ public class FileModelConfigurationSource
   }
 
   /**
+   * Creates a directory. Fails only if directory creation fails, otherwise cleanly returns. If cleanly returns,
+   * it is guaranteed that passed in path is created (with all parents as needed) successfully. Unlike Java7
+   * {@link Files#createDirectories(Path, FileAttribute[])} method, this method does support paths having last
+   * path element a symlink too. In this case, it's verified that symlink points to a directory and is readable.
+   */
+  private static void mkdir(final Path dir) throws IOException {
+    try {
+      Files.createDirectories(dir);
+    }
+    catch (FileAlreadyExistsException e) {
+      // this happens when last element of path exists, but is a symlink.
+      // A simple test with Files.isDirectory should be able to  detect this
+      // case as by default, it follows symlinks.
+      if (!Files.isDirectory(dir)) {
+        throw e;
+      }
+    }
+  }
+
+  /**
    * Save configuration.
    *
    * @param file the file
@@ -211,7 +233,7 @@ public class FileModelConfigurationSource
     // Create the dir if doesn't exist, throw runtime exception on failure
     // bad bad bad
     try {
-      Files.createDirectories(file.getParentFile().toPath());
+      mkdir(file.getParentFile().toPath());
     }
     catch (IOException e) {
       final String message =

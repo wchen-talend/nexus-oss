@@ -1,6 +1,6 @@
 /*
  * Sonatype Nexus (TM) Open Source Version
- * Copyright (c) 2007-2013 Sonatype, Inc.
+ * Copyright (c) 2007-2014 Sonatype, Inc.
  * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
  *
  * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
@@ -18,7 +18,10 @@
  */
 NX.define('Nexus.timeline.FeedView', {
   extend : 'Ext.Panel',
-  requires : ['Nexus.timeline.FeedGrid'],
+  requires : [
+    'Nexus.siesta',
+    'Nexus.timeline.FeedGrid'
+  ],
 
   /*
    * config object: { feedUrl ; required title }
@@ -42,7 +45,7 @@ NX.define('Nexus.timeline.FeedView', {
     ]);
 
     self.feedReader = new Ext.data.JsonReader({
-      root : 'data',
+      root : 'feedEntries',
       id : 'resourceURI'
     }, self.feedRecordConstructor);
 
@@ -159,7 +162,7 @@ NX.define('Nexus.timeline.FeedView', {
   }
 
 }, function() {
-  Sonatype.config.repos.urls.feeds = Sonatype.config.servicePath + '/feeds';
+  Sonatype.config.repos.urls.feeds = Nexus.siesta.basePath + '/timeline/feeds';
   Sonatype.Events.addListener('nexusNavigationInit', function(panel) {
     var sp = Sonatype.lib.Permissions;
     panel.add({

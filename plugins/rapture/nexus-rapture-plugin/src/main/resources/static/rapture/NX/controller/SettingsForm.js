@@ -1,6 +1,6 @@
 /*
  * Sonatype Nexus (TM) Open Source Version
- * Copyright (c) 2007-2013 Sonatype, Inc.
+ * Copyright (c) 2007-2014 Sonatype, Inc.
  * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
  *
  * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
@@ -33,7 +33,7 @@ Ext.define('NX.controller.SettingsForm', {
       },
       component: {
         'form[settingsForm=true]': {
-          beforerender: me.loadForm
+          afterrender: me.loadForm
         },
         'form[settingsForm=true][editableCondition]': {
           afterrender: me.bindEditableCondition
@@ -63,6 +63,7 @@ Ext.define('NX.controller.SettingsForm', {
             if (title) {
               NX.Messages.add({ text: title, type: 'default' });
             }
+            form.fireEvent('loaded', form, action);
           }
         });
       });
@@ -75,7 +76,12 @@ Ext.define('NX.controller.SettingsForm', {
    */
   loadForm: function (form, options) {
     if (form.api && form.api.load) {
-      form.load(options);
+      form.load(Ext.applyIf(options || {}, {
+        waitMsg: form.settingsFormLoadMessage,
+        success: function (basicForm, action) {
+          form.fireEvent('loaded', form, action);
+        }
+      }));
     }
   },
 
@@ -89,6 +95,7 @@ Ext.define('NX.controller.SettingsForm', {
 
     if (form.api && form.api.submit) {
       form.getForm().submit({
+        waitMsg: form.settingsFormSubmitMessage,
         success: function (basicForm, action) {
           var title = me.getSettingsFormSuccessMessage(form, action);
           if (title) {

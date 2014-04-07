@@ -1,6 +1,6 @@
-/**
+/*
  * Sonatype Nexus (TM) Open Source Version
- * Copyright (c) 2007-2013 Sonatype, Inc.
+ * Copyright (c) 2007-2014 Sonatype, Inc.
  * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
  *
  * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
@@ -10,7 +10,6 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-
 package org.sonatype.nexus.coreui
 
 import com.softwarementors.extjs.djn.config.annotations.DirectAction
@@ -70,6 +69,10 @@ extends DirectComponentSupport
   @Inject
   List<PrivilegeDescriptor> privilegeDescriptors
 
+  /**
+   * Retrieves privileges.
+   * @return a list of privileges
+   */
   @DirectMethod
   @RequiresPermissions('security:privileges:read')
   List<PrivilegeXO> read() {
@@ -78,11 +81,16 @@ extends DirectComponentSupport
     }
   }
 
+  /**
+   * Creates repository target privileges.
+   * @param privilegeXO to be created
+   * @return created privileges
+   */
   @DirectMethod
   @RequiresAuthentication
   @RequiresPermissions('security:privileges:create')
   @Validate(groups = [Create.class, Default.class])
-  List<PrivilegeXO> createForRepositoryTarget(final @NotNull(message = 'PrivilegeXO may not be null') @Valid PrivilegeRepositoryTargetXO privilegeXO) {
+  List<PrivilegeXO> createForRepositoryTarget(final @NotNull(message = '[privilegeXO] may not be null') @Valid PrivilegeRepositoryTargetXO privilegeXO) {
     def repositoryId = '', groupId = ''
     if (privilegeXO.repositoryId) {
       Repository repository = repositoryRegistry.getRepository(privilegeXO.repositoryId)
@@ -115,11 +123,15 @@ extends DirectComponentSupport
     return created
   }
 
+  /**
+   * Deletes a privilege, if is not readonly.
+   * @param id of privilege to be deleted
+   */
   @DirectMethod
   @RequiresAuthentication
   @RequiresPermissions('security:privileges:delete')
   @Validate
-  void delete(final @NotNull(message = 'ID may not be null') String id) {
+  void delete(final @NotNull(message = '[id] may not be null') String id) {
     AuthorizationManager authorizationManager = securitySystem.getAuthorizationManager(DEFAULT_SOURCE)
     if (authorizationManager.getPrivilege(id)?.isReadOnly()) {
       throw new IllegalAccessException("Privilege [${id}] is readonly and cannot be deleted")

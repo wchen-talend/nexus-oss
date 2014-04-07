@@ -1,6 +1,6 @@
 /*
  * Sonatype Nexus (TM) Open Source Version
- * Copyright (c) 2007-2013 Sonatype, Inc.
+ * Copyright (c) 2007-2014 Sonatype, Inc.
  * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
  *
  * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
@@ -10,7 +10,6 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-
 package org.sonatype.nexus.testsuite.feed.nexus538;
 
 import java.util.List;
@@ -42,7 +41,7 @@ public class Nexus538SystemFeedsIT
 
     SyndFeed feed = FeedUtil.getFeed("systemChanges");
     this.validateLinksInFeeds(feed);
-    Assert.assertTrue(findFeedEntry(feed, "Booting", null));
+    Assert.assertTrue(findFeedEntry(feed, "Nexus started", null));
   }
 
   @Test //( dependsOnMethods = { "bootEventTest" } )
@@ -89,10 +88,10 @@ public class Nexus538SystemFeedsIT
     SyndFeed systemStatusFeed = FeedUtil.getFeed("systemRepositoryStatusChanges");
     this.validateLinksInFeeds(systemStatusFeed);
 
-    Assert.assertTrue(findFeedEntry(systemFeed, "Repository proxy mode change",
+    Assert.assertTrue(findFeedEntry(systemFeed, "Repository proxy state change",
         new String[]{"release-proxy-repo-1"}));
 
-    Assert.assertTrue(findFeedEntry(systemStatusFeed, "Repository proxy mode change",
+    Assert.assertTrue(findFeedEntry(systemStatusFeed, "Repository proxy state change",
         new String[]{"release-proxy-repo-1"}));
   }
 
