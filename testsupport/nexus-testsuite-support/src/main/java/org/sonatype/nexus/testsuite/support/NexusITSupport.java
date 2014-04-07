@@ -45,6 +45,7 @@ import org.sonatype.sisu.maven.bridge.MavenModelResolver;
 
 import com.google.common.base.Throwables;
 import com.google.inject.Binder;
+import com.google.inject.Provider;
 import com.google.inject.name.Names;
 import org.codehaus.plexus.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
@@ -68,6 +69,10 @@ import static org.sonatype.nexus.testsuite.support.filters.TestProjectFilter.TES
 public abstract class NexusITSupport
     extends InjectedTestSupport
 {
+  /**
+   * Set this system property to override the location of the jacoco-it.exec coverage report.
+   */
+  public static final String JACOCO_OUTPUT_OVERRIDE_SYSTEM_PROPERTY = "it.test.jacoco.outputfile";
 
   /**
    * Artifact resolver used to resolve artifacts by Maven coordinates.
@@ -117,7 +122,7 @@ public abstract class NexusITSupport
    * Jacoco java agent.
    */
   @Inject
-  private JacocoJavaAgent jacocoJavaAgent;
+  Provider<JacocoJavaAgent> jacocoJavaAgentProvider;
 
   /**
    * Test specific artifact resolver utility.
@@ -385,9 +390,12 @@ public abstract class NexusITSupport
     }
 
     if (Boolean.getBoolean("it.test.jacoco.enable")) {
+      JacocoJavaAgent agent = jacocoJavaAgentProvider.get();
+      agent.setOutputFile(getJacocoOutputLocation());
+
       nexus.getConfiguration()
           .addJavaOptions("-XX:MaxPermSize=192m")
-          .addJavaAgents(jacocoJavaAgent);
+          .addJavaAgents(agent);
     }
 
     return nexus;
@@ -489,5 +497,7 @@ public abstract class NexusITSupport
   protected String repositoryIdForTest(final String suffix) {
     return String.format("%s-%s", repositoryIdForTest(), checkNotNull(suffix));
   }
+
+  protected String getJacocoOutputLocation() {return System.getProperty(JACOCO_OUTPUT_OVERRIDE_SYSTEM_PROPERTY);}
 
 }
