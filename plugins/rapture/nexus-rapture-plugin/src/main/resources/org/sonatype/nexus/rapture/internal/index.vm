@@ -23,6 +23,7 @@
 
   ## force browsers to behave
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta charset="UTF-8">
 
   <link rel="icon" type="image/png" href="$raptureUrl/resources/favicon.png?$urlSuffix"/>
   <!--[if IE]>
