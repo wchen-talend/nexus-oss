@@ -45,7 +45,7 @@
       if (console && console.log) {
         console.log(msg);
       }
-      //document.getElementById('loading-msg').innerHTML=msg;
+      document.getElementById('loading-msg').innerHTML=msg;
     }
   </script>
   #macro(message $text)
@@ -57,14 +57,14 @@
 <div id="loading-mask"></div>
 <div id="loading">
   ## Loading progress indicator
-  ##<div class="loading-indicator">
-  ##  <img id="loading-image" src="$raptureUrl/resources/images/loading.png?$urlSuffix"/>
-  ##  <br/>
-  ##  <div style="text-align: center;">
-  ##    <img id="loading-spinner" src="$raptureUrl/resources/images/loading-spinner.gif?$urlSuffix"/>
-  ##    <span id="loading-msg">Loading...</span>
-  ##  </div>
-  ##</div>
+  <div class="loading-indicator">
+    <img id="loading-image" src="$raptureUrl/resources/images/loading.png?$urlSuffix"/>
+    <br/>
+    <div style="text-align: center;">
+      <img id="loading-spinner" src="$raptureUrl/resources/images/loading-spinner.gif?$urlSuffix"/>
+      <span id="loading-msg">Loading...</span>
+    </div>
+  </div>
 
   ## Code loading
   <div id="code-load" class="x-hide-display">
