@@ -32,7 +32,7 @@ Ext.define('NX.coreui.store.Logger', {
 
     reader: {
       type: 'json',
-      rootProperty: 'data',
+      root: 'data',
       idProperty: 'name',
       successProperty: 'success'
     }

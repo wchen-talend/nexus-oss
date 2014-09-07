@@ -31,7 +31,7 @@ Ext.define('NX.coreui.store.Feed', {
 
     reader: {
       type: 'json',
-      rootProperty: 'data',
+      root: 'data',
       idProperty: 'key',
       successProperty: 'success'
     }
