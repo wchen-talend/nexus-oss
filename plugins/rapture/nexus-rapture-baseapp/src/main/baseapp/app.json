@@ -23,16 +23,6 @@
     "namespace": "baseapp"
   },
 
-  //"appCache": {
-  //  "cache": [
-  //    "index.html"
-  //  ],
-  //  "network": [
-  //    "*"
-  //  ],
-  //  "fallback": []
-  //},
-
   "resources": [],
 
   "ignore": [
@@ -51,11 +41,7 @@
 
   "output": {
     "base": "${workspace.build.dir}/${build.environment}/${app.name}",
-    //"page": {
-    //  "enable": false
-    //},
     "microloader": {
-      //"path": "microloader.js",
       "embed": false,
       "enable": true
     }
