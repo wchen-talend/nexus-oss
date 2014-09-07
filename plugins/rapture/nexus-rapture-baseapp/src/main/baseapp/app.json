@@ -23,15 +23,15 @@
     "namespace": "baseapp"
   },
 
-  "appCache": {
-    "cache": [
-      "index.html"
-    ],
-    "network": [
-      "*"
-    ],
-    "fallback": []
-  },
+  //"appCache": {
+  //  "cache": [
+  //    "index.html"
+  //  ],
+  //  "network": [
+  //    "*"
+  //  ],
+  //  "fallback": []
+  //},
 
   "resources": [],
 
@@ -50,6 +50,14 @@
   },
 
   "output": {
-    "base": "${workspace.build.dir}/${build.environment}/${app.name}"
+    "base": "${workspace.build.dir}/${build.environment}/${app.name}",
+    //"page": {
+    //  "enable": false
+    //},
+    "microloader": {
+      //"path": "microloader.js",
+      "embed": false,
+      "enable": true
+    }
   }
 }

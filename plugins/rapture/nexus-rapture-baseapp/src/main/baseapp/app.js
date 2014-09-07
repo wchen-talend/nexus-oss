@@ -28,5 +28,6 @@ Ext.require([
   'Ext.ux.*',
   'Ext.view.*',
   'Ext.window.*',
-  'Ext.Action'
+  'Ext.Action',
+  'Ext.Img'
 ]);

@@ -43,7 +43,7 @@
 
   <profiles>
     <profile>
-      <id>test</id>
+      <id>regenerate</id>
 
       <dependencies>
         <dependency>
@@ -113,33 +113,34 @@
                       <arg line="app build testing"/>
                     </exec>
 
-                    <exec executable="sencha" dir="${project.build.directory}/baseapp">
-                      <arg line="app build production"/>
-                    </exec>
+                    <!--<exec executable="sencha" dir="${project.build.directory}/baseapp">-->
+                      <!--<arg line="app build production"/>-->
+                    <!--</exec>-->
 
                     <delete dir="${project.basedir}/src/main/resources/static/rapture"/>
                     <mkdir dir="${project.basedir}/src/main/resources/static/rapture"/>
 
-                    <copy file="${project.build.directory}/ext/build/ext-all-debug.js"
-                          tofile="${project.basedir}/src/main/resources/static/rapture/baseapp-debug.js"/>
+                    <!--<copy file="${project.build.directory}/ext/build/ext-all-debug.js"-->
+                          <!--tofile="${project.basedir}/src/main/resources/static/rapture/baseapp-debug.js"/>-->
 
                     <copy todir="${project.basedir}/src/main/resources/static/rapture">
                       <fileset dir="${project.build.directory}/testing/baseapp">
-                        <!--<include name="baseapp-*.js"/>-->
-                        <include name="resources/baseapp-*.css"/>
+                        <!--<include name="app.json"/>-->
+                        <include name="baseapp-*.js"/>
+                        <include name="resources/*.css"/>
                       </fileset>
                     </copy>
 
-                    <copy file="${project.build.directory}/ext/build/ext-all.js"
-                          tofile="${project.basedir}/src/main/resources/static/rapture/baseapp-prod.js"/>
+                    <!--<copy file="${project.build.directory}/ext/build/ext-all.js"-->
+                          <!--tofile="${project.basedir}/src/main/resources/static/rapture/baseapp-prod.js"/>-->
 
-                    <copy todir="${project.basedir}/src/main/resources/static/rapture">
-                      <fileset dir="${project.build.directory}/production/baseapp">
-                        <!--<include name="baseapp-*.js"/>-->
-                        <include name="resources/baseapp-*.css"/>
-                        <include name="resources/images/**"/>
-                      </fileset>
-                    </copy>
+                    <!--<copy todir="${project.basedir}/src/main/resources/static/rapture">-->
+                      <!--<fileset dir="${project.build.directory}/production/baseapp">-->
+                        <!--<include name="*.js"/>-->
+                        <!--<include name="resources/*.css"/>-->
+                        <!--<include name="resources/images/**"/>-->
+                      <!--</fileset>-->
+                    <!--</copy>-->
                   </target>
                 </configuration>
               </execution>
@@ -165,53 +166,53 @@
       </build>
     </profile>
 
-    <profile>
-      <id>regenerate</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.codehaus.gmaven</groupId>
-            <artifactId>gmaven-plugin</artifactId>
-            <executions>
-              <execution>
-                <phase>generate-resources</phase>
-                <goals>
-                  <goal>execute</goal>
-                </goals>
-                <configuration>
-                  <classpathIncludes>none</classpathIncludes>
-                  <source>file:${project.basedir}/src/main/script/regenerate.groovy</source>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
+    <!--<profile>-->
+      <!--<id>regenerate</id>-->
+      <!--<build>-->
+        <!--<plugins>-->
+          <!--<plugin>-->
+            <!--<groupId>org.codehaus.gmaven</groupId>-->
+            <!--<artifactId>gmaven-plugin</artifactId>-->
+            <!--<executions>-->
+              <!--<execution>-->
+                <!--<phase>generate-resources</phase>-->
+                <!--<goals>-->
+                  <!--<goal>execute</goal>-->
+                <!--</goals>-->
+                <!--<configuration>-->
+                  <!--<classpathIncludes>none</classpathIncludes>-->
+                  <!--<source>file:${project.basedir}/src/main/script/regenerate.groovy</source>-->
+                <!--</configuration>-->
+              <!--</execution>-->
+            <!--</executions>-->
+          <!--</plugin>-->
+        <!--</plugins>-->
+      <!--</build>-->
+    <!--</profile>-->
 
-    <profile>
-      <id>watch</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.codehaus.gmaven</groupId>
-            <artifactId>gmaven-plugin</artifactId>
-            <executions>
-              <execution>
-                <phase>generate-resources</phase>
-                <goals>
-                  <goal>execute</goal>
-                </goals>
-                <configuration>
-                  <classpathIncludes>none</classpathIncludes>
-                  <source>file:${project.basedir}/src/main/script/watch.groovy</source>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
+    <!--<profile>-->
+      <!--<id>watch</id>-->
+      <!--<build>-->
+        <!--<plugins>-->
+          <!--<plugin>-->
+            <!--<groupId>org.codehaus.gmaven</groupId>-->
+            <!--<artifactId>gmaven-plugin</artifactId>-->
+            <!--<executions>-->
+              <!--<execution>-->
+                <!--<phase>generate-resources</phase>-->
+                <!--<goals>-->
+                  <!--<goal>execute</goal>-->
+                <!--</goals>-->
+                <!--<configuration>-->
+                  <!--<classpathIncludes>none</classpathIncludes>-->
+                  <!--<source>file:${project.basedir}/src/main/script/watch.groovy</source>-->
+                <!--</configuration>-->
+              <!--</execution>-->
+            <!--</executions>-->
+          <!--</plugin>-->
+        <!--</plugins>-->
+      <!--</build>-->
+    <!--</profile>-->
   </profiles>
 
 </project>
