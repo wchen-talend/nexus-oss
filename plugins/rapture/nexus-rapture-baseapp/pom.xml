@@ -117,17 +117,22 @@
                       <!--<arg line="app build production"/>-->
                     <!--</exec>-->
 
-                    <delete dir="${project.basedir}/src/main/resources/static/rapture"/>
                     <mkdir dir="${project.basedir}/src/main/resources/static/rapture"/>
+                    <delete>
+                      <fileset dir="${project.basedir}/src/main/resources/static/rapture">
+                        <include name="baseapp-*.js"/>
+                        <include name="resources/**"/>
+                      </fileset>
+                    </delete>
 
                     <!--<copy file="${project.build.directory}/ext/build/ext-all-debug.js"-->
                           <!--tofile="${project.basedir}/src/main/resources/static/rapture/baseapp-debug.js"/>-->
 
                     <copy todir="${project.basedir}/src/main/resources/static/rapture">
                       <fileset dir="${project.build.directory}/testing/baseapp">
-                        <!--<include name="app.json"/>-->
                         <include name="baseapp-*.js"/>
                         <include name="resources/*.css"/>
+                        <include name="resources/images/**"/>
                       </fileset>
                     </copy>
 
@@ -136,7 +141,7 @@
 
                     <!--<copy todir="${project.basedir}/src/main/resources/static/rapture">-->
                       <!--<fileset dir="${project.build.directory}/production/baseapp">-->
-                        <!--<include name="*.js"/>-->
+                        <!--<include name="baseapp-*.js"/>-->
                         <!--<include name="resources/*.css"/>-->
                         <!--<include name="resources/images/**"/>-->
                       <!--</fileset>-->
