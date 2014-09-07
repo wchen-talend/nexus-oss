@@ -13,7 +13,8 @@
     "ext": "4.2"
   },
 
-  "theme": "rapture-theme",
+  "theme": "ext-theme-crisp",
+  //"theme": "rapture-theme",
 
   "requires": [
     "ext-charts"
