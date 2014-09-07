@@ -1,0 +1,55 @@
+{
+  "name": "baseapp",
+
+  "id": "ccfbd1c7-9334-499d-9fb6-ecb811999bc8",
+
+  "classpath": "${app.dir}/app",
+
+  "overrides": "${app.dir}/overrides",
+
+  "framework": "ext",
+
+  "compatibility": {
+    "ext": "4.2"
+  },
+
+  "theme": "rapture-theme",
+
+  "requires": [
+    "ext-charts"
+  ],
+
+  "sass": {
+    "namespace": "baseapp"
+  },
+
+  "appCache": {
+    "cache": [
+      "index.html"
+    ],
+    "network": [
+      "*"
+    ],
+    "fallback": []
+  },
+
+  "resources": [],
+
+  "ignore": [
+    "^\\.svn$",
+    "^\\.git$"
+  ],
+
+  "archivePath": "archive",
+
+  "bootstrap": {
+    "base": "${app.dir}",
+    "manifest": "bootstrap.json",
+    "microloader": "bootstrap.js",
+    "css": "bootstrap.css"
+  },
+
+  "output": {
+    "base": "${workspace.build.dir}/${build.environment}/${app.name}"
+  }
+}
