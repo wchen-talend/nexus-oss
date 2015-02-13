@@ -80,7 +80,7 @@ extends DirectComponentSupport
         def group = hit.source[P_GROUP]
         def name = hit.source[P_NAME]
         def ga = new SearchResultXO(
-            groupingKey: "${group}:${name}",
+            groupingKey: group ? "${group}:${name}" : name,
             group: group,
             name: name,
             format: hit.source[P_FORMAT]
@@ -118,14 +118,14 @@ extends DirectComponentSupport
       def group = hit.source[P_GROUP]
       def name = hit.source[P_NAME]
       versions << new SearchResultVersionXO(
-          groupingKey: "${group}:${name}",
+          groupingKey: group ? "${group}:${name}" : name,
           group: group,
           name: name,
           version: hit.source[P_VERSION],
           repositoryId: hit.source[P_REPOSITORY_NAME],
           repositoryName: hit.source[P_REPOSITORY_NAME],
           // FIXME: how we get the path
-          path: hit.source[P_ATTRIBUTES]['raw']['path']
+          //path: hit.source[P_ATTRIBUTES]['raw']['path']
       )
     }
 
