@@ -12,15 +12,21 @@
  */
 package com.sonatype.nexus.repository.nuget.internal;
 
+import java.io.IOException;
+import java.util.Map;
+
 import javax.annotation.Nonnull;
 
 import org.sonatype.nexus.repository.http.HttpMethods;
 import org.sonatype.nexus.repository.http.HttpResponses;
+import org.sonatype.nexus.repository.http.HttpStatus;
 import org.sonatype.nexus.repository.view.Context;
+import org.sonatype.nexus.repository.view.Payload;
 import org.sonatype.nexus.repository.view.Request;
 import org.sonatype.nexus.repository.view.Response;
+import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * A handler for getting and putting NuGet packages.
@@ -32,19 +38,51 @@ public class NugetItemHandler
 {
   @Nonnull
   @Override
-  public Response handle(@Nonnull final Context context) throws Exception {
+  public Response handle(@Nonnull final Context context) {
     final Request request = context.getRequest();
     final String action = request.getAction();
+    final Map<String, String> tokens = getTokens(context);
+    String id = tokens.get("id");
+    String version = tokens.get("version");
     try {
       switch (action) {
         case HttpMethods.GET:
-          checkArgument(false, "not implemented");
+          return getItem(id, version, context);
+        case HttpMethods.DELETE:
+          return deleteItem(id, version, context);
         default:
           return HttpResponses.methodNotAllowed(action, HttpMethods.GET /* TODO: , HttpMethods.GET */);
       }
     }
     catch (Exception e) {
+      log.warn("Failed to handle", e);
       return convertToXmlError(e);
     }
+  }
+
+  @VisibleForTesting
+  Response getItem(final String id, final String version, final Context context) throws IOException {
+    NugetGalleryFacet facet = context.getRepository().facet(NugetGalleryFacet.class);
+    Payload payload = facet.get(id, version);
+    if (payload == null) {
+      return xmlErrorResponse(HttpStatus.NOT_FOUND, String.format("No such package: id=%s, version=%s", id, version));
+    }
+    else {
+      return HttpResponses.ok(payload);
+    }
+  }
+
+  @VisibleForTesting
+  Response deleteItem(final String id, final String version, final Context context) throws IOException {
+    NugetGalleryFacet facet = context.getRepository().facet(NugetGalleryFacet.class);
+    if (!facet.delete(id, version)) {
+      return xmlErrorResponse(HttpStatus.NOT_FOUND, String.format("No such package: id=%s, version=%s", id, version));
+    }
+    return HttpResponses.noContent();
+  }
+
+  @VisibleForTesting
+  Map<String, String> getTokens(final Context context) {
+    return context.getAttributes().require(TokenMatcher.State.class).getTokens();
   }
 }

@@ -15,6 +15,8 @@ package com.sonatype.nexus.repository.nuget.internal;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.annotation.Nullable;
+
 import org.sonatype.nexus.repository.Facet;
 import org.sonatype.nexus.repository.view.Payload;
 
@@ -33,7 +35,13 @@ public interface NugetGalleryFacet
   void put(InputStream inputStream) throws IOException, NugetPackageException;
 
   /**
-   * Get a package.
+   * Get a package, or {@code null} if not found.
    */
+  @Nullable
   Payload get(String id, String version) throws IOException;
+
+  /**
+   * Delete a package and return whether it existed.
+   */
+  boolean delete(String id, String version) throws IOException;
 }

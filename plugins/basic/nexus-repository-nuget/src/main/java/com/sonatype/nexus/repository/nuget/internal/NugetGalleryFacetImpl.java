@@ -18,7 +18,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
@@ -26,11 +25,14 @@ import java.util.SortedSet;
 import javax.inject.Named;
 
 import com.sonatype.nexus.repository.nuget.internal.odata.ComponentQuery;
+import com.sonatype.nexus.repository.nuget.internal.odata.ComponentQuery.Builder;
 import com.sonatype.nexus.repository.nuget.internal.odata.NugetPackageUtils;
 import com.sonatype.nexus.repository.nuget.internal.odata.ODataFeedUtils;
 import com.sonatype.nexus.repository.nuget.internal.odata.ODataTemplates;
 import com.sonatype.nexus.repository.nuget.internal.odata.ODataUtils;
 
+import org.sonatype.nexus.blobstore.api.Blob;
+import org.sonatype.nexus.blobstore.api.BlobRef;
 import org.sonatype.nexus.blobstore.api.BlobStore;
 import org.sonatype.nexus.common.hash.HashAlgorithm;
 import org.sonatype.nexus.common.stateguard.Guarded;
@@ -42,10 +44,12 @@ import org.sonatype.nexus.repository.storage.StorageTx;
 import org.sonatype.nexus.repository.util.NestedAttributesMap;
 import org.sonatype.nexus.repository.view.Parameters;
 import org.sonatype.nexus.repository.view.Payload;
+import org.sonatype.nexus.repository.view.payloads.StreamPayload;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.tinkerpop.blueprints.impls.orient.OrientVertex;
@@ -56,12 +60,15 @@ import org.eclipse.aether.version.VersionScheme;
 import org.odata4j.producer.InlineCount;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static com.sonatype.nexus.repository.nuget.internal.NugetProperties.*;
 import static java.util.Arrays.asList;
 import static org.odata4j.producer.resources.OptionsQueryParser.parseInlineCount;
 import static org.odata4j.producer.resources.OptionsQueryParser.parseSkip;
 import static org.odata4j.producer.resources.OptionsQueryParser.parseTop;
 import static org.sonatype.nexus.common.stateguard.StateGuardLifecycleSupport.State.STARTED;
+import static org.sonatype.nexus.repository.storage.StorageFacet.P_BLOB_REF;
+import static org.sonatype.nexus.repository.storage.StorageFacet.P_CONTENT_TYPE;
 import static org.sonatype.nexus.repository.storage.StorageFacet.P_FORMAT;
 import static org.sonatype.nexus.repository.storage.StorageFacet.P_NAME;
 import static org.sonatype.nexus.repository.storage.StorageFacet.P_VERSION;
@@ -231,7 +238,72 @@ public class NugetGalleryFacetImpl
   @Override
   @Guarded(by = STARTED)
   public Payload get(String id, String version) throws IOException {
-    return null;
+    checkNotNull(id);
+    checkNotNull(version);
+
+    try (StorageTx tx = openStorageTx()) {
+      OrientVertex component = findComponent(tx, id, version);
+      if (component == null) {
+        return null;
+      }
+
+      OrientVertex asset = requireAsset(component);
+
+      String blobRefString = asset.getProperty(P_BLOB_REF);
+      checkState(blobRefString != null);
+
+      Blob blob = requireBlob(tx, blobRefString);
+
+      String contentType = asset.getProperty(P_CONTENT_TYPE);
+
+      return new StreamPayload(blob.getInputStream(), blob.getMetrics().getContentSize(), contentType);
+    }
+  }
+
+  @Override
+  public boolean delete(final String id, final String version) throws IOException {
+    checkNotNull(id);
+    checkNotNull(version);
+
+    try (StorageTx tx = openStorageTx()) {
+      OrientVertex component = findComponent(tx, id, version);
+      if (component == null) {
+        return false;
+      }
+
+      deleteAsset(tx, component);
+      tx.deleteVertex(component);
+      tx.commit();
+
+      return true;
+    }
+  }
+
+  /**
+   * Deletes the asset associated with the component, if it exists, and the associated blob, if it exists.
+   */
+  private void deleteAsset(final StorageTx tx, final OrientVertex component) {
+    OrientVertex asset = Iterables.getFirst(openStorageTx().findAssets(component), null);
+    if (asset != null) {
+      // Delete blob
+      String blobRefString = asset.getProperty(P_BLOB_REF);
+      if (blobRefString != null) {
+        tx.deleteBlob(BlobRef.parse(blobRefString));
+      }
+      tx.deleteVertex(asset);
+    }
+  }
+
+  private Blob requireBlob(final StorageTx tx, final String blobRefString) {
+    Blob blob = tx.getBlob(BlobRef.parse(blobRefString));
+    checkState(blob != null);
+    return blob;
+  }
+
+  private OrientVertex requireAsset(final OrientVertex component) {
+    OrientVertex asset = Iterables.getFirst(openStorageTx().findAssets(component), null);
+    checkState(asset != null);
+    return asset;
   }
 
   @VisibleForTesting
@@ -342,7 +414,7 @@ public class NugetGalleryFacetImpl
 
     final OrientVertex component = findOrCreateComponent(storageTx, bucket, id, version);
 
-    final boolean republishing = component.getIdentity().isNew();
+    final boolean republishing = !component.getIdentity().isNew();
 
     final NestedAttributesMap attributes = storageTx.getAttributes(component);
     final NestedAttributesMap nugetAttr = attributes.child(NUGET);
@@ -406,18 +478,14 @@ public class NugetGalleryFacetImpl
   }
 
   private OrientVertex findComponent(final StorageTx storageTx, final String name, final Object version) {
-    final ImmutableMap<String, Object> params = ImmutableMap.of(P_VERSION, version, P_NAME, name);
+    Builder builder = new Builder().where("name = ").param(name).where(" and version = ").param(version);
 
-    final Iterable<OrientVertex> components = storageTx
-        .findComponents("version=:version AND name=:name", params, getRepositories(), null);
+    return Iterables.getFirst(findComponents(storageTx, builder.build()), null);
+  }
 
-    final Iterator<OrientVertex> iterator = components.iterator();
-    if (iterator.hasNext()) {
-      return iterator.next();
-    }
-    else {
-      return null;
-    }
+  private Iterable<OrientVertex> findComponents(final StorageTx storageTx, final ComponentQuery query) {
+    return storageTx.findComponents(query.getWhere(), query.getParameters(),
+          getRepositories(), query.getQuerySuffix());
   }
 
   private OrientVertex createComponent(final StorageTx storageTx, final OrientVertex bucket, final String name,

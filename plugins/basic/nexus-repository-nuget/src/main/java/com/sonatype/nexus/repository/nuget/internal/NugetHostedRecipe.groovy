@@ -99,10 +99,10 @@ class NugetHostedRecipe
         .create())
 
     router.route(new Route.Builder()
-        .matcher(new TokenMatcher("/{packageId}/{version}"))
+        .matcher(new TokenMatcher("/{id}/{version}"))
         .handler(timingHandler)
     //        .handler(securityHandler)
-        .handler(alleryHandler)
+        .handler(itemHandler)
         .handler(notFound())
         .create())
 

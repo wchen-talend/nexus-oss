@@ -58,7 +58,7 @@ abstract class AbstractNugetHandler
     }
   }
 
-  private Response xmlErrorResponse(final int code, final String message) {
+  protected Response xmlErrorResponse(final int code, final String message) {
     final StringPayload stringPayload = new StringPayload(populateErrorTemplate(code, message), Charsets.UTF_8,
         "application/xml");
     return new PayloadResponse(Status.failure(code), stringPayload);
