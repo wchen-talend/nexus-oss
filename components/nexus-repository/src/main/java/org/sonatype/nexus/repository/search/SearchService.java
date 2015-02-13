@@ -26,27 +26,27 @@ public interface SearchService
 {
 
   /**
-   * Create component index for specified repository, if does not already exits.
+   * Create component metadata index for specified repository, if does not already exits.
    */
   void createIndex(Repository repository);
 
   /**
-   * Deletes component index for specified repository.
+   * Deletes component metadata index for specified repository.
    */
   void deleteIndex(Repository repository);
 
   /**
-   * Put in index.
+   * Index component metadata.
    */
-  void put(Repository repository, SearchableComponent searchable);
+  void put(Repository repository, ComponentMetadata componentMetadata);
 
   /**
-   * Remove from index.
+   * Remove component metadata from index.
    */
   void delete(Repository repository, String id);
 
   /**
-   * Search and browse results.
+   * Search component metadata and browse results.
    */
   Iterable<SearchHit> browse(QueryBuilder query);
 

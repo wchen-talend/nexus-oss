@@ -19,7 +19,7 @@ import com.tinkerpop.blueprints.impls.orient.OrientVertex;
  *
  * @since 3.0
  */
-public interface IndexDataProducer
+public interface ComponentMetadataProducer
 {
 
   /**
@@ -27,6 +27,6 @@ public interface IndexDataProducer
    *
    * @return data to be indexed in json format
    */
-  String getIndexData(OrientVertex component);
+  String getMetadata(OrientVertex component);
 
 }

@@ -42,8 +42,8 @@ public class SearchFacetImpl
 
   @Override
   @Guarded(by = STARTED)
-  public void put(final SearchableComponent searchable) {
-    searchService.put(getRepository(), searchable);
+  public void put(final ComponentMetadata componentMetadata) {
+    searchService.put(getRepository(), componentMetadata);
   }
 
   @Override

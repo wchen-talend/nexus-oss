@@ -13,15 +13,21 @@
 package org.sonatype.nexus.repository.search;
 
 /**
- * Indexable metadata about a component.
+ * Metadata (to be indexed) about a component.
  *
  * @since 3.0
  */
-public interface SearchableComponent
+public interface ComponentMetadata
 {
 
+  /**
+   * Retrieves component Metadata id.
+   */
   String getId();
 
+  /**
+   * Converts component metadata to JSON format.
+   */
   String toJson();
 
 }

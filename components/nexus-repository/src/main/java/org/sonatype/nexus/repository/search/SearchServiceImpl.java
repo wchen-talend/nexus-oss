@@ -100,14 +100,14 @@ public class SearchServiceImpl
   }
 
   @Override
-  public void put(final Repository repository, final SearchableComponent searchable) {
+  public void put(final Repository repository, final ComponentMetadata componentMetadata) {
     checkNotNull(repository);
-    checkNotNull(searchable);
+    checkNotNull(componentMetadata);
     try {
       Map<String, Object> additional = Maps.newHashMap();
       additional.put(P_REPOSITORY_NAME, repository.getName());
-      String json = JsonUtils.merge(searchable.toJson(), JsonUtils.from(additional));
-      client.get().prepareIndex(repository.getName(), TYPE, searchable.getId()).setSource(json).execute();
+      String json = JsonUtils.merge(componentMetadata.toJson(), JsonUtils.from(additional));
+      client.get().prepareIndex(repository.getName(), TYPE, componentMetadata.getId()).setSource(json).execute();
     }
     catch (IOException e) {
       throw Throwables.propagate(e);

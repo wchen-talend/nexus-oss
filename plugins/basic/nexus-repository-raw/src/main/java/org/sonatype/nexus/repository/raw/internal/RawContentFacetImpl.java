@@ -32,8 +32,8 @@ import org.sonatype.nexus.repository.content.InvalidContentException;
 import org.sonatype.nexus.repository.negativecache.NegativeCacheKey;
 import org.sonatype.nexus.repository.negativecache.NegativeCacheKeySource;
 import org.sonatype.nexus.repository.raw.RawContent;
+import org.sonatype.nexus.repository.search.ComponentMetadataFactory;
 import org.sonatype.nexus.repository.search.SearchFacet;
-import org.sonatype.nexus.repository.search.SearchableComponentFactory;
 import org.sonatype.nexus.repository.storage.StorageFacet;
 import org.sonatype.nexus.repository.storage.StorageTx;
 import org.sonatype.nexus.repository.util.NestedAttributesMap;
@@ -75,16 +75,16 @@ public class RawContentFacetImpl
 
   private final MimeSupport mimeSupport;
 
-  private final SearchableComponentFactory searchableComponentFactory;
+  private final ComponentMetadataFactory componentMetadataFactory;
 
   private boolean strictContentTypeValidation = false;
 
   @Inject
   public RawContentFacetImpl(final MimeSupport mimeSupport,
-                             final SearchableComponentFactory searchableComponentFactory)
+                             final ComponentMetadataFactory componentMetadataFactory)
   {
     this.mimeSupport = checkNotNull(mimeSupport);
-    this.searchableComponentFactory = checkNotNull(searchableComponentFactory);
+    this.componentMetadataFactory = checkNotNull(componentMetadataFactory);
   }
 
   @Override
@@ -152,7 +152,7 @@ public class RawContentFacetImpl
 
       tx.commit();
       try {
-        getRepository().facet(SearchFacet.class).put(searchableComponentFactory.from(component));
+        getRepository().facet(SearchFacet.class).put(componentMetadataFactory.from(component));
       }
       catch (MissingFacetException e) {
         // skip indexing if no search facet
