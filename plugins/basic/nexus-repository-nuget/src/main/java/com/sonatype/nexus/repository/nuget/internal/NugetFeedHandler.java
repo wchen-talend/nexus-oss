@@ -28,7 +28,7 @@ import org.sonatype.sisu.goodies.common.ComponentSupport;
 /**
  * @since 3.0
  */
-public class NugetGalleryHandler
+public class NugetFeedHandler
     extends ComponentSupport
     implements Handler
 {
@@ -45,7 +45,7 @@ public class NugetGalleryHandler
 
     final String base = getRepositoryUri(context);
 
-    final String feed = facet.feed(base, operation, context.getRequest().getParameters());
+    final String feed = null; //facet.feed(base, operation, context.getRequest().getParameters());
 
     return HttpResponses.ok(new StringPayload(feed, Charset.forName("UTF-8"), FEED_CONTENT_TYPE));
   }

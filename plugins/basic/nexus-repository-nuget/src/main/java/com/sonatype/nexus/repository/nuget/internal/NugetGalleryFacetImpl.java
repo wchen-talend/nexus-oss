@@ -41,6 +41,7 @@ import org.sonatype.nexus.repository.storage.StorageFacet;
 import org.sonatype.nexus.repository.storage.StorageTx;
 import org.sonatype.nexus.repository.util.NestedAttributesMap;
 import org.sonatype.nexus.repository.view.Parameters;
+import org.sonatype.nexus.repository.view.Payload;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
@@ -93,7 +94,7 @@ public class NugetGalleryFacetImpl
     storage = null;
   }
 
-  @Override
+  //@Override
   @Guarded(by = STARTED)
   public int count(final String path, final Parameters parameters) {
     Map<String, String> query = asMap(parameters);
@@ -121,7 +122,7 @@ public class NugetGalleryFacetImpl
     }
   }
 
-  @Override
+  //@Override
   @Guarded(by = STARTED)
   public String feed(final String base, final String name, final Parameters parameters) {
     Map<String, String> query = asMap(parameters);
@@ -197,24 +198,6 @@ public class NugetGalleryFacetImpl
 
   @Override
   @Guarded(by = STARTED)
-  public String entry(final String base, final String id, final String version) {
-    return null;
-  }
-
-  @Override
-  @Guarded(by = STARTED)
-  public String locate(final String id, final String version) {
-    return null;
-  }
-
-  @Override
-  @Guarded(by = STARTED)
-  public String[] identify(final String location) {
-    return new String[0];
-  }
-
-  @Override
-  @Guarded(by = STARTED)
   public void put(final InputStream inputStream) throws IOException, NugetPackageException {
     try (StorageTx storageTx = openStorageTx();
          TempStreamSupplier tempStream = new TempStreamSupplier(inputStream)) {
@@ -243,6 +226,12 @@ public class NugetGalleryFacetImpl
 
       storageTx.commit();
     }
+  }
+
+  @Override
+  @Guarded(by = STARTED)
+  public Payload get(String id, String version) throws IOException {
+    return null;
   }
 
   @VisibleForTesting

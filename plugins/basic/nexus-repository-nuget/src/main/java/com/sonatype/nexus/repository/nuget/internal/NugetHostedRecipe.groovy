@@ -59,13 +59,16 @@ class NugetHostedRecipe
   TimingHandler timingHandler
 
   @Inject
-  NugetGalleryHandler galleryHandler
+  NugetFeedHandler galleryHandler
+
+  @Inject
+  NugetItemHandler itemHandler
 
   @Inject
   SecurityHandler securityHandler
 
   @Inject
-  NugetContentHandler contentHandler
+  NugetPushHandler pushHandler
 
   @Inject
   public NugetHostedRecipe(@Named(HostedType.NAME) final Type type,
@@ -95,12 +98,20 @@ class NugetHostedRecipe
         .handler(notFound())
         .create())
 
+    router.route(new Route.Builder()
+        .matcher(new TokenMatcher("/{packageId}/{version}"))
+        .handler(timingHandler)
+    //        .handler(securityHandler)
+        .handler(alleryHandler)
+        .handler(notFound())
+        .create())
+
     // Temporary means of uploading .nupkg archives to rip out their .nuspec
     router.route(new Route.Builder()
         .matcher(new AlwaysMatcher())
         .handler(timingHandler)
     //            .handler(securityHandler)
-        .handler(contentHandler)
+        .handler(pushHandler)
         .create())
 
     // By default, return a 404
