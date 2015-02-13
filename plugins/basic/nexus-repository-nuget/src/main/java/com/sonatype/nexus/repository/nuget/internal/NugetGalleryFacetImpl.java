@@ -283,7 +283,7 @@ public class NugetGalleryFacetImpl
    * Deletes the asset associated with the component, if it exists, and the associated blob, if it exists.
    */
   private void deleteAsset(final StorageTx tx, final OrientVertex component) {
-    OrientVertex asset = Iterables.getFirst(openStorageTx().findAssets(component), null);
+    OrientVertex asset = Iterables.getFirst(tx.findAssets(component), null);
     if (asset != null) {
       // Delete blob
       String blobRefString = asset.getProperty(P_BLOB_REF);
@@ -300,7 +300,8 @@ public class NugetGalleryFacetImpl
     return blob;
   }
 
-  private OrientVertex requireAsset(final OrientVertex component) {
+  @VisibleForTesting
+  OrientVertex requireAsset(final OrientVertex component) {
     OrientVertex asset = Iterables.getFirst(openStorageTx().findAssets(component), null);
     checkState(asset != null);
     return asset;
@@ -477,7 +478,8 @@ public class NugetGalleryFacetImpl
     return createComponent(storageTx, bucket, name, version);
   }
 
-  private OrientVertex findComponent(final StorageTx storageTx, final String name, final Object version) {
+  @VisibleForTesting
+  OrientVertex findComponent(final StorageTx storageTx, final String name, final Object version) {
     Builder builder = new Builder().where("name = ").param(name).where(" and version = ").param(version);
 
     return Iterables.getFirst(findComponents(storageTx, builder.build()), null);
@@ -485,7 +487,7 @@ public class NugetGalleryFacetImpl
 
   private Iterable<OrientVertex> findComponents(final StorageTx storageTx, final ComponentQuery query) {
     return storageTx.findComponents(query.getWhere(), query.getParameters(),
-          getRepositories(), query.getQuerySuffix());
+        getRepositories(), query.getQuerySuffix());
   }
 
   private OrientVertex createComponent(final StorageTx storageTx, final OrientVertex bucket, final String name,
@@ -517,7 +519,7 @@ public class NugetGalleryFacetImpl
   }
 
   @VisibleForTesting
-   static class ComponentVersionComparator
+  static class ComponentVersionComparator
       implements Comparator<OrientVertex>
   {
     @Override
