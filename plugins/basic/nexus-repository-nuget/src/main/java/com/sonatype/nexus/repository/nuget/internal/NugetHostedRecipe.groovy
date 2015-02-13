@@ -21,6 +21,8 @@ import org.sonatype.nexus.repository.view.Route
 import org.sonatype.nexus.repository.view.Router
 import org.sonatype.nexus.repository.view.handlers.TimingHandler
 import org.sonatype.nexus.repository.view.matchers.AlwaysMatcher
+import org.sonatype.nexus.repository.view.matchers.LiteralMatcher
+import org.sonatype.nexus.repository.view.matchers.logic.LogicMatchers
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher
 
 import javax.annotation.Nonnull
@@ -71,6 +73,9 @@ class NugetHostedRecipe
   NugetPushHandler pushHandler
 
   @Inject
+  NugetStaticFeedHandler staticFeedHandler
+
+  @Inject
   public NugetHostedRecipe(@Named(HostedType.NAME) final Type type,
                            @Named(NugetFormat.NAME) final Format format)
   {
@@ -85,8 +90,68 @@ class NugetHostedRecipe
     repository.attach(configure(viewFacet.get()))
   }
 
+  /*
+        if ("".equals(path)) {
+        return xml(ODataUtils.root(base));
+      }
+      if ("$metadata".equals(path)) {
+        return xml(ODataUtils.metadata());
+      }
+      if (path.startsWith(".meta")) {
+        response.setLocationRef(repositoryURLBuilder.getRepositoryContentUrl(repoId) + '/' + path);
+        response.setStatus(Status.REDIRECTION_TEMPORARY);
+        return null;
+      }
+      if (path.endsWith("$count")) {
+        return text(Integer.toString(gallery().count(memberIds, path, ref.getQuery())));
+      }
+      if ("Packages".equals(path) || "Packages()".equals(path)) {
+        return xml(gallery().feed(memberIds, base, "Packages", ref.getQuery()));
+      }
+      if ("Search".equals(path) || "Search()".equals(path)) {
+        return xml(gallery().feed(memberIds, base, "Search", ref.getQuery()));
+      }
+      if ("FindPackagesById".equals(path) || "FindPackagesById()".equals(path)) {
+        return xml(gallery().feed(memberIds, base, "FindPackagesById", ref.getQuery()));
+      }
+      final Matcher m = PACKAGE_ENTRY_PATTERN.matcher(path);
+      if (m.matches()) {
+        final String entry = gallery().entry(memberIds, base, m.group(1), m.group(2));
+        if (null != entry) {
+          return xml(entry);
+        }
+        throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+      }
+      final String[] idVersion = path.split("/");
+      if (idVersion.length == 2) {
+        final NugetStoreRequest rsr = new NugetStoreRequest(idVersion[0], idVersion[1], false, false);
+        StorageItem item = getNugetRepository(repoId).retrieveItem(rsr);
+        if (item instanceof StorageLinkItem) {
+          item = getRepositoryRouter().dereferenceLink((StorageLinkItem) item);
+        }
+
+        return file((StorageFileItem) item);
+      }
+   */
+
   private Facet configure(final ConfigurableViewFacet facet) {
     Router.Builder router = new Router.Builder()
+
+    // Route Ordering:
+    // TODO: root xml
+    // TODO: $metadata
+    // TODO: .meta (what is this?)
+    // TODO: $count
+    // TODO: Packages
+    // TODO: Search
+    // TODO: FindPackagesById
+    // TODO: Individual package entry
+    // serving up package content
+
+    router.route(new Route.Builder()
+        .matcher(LogicMatchers.or(new LiteralMatcher("/"), new LiteralMatcher("/\$metadata")))
+        .handler(staticFeedHandler)
+        .create());
 
     // Metadata operations
     // <galleryBase>/Operation(param1='whatever',...)/?queryParameters

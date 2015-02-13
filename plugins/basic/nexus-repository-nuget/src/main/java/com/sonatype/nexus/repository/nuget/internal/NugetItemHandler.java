@@ -65,7 +65,7 @@ public class NugetItemHandler
     NugetGalleryFacet facet = context.getRepository().facet(NugetGalleryFacet.class);
     Payload payload = facet.get(id, version);
     if (payload == null) {
-      return xmlErrorResponse(HttpStatus.NOT_FOUND, String.format("No such package: id=%s, version=%s", id, version));
+      return xmlResponse(HttpStatus.NOT_FOUND, String.format("No such package: id=%s, version=%s", id, version));
     }
     else {
       return HttpResponses.ok(payload);
@@ -76,7 +76,7 @@ public class NugetItemHandler
   Response deleteItem(final String id, final String version, final Context context) throws IOException {
     NugetGalleryFacet facet = context.getRepository().facet(NugetGalleryFacet.class);
     if (!facet.delete(id, version)) {
-      return xmlErrorResponse(HttpStatus.NOT_FOUND, String.format("No such package: id=%s, version=%s", id, version));
+      return xmlResponse(HttpStatus.NOT_FOUND, String.format("No such package: id=%s, version=%s", id, version));
     }
     return HttpResponses.noContent();
   }
