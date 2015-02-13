@@ -27,9 +27,9 @@ public interface SearchFacet
   /**
    * Index component.
    *
-   * @param data data to be indexed
+   * @param searchable data to be indexed
    */
-  void put(SearchableComponent data);
+  void put(SearchableComponent searchable);
 
   /**
    * Removes component from index.

@@ -12,11 +12,42 @@
  */
 package org.sonatype.nexus.repository.search;
 
+import org.sonatype.nexus.repository.Repository;
+
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.search.SearchHit;
+
 /**
- * ???
+ * Search service.
  *
  * @since 3.0
  */
 public interface SearchService
 {
+
+  /**
+   * Create component index for specified repository, if does not already exits.
+   */
+  void createIndex(Repository repository);
+
+  /**
+   * Deletes component index for specified repository.
+   */
+  void deleteIndex(Repository repository);
+
+  /**
+   * Put in index.
+   */
+  void put(Repository repository, SearchableComponent searchable);
+
+  /**
+   * Remove from index.
+   */
+  void delete(Repository repository, String id);
+
+  /**
+   * Search and browse results.
+   */
+  Iterable<SearchHit> browse(QueryBuilder query);
+
 }
