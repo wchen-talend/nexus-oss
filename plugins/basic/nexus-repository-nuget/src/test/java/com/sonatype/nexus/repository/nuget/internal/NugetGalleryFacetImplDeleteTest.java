@@ -3,6 +3,7 @@ package com.sonatype.nexus.repository.nuget.internal;
 import org.sonatype.nexus.blobstore.api.BlobRef;
 import org.sonatype.nexus.repository.storage.StorageFacet;
 import org.sonatype.nexus.repository.storage.StorageTx;
+import org.sonatype.sisu.litmus.testsupport.TestSupport;
 
 import com.tinkerpop.blueprints.impls.orient.OrientVertex;
 import org.junit.Test;
@@ -19,6 +20,7 @@ import static org.mockito.Mockito.when;
  * Verifies component deletion from a nuget gallery facet.
  */
 public class NugetGalleryFacetImplDeleteTest
+    extends TestSupport
 {
   @Test
   public void deleteRemovesComponentAssetAndBlob() throws Exception {
