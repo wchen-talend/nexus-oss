@@ -23,3 +23,6 @@
 ## Hosted
 
     curl -X PUT -v -include -F package=@src/test/resources/SONATYPE.TEST.1.0.nupkg http://localhost:8081/repository/nugethosted1/upload
+    curl -X GET -v http://localhost:8081/repository/nugethosted1/SONATYPE.TEST/1.0
+    curl -X DELETE -v http://localhost:8081/repository/nugethosted1/SONATYPE.TEST/1.0
+
