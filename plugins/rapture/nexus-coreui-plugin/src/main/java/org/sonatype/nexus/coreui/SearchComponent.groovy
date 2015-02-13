@@ -80,9 +80,9 @@ extends DirectComponentSupport
         def group = hit.source[P_GROUP]
         def name = hit.source[P_NAME]
         def ga = new SearchResultXO(
-            id: "${group}:${name}",
-            groupId: group,
-            artifactId: name,
+            groupingKey: "${group}:${name}",
+            group: group,
+            name: name,
             format: hit.source[P_FORMAT]
         )
         if (!gas.contains(ga)) {
@@ -115,13 +115,15 @@ extends DirectComponentSupport
     def versions = [] as SortedSet<SearchResultVersionXO>
     browse(query).each { hit ->
       // TODO check security
+      def group = hit.source[P_GROUP]
+      def name = hit.source[P_NAME]
       versions << new SearchResultVersionXO(
-          groupId: hit.source[P_GROUP],
-          artifactId: hit.source[P_NAME],
+          groupingKey: "${group}:${name}",
+          group: group,
+          name: name,
           version: hit.source[P_VERSION],
           repositoryId: hit.source[P_REPOSITORY_NAME],
           repositoryName: hit.source[P_REPOSITORY_NAME],
-          name: hit.source[P_NAME],
           // FIXME: how we get the path
           path: hit.source[P_ATTRIBUTES]['raw']['path']
       )

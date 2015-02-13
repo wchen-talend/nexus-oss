@@ -423,8 +423,8 @@ Ext.define('NX.coreui.controller.Search', {
     me.onSearchResultVersionSelection(null);
 
     if (searchResultModel) {
-      info[NX.I18n.get('BROWSE_SEARCH_VERSIONS_GROUP')] = searchResultModel.get('groupId');
-      info[NX.I18n.get('BROWSE_SEARCH_VERSIONS_NAME')] = searchResultModel.get('artifactId');
+      info[NX.I18n.get('BROWSE_SEARCH_VERSIONS_GROUP')] = searchResultModel.get('group');
+      info[NX.I18n.get('BROWSE_SEARCH_VERSIONS_NAME')] = searchResultModel.get('name');
       info[NX.I18n.get('BROWSE_SEARCH_VERSIONS_FORMAT')] = searchResultModel.get('format');
 
       searchResultDetails.items.get(0).showInfo(info);
@@ -433,11 +433,11 @@ Ext.define('NX.coreui.controller.Search', {
       searchResultVersionStore.addFilter([
         {
           property: 'group.raw',
-          value: searchResultModel.get('groupId')
+          value: searchResultModel.get('group')
         },
         {
           property: 'name.raw',
-          value: searchResultModel.get('artifactId')
+          value: searchResultModel.get('name')
         }
       ]);
     }
