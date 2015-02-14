@@ -26,13 +26,13 @@ import org.sonatype.nexus.coreui.search.SearchContribution
 import org.sonatype.nexus.extdirect.DirectComponent
 import org.sonatype.nexus.extdirect.DirectComponentSupport
 import org.sonatype.nexus.extdirect.model.StoreLoadParameters
-import org.sonatype.nexus.repository.metadata.validation.ValidationException
 import org.sonatype.nexus.repository.search.SearchService
 
 import javax.annotation.Nullable
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
+import javax.validation.ValidationException
 
 import static org.sonatype.nexus.repository.storage.StorageFacet.P_ATTRIBUTES
 import static org.sonatype.nexus.repository.storage.StorageFacet.P_FORMAT
