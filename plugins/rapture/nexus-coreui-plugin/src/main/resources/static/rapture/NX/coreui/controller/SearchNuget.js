@@ -33,6 +33,7 @@ Ext.define('NX.coreui.controller.SearchNuget', {
     search.registerCriteria([
       {
         id: 'attributes.nuget.id',
+        group: NX.I18n.get('BROWSE_SEARCH_COMPONENTS_CRITERIA_GROUP_NUGET'),
         config: {
           fieldLabel: NX.I18n.get('BROWSE_SEARCH_COMPONENTS_CRITERIA_NUGET_ID'),
           width: 300
@@ -40,6 +41,7 @@ Ext.define('NX.coreui.controller.SearchNuget', {
       },
       {
         id: 'attributes.nuget.tags',
+        group: NX.I18n.get('BROWSE_SEARCH_COMPONENTS_CRITERIA_GROUP_NUGET'),
         config: {
           fieldLabel: NX.I18n.get('BROWSE_SEARCH_COMPONENTS_CRITERIA_NUGET_TAGS'),
           width: 300

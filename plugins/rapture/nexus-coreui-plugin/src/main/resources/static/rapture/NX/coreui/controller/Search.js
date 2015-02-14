@@ -193,7 +193,7 @@ Ext.define('NX.coreui.controller.Search', {
    * @param {NX.coreui.model.SearchFilter} model to be registered
    * @param {Ext.util.Observable} [owner] to be watched to automatically unregister the criterias if owner is destroyed
    */
-  registerFeature: function(model, owner){
+  registerFeature: function(model, owner) {
     var me = this;
 
     if (model.getId() === 'keyword') {
@@ -265,7 +265,7 @@ Ext.define('NX.coreui.controller.Search', {
         bookmarkSegments = NX.Bookmarks.getBookmark().getSegments(),
         bookmarkValues = {},
         filterSegments,
-        criterias = {},
+        criterias = {}, criteriasPerGroup = {},
         searchCriteria, queryIndex, pair;
 
     // Extract the filter object from the URI
@@ -320,12 +320,27 @@ Ext.define('NX.coreui.controller.Search', {
     });
 
     searchCriteriaStore.each(function(criteria) {
-      addCriteriaMenu.push({
+      var addTo = addCriteriaMenu,
+          group = criteria.get('group');
+
+      if (group) {
+        if (!criteriasPerGroup[group]) {
+          criteriasPerGroup[group] = [];
+        }
+        addTo = criteriasPerGroup[group];
+      }
+      addTo.push({
         text: criteria.get('config').fieldLabel,
         criteria: criteria,
         criteriaId: criteria.getId(),
         action: 'add',
         hidden: Ext.isDefined(criterias[criteria.getId()])
+      });
+    });
+    Ext.Object.each(criteriasPerGroup, function (key, value) {
+      addCriteriaMenu.push({
+          text: key,
+          menu: value
       });
     });
 

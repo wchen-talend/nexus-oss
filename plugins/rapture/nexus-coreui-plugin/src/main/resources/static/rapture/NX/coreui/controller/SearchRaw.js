@@ -33,8 +33,9 @@ Ext.define('NX.coreui.controller.SearchRaw', {
     search.registerCriteria([
       {
         id: 'attributes.raw.path.tree',
+        group: NX.I18n.get('BROWSE_SEARCH_COMPONENTS_CRITERIA_GROUP_RAW'),
         config: {
-          fieldLabel: NX.I18n.get('BROWSE_SEARCH_COMPONENTS_CRITERIA_PATH'),
+          fieldLabel: NX.I18n.get('BROWSE_SEARCH_COMPONENTS_CRITERIA_RAW_PATH'),
           width: 300
         }
       }
