@@ -13,6 +13,7 @@
 package com.sonatype.nexus.repository.nuget.internal
 
 import org.sonatype.nexus.repository.*
+import org.sonatype.nexus.repository.search.SearchFacet
 import org.sonatype.nexus.repository.security.SecurityHandler
 import org.sonatype.nexus.repository.storage.StorageFacet
 import org.sonatype.nexus.repository.types.HostedType
@@ -58,6 +59,9 @@ class NugetHostedRecipe
   Provider<StorageFacet> storageFacet
 
   @Inject
+  Provider<SearchFacet> searchFacet
+
+  @Inject
   TimingHandler timingHandler
 
   @Inject
@@ -85,6 +89,7 @@ class NugetHostedRecipe
   @Override
   void apply(@Nonnull final Repository repository) throws Exception {
     repository.attach(storageFacet.get())
+    repository.attach(searchFacet.get())
     repository.attach(galleryFacet.get())
     repository.attach(securityFacet.get())
     repository.attach(configure(viewFacet.get()))

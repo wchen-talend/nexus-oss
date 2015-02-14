@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import com.sonatype.nexus.repository.nuget.internal.odata.ComponentQuery;
@@ -38,7 +39,10 @@ import org.sonatype.nexus.common.hash.HashAlgorithm;
 import org.sonatype.nexus.common.stateguard.Guarded;
 import org.sonatype.nexus.common.time.Clock;
 import org.sonatype.nexus.repository.FacetSupport;
+import org.sonatype.nexus.repository.MissingFacetException;
 import org.sonatype.nexus.repository.Repository;
+import org.sonatype.nexus.repository.search.ComponentMetadataFactory;
+import org.sonatype.nexus.repository.search.SearchFacet;
 import org.sonatype.nexus.repository.storage.StorageFacet;
 import org.sonatype.nexus.repository.storage.StorageTx;
 import org.sonatype.nexus.repository.util.NestedAttributesMap;
@@ -90,6 +94,14 @@ public class NugetGalleryFacetImpl
   private StorageFacet storage;
 
   private static final VersionScheme SCHEME = new GenericVersionScheme();
+
+  private final ComponentMetadataFactory componentMetadataFactory;
+
+  @Inject
+  public NugetGalleryFacetImpl(final ComponentMetadataFactory componentMetadataFactory)
+  {
+    this.componentMetadataFactory = checkNotNull(componentMetadataFactory);
+  }
 
   @Override
   protected void doConfigure() throws Exception {
@@ -275,6 +287,13 @@ public class NugetGalleryFacetImpl
       tx.deleteVertex(component);
       tx.commit();
 
+      try {
+        getRepository().facet(SearchFacet.class).delete(component.getId().toString());
+      }
+      catch (MissingFacetException e) {
+        // skip indexing if no search facet
+      }
+
       return true;
     }
   }
@@ -320,6 +339,13 @@ public class NugetGalleryFacetImpl
     final OrientVertex component = createOrUpdateComponent(storageTx, bucket, recordMetadata);
 
     createOrUpdateAsset(storageTx, bucket, component, packageStream);
+
+    try {
+      getRepository().facet(SearchFacet.class).put(componentMetadataFactory.from(component));
+    }
+    catch (MissingFacetException e) {
+      // skip indexing if no search facet
+    }
   }
 
   private String blobName(OrientVertex component) {

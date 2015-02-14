@@ -61,6 +61,18 @@ Ext.define('NX.coreui.store.SearchFilter', {
       ]
     },
     {
+      id: 'nuget',
+      name: 'NuGet',
+      text: NX.I18n.get('BROWSE_SEARCH_NUGET_TITLE'),
+      description: NX.I18n.get('BROWSE_SEARCH_NUGET_SUBTITLE'),
+      readOnly: true,
+      criterias: [
+        { id: 'format', value: 'nuget', hidden: true },
+        { id: 'attributes.nuget.id' },
+        { id: 'attributes.nuget.tags' }
+      ]
+    },
+    {
       id: 'keyword',
       name: 'Keyword',
       text: 'Keyword',

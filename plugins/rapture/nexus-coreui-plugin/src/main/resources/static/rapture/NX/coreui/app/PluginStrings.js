@@ -47,8 +47,11 @@ Ext.define('NX.coreui.app.PluginStrings', {
     BROWSE_SEARCH_COMPONENTS_CRITERIA_PACKAGING: 'Packaging',
     BROWSE_SEARCH_COMPONENTS_CRITERIA_PATH: 'Raw Path',
     BROWSE_SEARCH_COMPONENTS_CRITERIA_SHA_1: 'SHA-1',
+    BROWSE_SEARCH_COMPONENTS_CRITERIA_SHA_512: 'SHA-512',
     BROWSE_SEARCH_COMPONENTS_CRITERIA_VERSION: 'Version',
     BROWSE_SEARCH_COMPONENTS_CRITERIA_FILTER_PLACEHOLDER: 'Any',
+    BROWSE_SEARCH_COMPONENTS_CRITERIA_NUGET_ID: 'ID',
+    BROWSE_SEARCH_COMPONENTS_CRITERIA_NUGET_TAGS: 'Tags',
     BROWSE_SEARCH_COMPONENTS_MORE_BUTTON: 'More criteria',
     BROWSE_SEARCH_COMPONENTS_FORMAT_COLUMN: 'Format',
     BROWSE_SEARCH_COMPONENTS_GROUP_COLUMN: 'Group',
@@ -87,7 +90,11 @@ Ext.define('NX.coreui.app.PluginStrings', {
 
     // Browse -> Search -> Raw
     BROWSE_SEARCH_RAW_TITLE: 'Raw',
-    BROWSE_SEARCH_RAW_SUBTITLE: 'Search for components by in raw repositories by path',
+    BROWSE_SEARCH_RAW_SUBTITLE: 'Search for components in Raw repositories',
+
+    // Browse -> Search -> Nuget
+    BROWSE_SEARCH_NUGET_TITLE: 'NuGet',
+    BROWSE_SEARCH_NUGET_SUBTITLE: 'Search for components in NuGet repositories',
 
     // Browse -> Search -> Custom
     BROWSE_SEARCH_CUSTOM_TITLE: 'Custom',

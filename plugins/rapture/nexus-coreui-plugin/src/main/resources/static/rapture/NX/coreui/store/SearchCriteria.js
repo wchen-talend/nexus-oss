@@ -87,6 +87,13 @@ Ext.define('NX.coreui.store.SearchCriteria', {
       }
     },
     {
+      id: 'assets.attributes.checksum.sha512',
+      config: {
+        fieldLabel: NX.I18n.get('BROWSE_SEARCH_COMPONENTS_CRITERIA_SHA_512'),
+        width: 250
+      }
+    },
+    {
       id: 'assets.attributes.checksum.md5',
       config: {
         fieldLabel: NX.I18n.get('BROWSE_SEARCH_COMPONENTS_CRITERIA_MD5'),
@@ -97,6 +104,20 @@ Ext.define('NX.coreui.store.SearchCriteria', {
       id: 'attributes.raw.path.tree',
       config: {
         fieldLabel: NX.I18n.get('BROWSE_SEARCH_COMPONENTS_CRITERIA_PATH'),
+        width: 300
+      }
+    },
+    {
+      id: 'attributes.nuget.id',
+      config: {
+        fieldLabel: NX.I18n.get('BROWSE_SEARCH_COMPONENTS_CRITERIA_NUGET_ID'),
+        width: 300
+      }
+    },
+    {
+      id: 'attributes.nuget.tags',
+      config: {
+        fieldLabel: NX.I18n.get('BROWSE_SEARCH_COMPONENTS_CRITERIA_NUGET_TAGS'),
         width: 300
       }
     }
