@@ -68,18 +68,6 @@ Ext.define('NX.coreui.store.SearchCriteria', {
       }
     },
     {
-      id: 'attributes.maven.classifier',
-      config: {
-        fieldLabel: NX.I18n.get('BROWSE_SEARCH_COMPONENTS_CRITERIA_CLASSIFIER')
-      }
-    },
-    {
-      id: 'attributes.maven.packaging',
-      config: {
-        fieldLabel: NX.I18n.get('BROWSE_SEARCH_COMPONENTS_CRITERIA_PACKAGING')
-      }
-    },
-    {
       id: 'assets.attributes.checksum.sha1',
       config: {
         fieldLabel: NX.I18n.get('BROWSE_SEARCH_COMPONENTS_CRITERIA_SHA_1'),
@@ -98,27 +86,6 @@ Ext.define('NX.coreui.store.SearchCriteria', {
       config: {
         fieldLabel: NX.I18n.get('BROWSE_SEARCH_COMPONENTS_CRITERIA_MD5'),
         width: 250
-      }
-    },
-    {
-      id: 'attributes.raw.path.tree',
-      config: {
-        fieldLabel: NX.I18n.get('BROWSE_SEARCH_COMPONENTS_CRITERIA_PATH'),
-        width: 300
-      }
-    },
-    {
-      id: 'attributes.nuget.id',
-      config: {
-        fieldLabel: NX.I18n.get('BROWSE_SEARCH_COMPONENTS_CRITERIA_NUGET_ID'),
-        width: 300
-      }
-    },
-    {
-      id: 'attributes.nuget.tags',
-      config: {
-        fieldLabel: NX.I18n.get('BROWSE_SEARCH_COMPONENTS_CRITERIA_NUGET_TAGS'),
-        width: 300
       }
     }
   ],

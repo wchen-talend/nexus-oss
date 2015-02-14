@@ -20,9 +20,6 @@
 Ext.define('NX.coreui.store.SearchFilter', {
   extend: 'Ext.data.Store',
   model: 'NX.coreui.model.SearchFilter',
-  requires: [
-    'NX.I18n',
-  ],
 
   autoLoad: true,
 
@@ -31,64 +28,6 @@ Ext.define('NX.coreui.store.SearchFilter', {
     reader: {
       type: 'json'
     }
-  },
-
-  data: [
-    {
-      id: 'maven2',
-      name: 'Maven',
-      text: NX.I18n.get('BROWSE_SEARCH_MAVEN_TITLE'),
-      description: NX.I18n.get('BROWSE_SEARCH_MAVEN_SUBTITLE'),
-      readOnly: true,
-      criterias: [
-        { id: 'format', value: 'maven2', hidden: true },
-        { id: 'group.raw' },
-        { id: 'name.raw' },
-        { id: 'version' },
-        { id: 'attributes.maven.classifier'},
-        { id: 'attributes.maven.packaging' }
-      ]
-    },
-    {
-      id: 'raw',
-      name: 'Raw',
-      text: NX.I18n.get('BROWSE_SEARCH_RAW_TITLE'),
-      description: NX.I18n.get('BROWSE_SEARCH_RAW_SUBTITLE'),
-      readOnly: true,
-      criterias: [
-        { id: 'format', value: 'raw', hidden: true },
-        { id: 'attributes.raw.path.tree' }
-      ]
-    },
-    {
-      id: 'nuget',
-      name: 'NuGet',
-      text: NX.I18n.get('BROWSE_SEARCH_NUGET_TITLE'),
-      description: NX.I18n.get('BROWSE_SEARCH_NUGET_SUBTITLE'),
-      readOnly: true,
-      criterias: [
-        { id: 'format', value: 'nuget', hidden: true },
-        { id: 'attributes.nuget.id' },
-        { id: 'attributes.nuget.tags' }
-      ]
-    },
-    {
-      id: 'keyword',
-      name: 'Keyword',
-      text: 'Keyword',
-      description: 'Search for components by keyword',
-      readOnly: true,
-      criterias: [
-        { id: 'keyword' }
-      ]
-    },
-    {
-      id: 'custom',
-      name: 'Custom',
-      text: NX.I18n.get('BROWSE_SEARCH_CUSTOM_TITLE'),
-      description: NX.I18n.get('BROWSE_SEARCH_CUSTOM_SUBTITLE'),
-      readOnly: true
-    }
-  ]
+  }
 
 });
