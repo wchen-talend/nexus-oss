@@ -151,12 +151,8 @@ public class RawContentFacetImpl
       }
 
       tx.commit();
-      try {
-        getRepository().facet(SearchFacet.class).put(componentMetadataFactory.from(component));
-      }
-      catch (MissingFacetException e) {
-        // skip indexing if no search facet
-      }
+
+      putInIndex(component);
     }
   }
 
@@ -228,12 +224,7 @@ public class RawContentFacetImpl
 
       tx.commit();
 
-      try {
-        getRepository().facet(SearchFacet.class).delete(component.getId().toString());
-      }
-      catch (MissingFacetException e) {
-        // skip indexing if no search facet
-      }
+      deleteFromIndex(component);
 
       return true;
     }
@@ -315,5 +306,23 @@ public class RawContentFacetImpl
         return lastUpdated;
       }
     };
+  }
+
+  private void putInIndex(final OrientVertex component) {
+    try {
+      getRepository().facet(SearchFacet.class).put(componentMetadataFactory.from(component));
+    }
+    catch (MissingFacetException e) {
+      // skip indexing if no search facet
+    }
+  }
+
+  private void deleteFromIndex(final OrientVertex component) {
+    try {
+      getRepository().facet(SearchFacet.class).delete(component.getId().toString());
+    }
+    catch (MissingFacetException e) {
+      // skip indexing if no search facet
+    }
   }
 }

@@ -287,12 +287,7 @@ public class NugetGalleryFacetImpl
       tx.deleteVertex(component);
       tx.commit();
 
-      try {
-        getRepository().facet(SearchFacet.class).delete(component.getId().toString());
-      }
-      catch (MissingFacetException e) {
-        // skip indexing if no search facet
-      }
+      deleteFromIndex(component);
 
       return true;
     }
@@ -339,13 +334,7 @@ public class NugetGalleryFacetImpl
     final OrientVertex component = createOrUpdateComponent(storageTx, bucket, recordMetadata);
 
     createOrUpdateAsset(storageTx, bucket, component, packageStream);
-
-    try {
-      getRepository().facet(SearchFacet.class).put(componentMetadataFactory.from(component));
-    }
-    catch (MissingFacetException e) {
-      // skip indexing if no search facet
-    }
+    putInIndex(component);
   }
 
   private String blobName(OrientVertex component) {
@@ -542,6 +531,26 @@ public class NugetGalleryFacetImpl
   private List<Repository> getRepositories() {
     // TODO: Consider groups
     return asList(getRepository());
+  }
+
+  @VisibleForTesting
+  void putInIndex(final OrientVertex component) {
+    try {
+      getRepository().facet(SearchFacet.class).put(componentMetadataFactory.from(component));
+    }
+    catch (MissingFacetException e) {
+      // skip indexing if no search facet
+    }
+  }
+
+  @VisibleForTesting
+  void deleteFromIndex(final OrientVertex component) {
+    try {
+      getRepository().facet(SearchFacet.class).delete(component.getId().toString());
+    }
+    catch (MissingFacetException e) {
+      // skip indexing if no search facet
+    }
   }
 
   @VisibleForTesting
