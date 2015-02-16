@@ -1,6 +1,7 @@
 package com.sonatype.nexus.repository.nuget.internal;
 
 import org.sonatype.nexus.blobstore.api.BlobRef;
+import org.sonatype.nexus.repository.search.ComponentMetadataFactory;
 import org.sonatype.nexus.repository.storage.StorageFacet;
 import org.sonatype.nexus.repository.storage.StorageTx;
 import org.sonatype.sisu.litmus.testsupport.TestSupport;
@@ -9,7 +10,9 @@ import com.tinkerpop.blueprints.impls.orient.OrientVertex;
 import org.junit.Test;
 
 import static java.util.Arrays.asList;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -27,7 +30,7 @@ public class NugetGalleryFacetImplDeleteTest
     final String packageId = "screwdriver";
     final String version = "0.1.1";
 
-    final NugetGalleryFacetImpl galleryFacet = spy(new NugetGalleryFacetImpl());
+    final NugetGalleryFacetImpl galleryFacet = spy(new NugetGalleryFacetImpl(mock(ComponentMetadataFactory.class)));
 
     final StorageTx tx = mock(StorageTx.class);
     doReturn(tx).when(galleryFacet).openStorageTx();
@@ -40,6 +43,7 @@ public class NugetGalleryFacetImplDeleteTest
     doReturn(component).when(galleryFacet).findComponent(tx, packageId, version);
     when(tx.findAssets(eq(component))).thenReturn(asList(asset));
     when(asset.getProperty(eq(StorageFacet.P_BLOB_REF))).thenReturn(blobRef.toString());
+    doNothing().when(galleryFacet).deleteFromIndex(any(OrientVertex.class));
 
     galleryFacet.delete(packageId, version);
 
