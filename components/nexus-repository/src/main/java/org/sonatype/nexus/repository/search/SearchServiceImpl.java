@@ -73,7 +73,7 @@ public class SearchServiceImpl
     // in case that they not match (settings changed) we should drop the index, recreate it and re-index all components
     if (!client.get().admin().indices().prepareExists(repository.getName()).execute().actionGet().isExists()) {
       try {
-        String source = Resources.toString(Resources.getResource(SearchFacetImpl.class, "es-mapping.json"), UTF_8);
+        String source = Resources.toString(Resources.getResource(getClass(), "es-mapping.json"), UTF_8);
         for (IndexSettingsContributor contributor : indexSettingsContributors) {
           String contributed = contributor.getIndexSettings(repository);
           if (contributed != null) {
