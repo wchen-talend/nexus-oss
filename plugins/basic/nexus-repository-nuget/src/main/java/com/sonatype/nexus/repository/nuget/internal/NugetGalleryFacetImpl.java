@@ -208,8 +208,8 @@ public class NugetGalleryFacetImpl
   {
     Map<String, Object> data = Maps.newHashMap();
 
-    for (Entry<String, String> alias : ATTRIB_NAMES.entrySet()) {
-      data.put(alias.getKey(), nugetAttributes.get(alias.getValue()));
+    for (Entry<String, Object> attrib : nugetAttributes.entries()) {
+      data.put(attrib.getKey(), attrib.getValue());
     }
 
     for (String key : extra.keySet()) {

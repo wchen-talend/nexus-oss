@@ -12,16 +12,18 @@
  */
 package com.sonatype.nexus.repository.nuget.internal;
 
-import java.nio.charset.Charset;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
 
 import org.sonatype.nexus.repository.http.HttpResponses;
 import org.sonatype.nexus.repository.view.Context;
+import org.sonatype.nexus.repository.view.Parameters;
 import org.sonatype.nexus.repository.view.Response;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher.State;
 import org.sonatype.nexus.repository.view.payloads.StringPayload;
+
+import com.google.common.base.Charsets;
 
 /**
  * @since 3.0
@@ -39,9 +41,14 @@ public class NugetFeedHandler
     final String operation = tokens.get("operation");
 
     final NugetGalleryFacet facet = context.getRepository().facet(NugetGalleryFacet.class);
+    final Parameters queryParameters = context.getRequest().getParameters();
 
-    final String feed = facet.feed(getRepositoryBase(context), operation, context.getRequest().getParameters());
+    if (tokens.containsKey("count")) {
+      final int count = facet.count(context.getRequest().getPath(), queryParameters);
+      return HttpResponses.ok(new StringPayload(Integer.toString(count), Charsets.UTF_8, "text/plain"));
+    }
 
-    return HttpResponses.ok(new StringPayload(feed, Charset.forName("UTF-8"), FEED_CONTENT_TYPE));
+    final String feed = facet.feed(getRepositoryBase(context), operation, queryParameters);
+    return HttpResponses.ok(new StringPayload(feed, Charsets.UTF_8, FEED_CONTENT_TYPE));
   }
 }

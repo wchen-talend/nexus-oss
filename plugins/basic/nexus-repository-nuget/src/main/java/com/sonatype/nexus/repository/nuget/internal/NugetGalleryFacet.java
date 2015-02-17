@@ -49,10 +49,19 @@ public interface NugetGalleryFacet
   /**
    * Returns named feed of packages matching the given query.
    *
-   * @param base  Base URI
-   * @param name  Feed name
+   * @param base       Base URI
+   * @param name       Feed name
    * @param parameters OData query parameters
    * @return NuGet feed XML
    */
   public String feed(final String base, final String name, final Parameters parameters);
+
+
+  /**
+   * Returns the number of matching packages
+   *
+   * @param path       typically a feed name followed by "/$count"
+   * @param parameters OData query parameters
+   */
+  public int count(final String path, final Parameters parameters);
 }

@@ -20,9 +20,9 @@ public class NugetStaticFeedHandler
 
     switch (path) {
       case "/":
-        return xmlResponse(200, ODataFeedUtils.root(getRepositoryBase(context)));
+        return xmlPayload(200, ODataFeedUtils.root(getRepositoryBase(context)));
       case "/$metadata":
-        return xmlResponse(200, ODataFeedUtils.metadata());
+        return xmlPayload(200, ODataFeedUtils.metadata());
       default:
         throw new IllegalStateException();
     }

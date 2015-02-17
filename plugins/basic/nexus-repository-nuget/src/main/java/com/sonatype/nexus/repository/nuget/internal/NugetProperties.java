@@ -147,7 +147,10 @@ public interface NugetProperties
   * A map from ODATA element name to the orientDB component attribute name under 'attributes.nuget'.
    */
   Map<String, String> ATTRIB_NAMES = new ImmutableMap.Builder<String, String>()
+      .put(AUTHORS, P_AUTHORS)
+      .put(COPYRIGHT, P_COPYRIGHT)
       .put(CREATED, P_CREATED)
+      .put(DESCRIPTION, P_DESCRIPTION)
       .put(DOWNLOAD_COUNT, P_DOWNLOAD_COUNT)
       .put(ID, P_ID)
       .put(IS_ABSOLUTE_LATEST_VERSION, P_IS_ABSOLUTE_LATEST_VERSION)

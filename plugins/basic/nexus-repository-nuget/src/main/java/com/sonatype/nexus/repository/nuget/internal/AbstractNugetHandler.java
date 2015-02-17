@@ -43,35 +43,34 @@ abstract class AbstractNugetHandler
   protected Response convertToXmlError(final Exception e) {
     if (e instanceof NugetPackageException) {
       log.debug("Invalid package being uploaded", e);
-      return xmlResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+      return xmlErrorMessage(HttpStatus.BAD_REQUEST, e.getMessage());
     }
     if (e instanceof IllegalArgumentException) {
       log.debug("Bad argument", e);
-      return xmlResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+      return xmlErrorMessage(HttpStatus.BAD_REQUEST, e.getMessage());
     }
     else if (e instanceof IOException) {
       log.warn("I/O exception", e);
-      return xmlResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+      return xmlErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
     }
     else {
       log.error("Unknown error", e);
-      return xmlResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+      return xmlErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
     }
   }
 
-  protected Response xmlResponse(final int code, final String message) {
-    final StringPayload stringPayload = new StringPayload(populateErrorTemplate(code, message), Charsets.UTF_8,
-        "application/xml");
+  protected Response xmlErrorMessage(final int code, final String message) {
+    return xmlPayload(code, populateErrorTemplate(code, message));
+  }
+
+  protected Response xmlPayload(final int code, final String content) {
+    final StringPayload stringPayload = new StringPayload(content, Charsets.UTF_8, "application/xml");
     return new PayloadResponse(Status.failure(code), stringPayload);
   }
 
   public String populateErrorTemplate(final int code, final String message) {
-    return populateTemplate(code, message, ODataTemplates.NUGET_ERROR);
-  }
-
-  protected String populateTemplate(final int code, final String message, final String templateName) {
     final Map<String, String> data = ImmutableMap.of("CODE", Integer.toString(code), "MESSAGE", nullToEmpty(message));
-    return ODataTemplates.interpolate(templateName, data);
+    return ODataTemplates.interpolate(ODataTemplates.NUGET_ERROR, data);
   }
 
   protected String getRepositoryBase(final Context context) {
