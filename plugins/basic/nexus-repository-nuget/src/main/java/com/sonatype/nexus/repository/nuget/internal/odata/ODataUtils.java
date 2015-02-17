@@ -84,11 +84,11 @@ public final class ODataUtils
         else {
           q.where(" OR ");
         }
-        q.where("id LIKE ").param(term);
-        q.where(" OR title LIKE ").param(term);
-        q.where(" OR description LIKE ").param(term);
-        q.where(" OR tags LIKE ").param(term);
-        q.where(" OR authors LIKE ").param(term);
+        q.where(jsonAttrib(ID) + " LIKE ").param(term);
+        q.where(" OR " + jsonAttrib(TITLE) + " LIKE ").param(term);
+        q.where(" OR " + jsonAttrib(DESCRIPTION) + " LIKE ").param(term);
+        q.where(" OR " + jsonAttrib(TAGS) + " LIKE ").param(term);
+        q.where(" OR " + jsonAttrib(AUTHORS) + " LIKE ").param(term);
       }
     }
     if (hasTerms) {
@@ -100,14 +100,14 @@ public final class ODataUtils
       if (q.hasWhere()) {
         q.where(" AND ");
       }
-      q.where(COLUMN_ALIASES.get(ID) + " = ").param(id);
+      q.where(jsonAttrib(ID) + " = ").param(id);
     }
 
     if ("false".equalsIgnoreCase(StringUtils.strip(query.get("includePrerelease"), "\" '"))) {
       if (q.hasWhere()) {
         q.where(" AND ");
       }
-      q.where(" " + COLUMN_ALIASES.get(IS_PRERELEASE) + "=false ");
+      q.where(" " + jsonAttrib(IS_PRERELEASE) + "=false ");
     }
 
     final QueryInfo odata;
@@ -197,8 +197,14 @@ public final class ODataUtils
   /**
    * Converts an ODATA element name into the name of the json attribute we store it under in orient.
    */
+  private static String jsonAttrib(String elementName) {
+    return COLUMN_ALIASES.get(elementName);
+  }
+
+  /**
+   * Fully qualifies a nuget attribute reference.
+   */
   private static String nugat(final String column) {
     return "attributes.nuget." + column;
   }
-
 }
