@@ -45,7 +45,7 @@ implements Comparable<SearchResultVersionXO>
     if (result == 0) {
       result = versionScheme.parseVersion(version ?: "0").compareTo(versionScheme.parseVersion(o.version ?: "0"))
       if (result == 0) {
-        result = path ?: "".compareTo(o.path ?: "")
+        result = (path ?: "").compareTo(o.path ?: "")
       }
     }
     return result
