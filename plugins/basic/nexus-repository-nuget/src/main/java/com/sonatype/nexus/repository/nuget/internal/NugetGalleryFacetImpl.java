@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.SortedSet;
 
 import javax.inject.Inject;
@@ -155,7 +156,6 @@ public class NugetGalleryFacetImpl
     final StringBuilder xml = new StringBuilder();
     xml.append(ODataTemplates.interpolate(ODataTemplates.NUGET_FEED, extra));
 
-
     // NEXUS-6822 Visual Studio doesn't send a sort order by default, leading to unusable results
     if (!query.containsKey("$orderby")) {
       query.put("$orderby", P_DOWNLOAD_COUNT + " desc");
@@ -179,7 +179,8 @@ public class NugetGalleryFacetImpl
       for (OrientVertex component : components) {
         n++;
 
-        final Map<String, ?> data = toData(component, extra);
+        final NestedAttributesMap nugetAttributes = storageTx.getAttributes(component).child(NUGET);
+        final Map<String, ?> data = toData(nugetAttributes, extra);
 
         xml.append(ODataTemplates.interpolate(ODataTemplates.NUGET_ENTRY, data));
         if (n == ODataUtils.PAGE_SIZE) {
@@ -203,10 +204,13 @@ public class NugetGalleryFacetImpl
     return query;
   }
 
-  private Map<String, ?> toData(final OrientVertex component, Map<String, String> extra) {
+  private Map<String, ?> toData(final NestedAttributesMap nugetAttributes, Map<String, String> extra)
+  {
     Map<String, Object> data = Maps.newHashMap();
 
-    // TODO: Put all the Vertex properties in there
+    for (Entry<String, String> alias : ATTRIB_NAMES.entrySet()) {
+      data.put(alias.getKey(), nugetAttributes.get(alias.getValue()));
+    }
 
     for (String key : extra.keySet()) {
       data.put(key, extra.get(key));

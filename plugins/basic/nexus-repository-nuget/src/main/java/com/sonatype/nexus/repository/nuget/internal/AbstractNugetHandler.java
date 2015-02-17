@@ -18,6 +18,7 @@ import java.util.Map;
 import com.sonatype.nexus.repository.nuget.internal.odata.ODataTemplates;
 
 import org.sonatype.nexus.repository.http.HttpStatus;
+import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Handler;
 import org.sonatype.nexus.repository.view.PayloadResponse;
 import org.sonatype.nexus.repository.view.Response;
@@ -71,5 +72,11 @@ abstract class AbstractNugetHandler
   protected String populateTemplate(final int code, final String message, final String templateName) {
     final Map<String, String> data = ImmutableMap.of("CODE", Integer.toString(code), "MESSAGE", nullToEmpty(message));
     return ODataTemplates.interpolate(templateName, data);
+  }
+
+  protected String getRepositoryBase(final Context context) {
+    final String path = context.getRequest().getPath();
+    final String requestUrl = context.getRequest().getRequestUrl();
+    return requestUrl.substring(0, requestUrl.length() - path.length());
   }
 }

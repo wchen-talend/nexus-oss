@@ -18,6 +18,7 @@ import java.io.InputStream;
 import javax.annotation.Nullable;
 
 import org.sonatype.nexus.repository.Facet;
+import org.sonatype.nexus.repository.view.Parameters;
 import org.sonatype.nexus.repository.view.Payload;
 
 /**
@@ -44,4 +45,14 @@ public interface NugetGalleryFacet
    * Delete a package and return whether it existed.
    */
   boolean delete(String id, String version) throws IOException;
+
+  /**
+   * Returns named feed of packages matching the given query.
+   *
+   * @param base  Base URI
+   * @param name  Feed name
+   * @param parameters OData query parameters
+   * @return NuGet feed XML
+   */
+  public String feed(final String base, final String name, final Parameters parameters);
 }

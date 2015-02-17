@@ -65,7 +65,7 @@ class NugetHostedRecipe
   TimingHandler timingHandler
 
   @Inject
-  NugetFeedHandler galleryHandler
+  NugetFeedHandler feedHandler
 
   @Inject
   NugetItemHandler itemHandler
@@ -142,32 +142,33 @@ class NugetHostedRecipe
   private Facet configure(final ConfigurableViewFacet facet) {
     Router.Builder router = new Router.Builder()
 
-    // Route Ordering:
-    // TODO: root xml
-    // TODO: $metadata
-    // TODO: .meta (what is this?)
-    // TODO: $count
-    // TODO: Packages
-    // TODO: Search
-    // TODO: FindPackagesById
-    // TODO: Individual package entry
-    // serving up package content
-
+    // Services root and /$metadata static content
     router.route(new Route.Builder()
         .matcher(LogicMatchers.or(new LiteralMatcher("/"), new LiteralMatcher("/\$metadata")))
         .handler(staticFeedHandler)
         .create());
 
+    // TODO: .meta (what is this?)
+
+    // TODO: $count
+
+    // TODO: Packages
+    // TODO: Search
+    // TODO: FindPackagesById
+    // TODO: Individual package entry
+
     // Metadata operations
     // <galleryBase>/Operation(param1='whatever',...)/?queryParameters
+    // TODO: Are the parentheses optional? They are in the old code
     router.route(new Route.Builder()
         .matcher(new TokenMatcher("/{operation}({paramString:.*})"))
         .handler(timingHandler)
     //        .handler(securityHandler)
-        .handler(galleryHandler)
+        .handler(feedHandler)
         .handler(notFound())
         .create())
 
+    // serving up package content
     router.route(new Route.Builder()
         .matcher(new TokenMatcher("/{id}/{version}"))
         .handler(timingHandler)

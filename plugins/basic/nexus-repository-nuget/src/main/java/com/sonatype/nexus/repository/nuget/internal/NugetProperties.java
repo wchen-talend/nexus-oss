@@ -12,6 +12,10 @@
  */
 package com.sonatype.nexus.repository.nuget.internal;
 
+import java.util.Map;
+
+import com.google.common.collect.ImmutableMap;
+
 /**
  * @since 3.0
  */
@@ -138,4 +142,27 @@ public interface NugetProperties
   String P_VERSION = "version";
 
   String P_VERSION_DOWNLOAD_COUNT = "version_download_count";
+
+  /*
+  * A map from ODATA element name to the orientDB component attribute name under 'attributes.nuget'.
+   */
+  Map<String, String> ATTRIB_NAMES = new ImmutableMap.Builder<String, String>()
+      .put(CREATED, P_CREATED)
+      .put(DOWNLOAD_COUNT, P_DOWNLOAD_COUNT)
+      .put(ID, P_ID)
+      .put(IS_ABSOLUTE_LATEST_VERSION, P_IS_ABSOLUTE_LATEST_VERSION)
+      .put(IS_LATEST_VERSION, P_IS_LATEST_VERSION)
+      .put(IS_PRERELEASE, P_IS_PRERELEASE)
+      .put(LAST_UPDATED, P_LAST_UPDATED)
+      .put(PACKAGE_HASH, P_PACKAGE_HASH)
+      .put(PACKAGE_HASH_ALGORITHM, P_PACKAGE_HASH_ALGORITHM)
+      .put(PACKAGE_SIZE, P_PACKAGE_SIZE)
+      .put(PUBLISHED, P_PUBLISHED)
+      .put(REQUIRE_LICENSE_ACCEPTANCE, P_REQUIRE_LICENSE_ACCEPTANCE)
+      .put(SUMMARY, P_SUMMARY)
+      .put(TITLE, P_TITLE)
+      .put(VERSION, P_VERSION)
+      .put(VERSION_DOWNLOAD_COUNT, P_VERSION_DOWNLOAD_COUNT)
+      .build();
+
 }

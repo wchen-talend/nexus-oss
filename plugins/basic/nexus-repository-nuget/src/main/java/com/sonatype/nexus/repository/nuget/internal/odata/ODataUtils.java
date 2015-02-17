@@ -100,14 +100,14 @@ public final class ODataUtils
       if (q.hasWhere()) {
         q.where(" AND ");
       }
-      q.where(nugat("id") + " = ").param(id);
+      q.where(COLUMN_ALIASES.get(ID) + " = ").param(id);
     }
 
     if ("false".equalsIgnoreCase(StringUtils.strip(query.get("includePrerelease"), "\" '"))) {
       if (q.hasWhere()) {
         q.where(" AND ");
       }
-      q.where(" " + nugat("prerelease") + "=false ");
+      q.where(" " + COLUMN_ALIASES.get(IS_PRERELEASE) + "=false ");
     }
 
     final QueryInfo odata;

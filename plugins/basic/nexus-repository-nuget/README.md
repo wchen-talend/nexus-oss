@@ -26,3 +26,15 @@
     curl -X GET -v http://localhost:8081/repository/nugethosted1/SONATYPE.TEST/1.0
     curl -X DELETE -v http://localhost:8081/repository/nugethosted1/SONATYPE.TEST/1.0
 
+# Typical Visual Studio Queries
+
+## Default Search when VS is opened
+
+    curl -X GET -v http://localhost:8081/repository/nugethosted1/Search()/$count?$filter=IsLatestVersion&searchTerm=''&targetFramework='net45'&includePrerelease=false
+    curl -X GET -v "http://localhost:8081/repository/nugethosted1/Search()?$filter=IsLatestVersion&$orderby=DownloadCount%20desc,Id&$skip=0&$top=30&searchTerm=''&targetFramework='net45'&includePrerelease=false"
+
+## Searching for 'Web'
+
+    curl -X GET -v http://localhost:8081/repository/nugethosted1/Search()/$count?$filter=IsLatestVersion&searchTerm='Web'&targetFramework='net45'&includePrerelease=false
+    curl -X GET -v http://localhost:8081/repository/nugethosted1/Search()?$filter=IsLatestVersion&$skip=0&$top=30&searchTerm='Web'&targetFramework='net45'&includePrerelease=false
+
