@@ -84,11 +84,7 @@ public final class ODataUtils
         else {
           q.where(" OR ");
         }
-        q.where(jsonAttrib(ID) + " LIKE ").param(term);
-        q.where(" OR " + jsonAttrib(TITLE) + " LIKE ").param(term);
-        q.where(" OR " + jsonAttrib(DESCRIPTION) + " LIKE ").param(term);
-        q.where(" OR " + jsonAttrib(TAGS) + " LIKE ").param(term);
-        q.where(" OR " + jsonAttrib(AUTHORS) + " LIKE ").param(term);
+        q.where(nugat(P_KEYWORDS) + " LIKE ").param(term.toLowerCase());
       }
     }
     if (hasTerms) {

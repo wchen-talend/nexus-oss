@@ -109,6 +109,8 @@ public interface NugetProperties
 
   String P_IS_PRERELEASE = "is_prerelease";
 
+  String P_KEYWORDS = "keywords"; // to support search
+
   String P_LANGUAGE = "language";
 
   String P_LAST_UPDATED = "last_updated";

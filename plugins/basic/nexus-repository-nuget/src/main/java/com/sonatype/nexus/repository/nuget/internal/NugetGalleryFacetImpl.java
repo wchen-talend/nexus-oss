@@ -52,6 +52,7 @@ import org.sonatype.nexus.repository.view.Payload;
 import org.sonatype.nexus.repository.view.payloads.StreamPayload;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Joiner;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
@@ -232,6 +233,7 @@ public class NugetGalleryFacetImpl
       }
 
       recordMetadata.putAll(packageMetadata);
+
 
       // TODO: Do something cleaner with this derived data, as well as the derived stuff inside createOrUpdateComponent
       // Note: These are defaults that hold for locally-published packages,
@@ -484,6 +486,15 @@ public class NugetGalleryFacetImpl
     storedMetadata.set(P_CREATED, now);
     storedMetadata.set(P_PUBLISHED, now);
     storedMetadata.set(P_LAST_UPDATED, now);
+
+    // Populate keywords for case-insensitive search
+    Joiner joiner = Joiner.on(" ").skipNulls();
+    String keywords = joiner.join(incomingMetadata.get(ID),
+        incomingMetadata.get(TITLE),
+        incomingMetadata.get(DESCRIPTION),
+        incomingMetadata.get(TAGS),
+        incomingMetadata.get(AUTHORS));
+    storedMetadata.set(P_KEYWORDS, keywords.toLowerCase());
   }
 
   private OrientVertex findOrCreateComponent(final StorageTx storageTx, final OrientVertex bucket, final String name,
