@@ -458,7 +458,7 @@ public class NugetGalleryFacetImpl
     nugetAttr.set(P_LOCATION, data.get(LOCATION));
     nugetAttr.set(P_PACKAGE_HASH, data.get(PACKAGE_HASH));
     nugetAttr.set(P_PACKAGE_HASH_ALGORITHM, data.get(PACKAGE_HASH_ALGORITHM));
-    nugetAttr.set(P_PACKAGE_SIZE, data.get(PACKAGE_SIZE));
+    nugetAttr.set(P_PACKAGE_SIZE, Integer.parseInt(data.get(PACKAGE_SIZE)));
     nugetAttr.set(P_PROJECT_URL, data.get(PROJECT_URL));
     nugetAttr.set(P_RELEASE_NOTES, data.get(RELEASE_NOTES));
     nugetAttr.set(P_REPORT_ABUSE_URL, data.get(REPORT_ABUSE_URL));
