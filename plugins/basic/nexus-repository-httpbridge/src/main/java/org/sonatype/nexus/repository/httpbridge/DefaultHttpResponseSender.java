@@ -64,7 +64,7 @@ public class DefaultHttpResponseSender
         if (payload.getContentType() != null) {
           httpResponse.setContentType(payload.getContentType());
         }
-        httpResponse.setContentLength((int) payload.getSize()); // HACK: Upgrade to servlet 3.1 to use proper long values
+        httpResponse.setContentLengthLong(payload.getSize());
 
         try (InputStream input = payload.openInputStream(); OutputStream output = httpResponse.getOutputStream()) {
           ByteStreams.copy(input, output);
