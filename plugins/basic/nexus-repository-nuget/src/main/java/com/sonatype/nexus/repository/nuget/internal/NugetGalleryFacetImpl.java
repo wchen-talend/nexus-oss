@@ -163,12 +163,14 @@ public class NugetGalleryFacetImpl
     }
 
     ComponentQuery componentQuery = ODataUtils.query(query, false);
+    ComponentQuery componentCountQuery = ODataUtils.query(query, true);
 
     try (StorageTx storageTx = openStorageTx()) {
 
       // NXCM-4502 add inlinecount only if requested
       if (inlineCountRequested(query)) {
-        int inlineCount = executeCount(componentQuery, storageTx);
+        // TODO: We need a count query, as this has an order by
+        int inlineCount = executeCount(componentCountQuery, storageTx);
         xml.append(ODataTemplates.interpolate(ODataTemplates.NUGET_INLINECOUNT,
             ImmutableMap.of("COUNT", String.valueOf(inlineCount))));
       }
