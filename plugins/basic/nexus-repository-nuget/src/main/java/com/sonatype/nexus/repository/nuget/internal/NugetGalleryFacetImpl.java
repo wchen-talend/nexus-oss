@@ -67,6 +67,7 @@ import org.odata4j.producer.InlineCount;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Strings.nullToEmpty;
 import static com.sonatype.nexus.repository.nuget.internal.NugetProperties.*;
 import static java.util.Arrays.asList;
 import static org.odata4j.producer.resources.OptionsQueryParser.parseInlineCount;
@@ -164,7 +165,7 @@ public class NugetGalleryFacetImpl
     else {
       // OrientDB only supports ordering by identifiers, not by functions
       final String orderby = query.get("$orderby");
-      query.put("$orderby", orderby.replaceAll("(?i)concat\\(title,id\\)", P_NAME_ORDER));
+      query.put("$orderby", orderby.replaceAll("(?i)concat\\(title,id\\)", NAME_ORDER));
     }
 
     ComponentQuery componentQuery = ODataUtils.query(query, false);
@@ -505,7 +506,8 @@ public class NugetGalleryFacetImpl
 
     // Populate order-by field to support Visual Studio's ordering by name, which is based on CONCAT(title,id)
     // Orient doesn't support anything other than identifiers in ORDER BY
-    storedMetadata.set(P_NAME_ORDER, incomingMetadata.get(TITLE) + incomingMetadata.get(ID));
+    storedMetadata.set(P_NAME_ORDER,
+        (nullToEmpty(incomingMetadata.get(TITLE)) + nullToEmpty(incomingMetadata.get(ID))).toLowerCase());
   }
 
   private OrientVertex findOrCreateComponent(final StorageTx storageTx, final OrientVertex bucket, final String name,
