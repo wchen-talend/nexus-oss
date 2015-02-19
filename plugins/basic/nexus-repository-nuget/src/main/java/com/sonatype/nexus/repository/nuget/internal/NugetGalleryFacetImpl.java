@@ -161,6 +161,11 @@ public class NugetGalleryFacetImpl
     if (!query.containsKey("$orderby")) {
       query.put("$orderby", P_DOWNLOAD_COUNT + " desc");
     }
+    else {
+      // OrientDB only supports ordering by identifiers, not by functions
+      final String orderby = query.get("$orderby");
+      query.put("$orderby", orderby.replaceAll("(?i)concat\\(title,id\\)", P_NAME_ORDER));
+    }
 
     ComponentQuery componentQuery = ODataUtils.query(query, false);
     ComponentQuery componentCountQuery = ODataUtils.query(query, true);
@@ -497,6 +502,10 @@ public class NugetGalleryFacetImpl
         incomingMetadata.get(TAGS),
         incomingMetadata.get(AUTHORS));
     storedMetadata.set(P_KEYWORDS, keywords.toLowerCase());
+
+    // Populate order-by field to support Visual Studio's ordering by name, which is based on CONCAT(title,id)
+    // Orient doesn't support anything other than identifiers in ORDER BY
+    storedMetadata.set(P_NAME_ORDER, incomingMetadata.get(TITLE) + incomingMetadata.get(ID));
   }
 
   private OrientVertex findOrCreateComponent(final StorageTx storageTx, final OrientVertex bucket, final String name,

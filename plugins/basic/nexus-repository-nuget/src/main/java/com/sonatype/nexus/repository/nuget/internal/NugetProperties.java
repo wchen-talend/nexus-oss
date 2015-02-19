@@ -141,6 +141,9 @@ public interface NugetProperties
 
   String P_TITLE = "title";
 
+  // Derived field to support Visual Studio's order by 'name'
+  String P_NAME_ORDER = "name_order";
+
   String P_VERSION = "version";
 
   String P_VERSION_DOWNLOAD_COUNT = "version_download_count";
