@@ -19,20 +19,18 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 /**
- * Custom LOWER function for OrientDB.
+ * Custom CONCAT function for OrientDB.
  *
  * @since 3.0
  */
 @Named
 @Singleton
-public class Lower
+public class Concat
     extends OSQLFunctionAbstract
 {
-  public Lower() {
-    super("lower", 1, 1);
+  public Concat() {
+    super("concat", 1, 32);
   }
 
   @Override
@@ -40,23 +38,19 @@ public class Lower
                         final Object[] iParams,
                         final OCommandContext iContext)
   {
-    checkArgument(iParams.length == 1);
+    StringBuilder b = new StringBuilder();
 
-    final Object param = iParams[0];
-
-    if (param == null) {
-      return null;
+    for (Object param : iParams) {
+      b.append(param);
     }
 
-    checkArgument(param instanceof String, "lower() parameter must be a string");
-
-    return ((String) param).toLowerCase();
+    return b.toString();
   }
 
 
   @Override
   public String getSyntax() {
-    return "lower(<string>)";
+    return "concat(<string> [, <string ...>])";
   }
 
   @Override
