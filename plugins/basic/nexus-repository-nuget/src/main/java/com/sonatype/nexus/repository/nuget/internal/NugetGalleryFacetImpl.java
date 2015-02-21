@@ -90,6 +90,9 @@ public class NugetGalleryFacetImpl
 {
   public static final String NUGET = "nuget";
 
+  public static final String WITH_NAMESPACES =
+      " xmlns:d=\"http://schemas.microsoft.com/ado/2007/08/dataservices\" xmlns:m=\"http://schemas.microsoft.com/ado/2007/08/dataservices/metadata\" xmlns=\"http://www.w3.org/2005/Atom\"";
+
   public static final String NO_NAMESPACES = "";
 
   protected Clock clock = new Clock();
@@ -228,7 +231,7 @@ public class NugetGalleryFacetImpl
 
   @Override
   public String entry(final String base, final String id, final String version) {
-    final Map<String, String> extra = extraTemplateVars(base, null);
+    final Map<String, String> extra = ImmutableMap.of("BASEURI", base, "NAMESPACES", WITH_NAMESPACES);
 
     final StringBuilder xml = new StringBuilder();
     try (StorageTx tx = openStorageTx()) {
