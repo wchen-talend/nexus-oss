@@ -129,7 +129,6 @@ public class ViewServlet
     // dispatch request and send response
     ViewFacet facet = repo.facet(ViewFacet.class);
     if (!facet.isOnline()) {
-      // TODO change Status.failure(HttpStatus.SERVICE_UNAVAILABLE, "Repository offline") with HttpResponses.serviceUnavailable when NFC merged
       send(HttpResponses.serviceUnavailable("Repository offline"), httpResponse);
     }
     log.debug("Dispatching to view facet: {}", facet);
