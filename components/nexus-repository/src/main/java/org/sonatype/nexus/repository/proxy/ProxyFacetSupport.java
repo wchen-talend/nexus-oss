@@ -104,6 +104,10 @@ public abstract class ProxyFacetSupport
     remoteUrl = null;
   }
 
+  public URI getRemoteUrl() {
+    return remoteUrl;
+  }
+
   @Override
   public Payload get(final Context context) throws IOException {
     checkNotNull(context);
@@ -144,9 +148,11 @@ public abstract class ProxyFacetSupport
 
   @Nullable
   protected Payload fetch(final Context context) throws IOException {
+    final String url = getUrl(context);
+
     HttpClient client = httpClient.getHttpClient();
 
-    HttpGet request = new HttpGet(remoteUrl.resolve(getUrl(context)));
+    HttpGet request = new HttpGet(remoteUrl.resolve(url));
     log.debug("Fetching: {}", request);
 
     HttpResponse response = client.execute(request);

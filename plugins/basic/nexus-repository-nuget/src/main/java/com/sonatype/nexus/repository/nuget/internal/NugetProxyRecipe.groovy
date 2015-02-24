@@ -16,11 +16,9 @@ import org.sonatype.nexus.repository.Facet
 import org.sonatype.nexus.repository.Format
 import org.sonatype.nexus.repository.Repository
 import org.sonatype.nexus.repository.Type
-import org.sonatype.nexus.repository.types.HostedType
+import org.sonatype.nexus.repository.types.ProxyType
 import org.sonatype.nexus.repository.view.ConfigurableViewFacet
-import org.sonatype.nexus.repository.view.Route
 import org.sonatype.nexus.repository.view.Router
-import org.sonatype.nexus.repository.view.matchers.AlwaysMatcher
 
 import javax.annotation.Nonnull
 import javax.inject.Inject
@@ -35,19 +33,22 @@ import static org.sonatype.nexus.repository.http.HttpHandlers.notFound
  *
  * @since 3.0
  */
-@Named(NugetHostedRecipe.NAME)
+@Named(NugetProxyRecipe.NAME)
 @Singleton
-class NugetHostedRecipe
+class NugetProxyRecipe
     extends NugetRecipeSupport
 {
-  static final String NAME = "nuget-hosted"
+  static final String NAME = "nuget-proxy"
 
   @Inject
-  Provider<NugetGalleryFacetImpl> galleryFacet
+  Provider<NugetProxyGalleryFacet> galleryFacet
 
   @Inject
-  public NugetHostedRecipe(@Named(HostedType.NAME) final Type type,
-                           @Named(NugetFormat.NAME) final Format format)
+  Provider<NugetProxyFacet> proxyFacet
+
+  @Inject
+  public NugetProxyRecipe(@Named(ProxyType.NAME) final Type type,
+                          @Named(NugetFormat.NAME) final Format format)
   {
     super(type, format)
   }
@@ -56,6 +57,7 @@ class NugetHostedRecipe
   void apply(@Nonnull final Repository repository) throws Exception {
     repository.attach(storageFacet.get())
     repository.attach(searchFacet.get())
+    repository.attach(proxyFacet.get())
     repository.attach(galleryFacet.get())
     repository.attach(securityFacet.get())
     repository.attach(configure(viewFacet.get()))
@@ -67,14 +69,6 @@ class NugetHostedRecipe
     addFeedRoutes(router)
 
     addPackageRoute(router)
-
-    // Uploading packages
-    router.route(new Route.Builder()
-        .matcher(new AlwaysMatcher())
-        .handler(timingHandler)
-    //            .handler(securityHandler)
-        .handler(pushHandler)
-        .create())
 
     // By default, return a 404
     router.defaultHandlers(notFound())

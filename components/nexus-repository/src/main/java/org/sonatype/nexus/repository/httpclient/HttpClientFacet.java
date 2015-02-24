@@ -13,6 +13,7 @@
 package org.sonatype.nexus.repository.httpclient;
 
 import org.sonatype.nexus.repository.Facet;
+import org.sonatype.nexus.repository.view.Payload;
 
 import org.apache.http.client.HttpClient;
 
