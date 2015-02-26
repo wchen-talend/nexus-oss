@@ -13,6 +13,8 @@
 package org.sonatype.nexus.testsuite.security;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 
@@ -22,8 +24,9 @@ import org.sonatype.nexus.testsuite.support.NexusStartAndStopStrategy;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
-import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -40,9 +43,9 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.cookie.BrowserCompatSpecFactory;
+import org.apache.http.message.BasicNameValuePair;
 import org.junit.Test;
 
-import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 import static com.google.common.net.HttpHeaders.SET_COOKIE;
 import static com.google.common.net.HttpHeaders.USER_AGENT;
 import static com.google.common.net.HttpHeaders.X_REQUESTED_WITH;
@@ -66,6 +69,7 @@ public class SimpleSessionCookieIT
   // FIXME: Remove or replace with siesta/wonderland/session
 
   private static final String LEGACY_LOGIN_PATH = "service/local/authentication/login";
+  private static final String LOGIN_PATH = "service/rapture/session";
 
   private static final String LEGACY_LOGOUT_PATH = "service/local/authentication/logout";
 
@@ -83,13 +87,6 @@ public class SimpleSessionCookieIT
     // help verify that a custom context path sets the cookie path value correctly
     return super.configureNexus(configuration).setContextPath("/customcontextpath");
   }
-
-  //@Before
-  //public void disableAnonymousSoThatAllRequestsRequireAuthentication() throws Exception {
-  //  Security security = client().getSubsystem(ServerConfiguration.class).security();
-  //  security.settings().withAnonymousAccessEnabled(false);
-  //  security.save();
-  //}
 
   @Test
   public void authenticatedContentCRUDActionsShouldNotCreateSession() throws Exception {
@@ -137,24 +134,14 @@ public class SimpleSessionCookieIT
     }
   }
 
-  //@Test
-  //public void sessionCookieSpecUsingHttpWithLegacyResources() throws Exception {
-  //  exerciseCookieSpec(nexus().getUrl(), true);
-  //}
-  //
-  //@Test
-  //public void sessionCookieSpecUsingHttpsWithLegacyResources() throws Exception {
-  //  exerciseCookieSpec(nexus().getSecureUrl(), true);
-  //}
-
   @Test
   public void sessionCookieSpecUsingHttpWithModernResources() throws Exception {
-    exerciseCookieSpec(nexus().getUrl(), false);
+    exerciseCookieSpec(nexus().getUrl());
   }
 
   @Test
   public void sessionCookieSpecUsingHttpsWithModernResources() throws Exception {
-    exerciseCookieSpec(nexus().getSecureUrl(), false);
+    exerciseCookieSpec(nexus().getSecureUrl());
   }
 
   private HttpRequestBase withCommonBrowserHeaders(HttpRequestBase req) {
@@ -168,25 +155,26 @@ public class SimpleSessionCookieIT
    * Validate Nexus Cookies during Sign-in and Sign-out
    *
    * @param nexusUrl           the base Nexus URL to validate against
-   * @param useLegacyResources true to use legacy resources where available, false to use modern resources
    */
-  private void exerciseCookieSpec(final URL nexusUrl, boolean useLegacyResources) throws Exception {
+  private void exerciseCookieSpec(final URL nexusUrl) throws Exception {
 
     // handle cookies like a browser to aid validation
     final CookieSpec spec = new BrowserCompatSpecFactory().create(null);
     final CookieOrigin cookieOrigin = cookieOrigin(nexusUrl);
     final CookieStore cookieStore = new BasicCookieStore();
-    final CredentialsProvider credProvider = credentialsProvider();
     SetCookie loginCookie;
 
-    try (CloseableHttpClient client = clientBuilder().setDefaultCookieStore(cookieStore).
-        setDefaultCredentialsProvider(credProvider).build()) {
+    try (CloseableHttpClient client = clientBuilder().setDefaultCookieStore(cookieStore).build()) {
 
       // 1. login with credentials and get session cookie
       // Set-Cookie: NXSESSIONID=98a766bc-bc33-4b3c-9d9f-d3bb85b0cf00; Path=/; Secure; HttpOnly
-      HttpRequestBase loginRequest = new HttpGet(nexusUrl.toExternalForm() + LEGACY_LOGIN_PATH);
-      withCommonBrowserHeaders(loginRequest);
-      try (CloseableHttpResponse response = client.execute(loginRequest, clientContext())) {
+      ArrayList<NameValuePair> postParameters = new ArrayList<>();
+      postParameters.add(new BasicNameValuePair("username", Base64.getEncoder().encodeToString("admin".getBytes())));
+      postParameters.add(new BasicNameValuePair("password", Base64.getEncoder().encodeToString("admin123".getBytes())));
+      HttpPost loginRequest = new HttpPost(nexusUrl.toExternalForm() + LOGIN_PATH);
+      loginRequest.setEntity(new UrlEncodedFormEntity(postParameters));
+      
+      try (CloseableHttpResponse response = client.execute(withCommonBrowserHeaders(loginRequest), clientContext())) {
         assertThat(response.getStatusLine().getStatusCode(), is(200));
         assertThat("login cookie should have been stored in the cookie store", cookieStore.getCookies(),
             hasSize(1));
@@ -220,22 +208,11 @@ public class SimpleSessionCookieIT
       HttpClientContext logoutContext = HttpClientContext.create();
       logoutContext.setCookieStore(cookieStore);
 
-      HttpRequestBase logoutRequest;
-      if (useLegacyResources) {
-        logoutRequest = new HttpGet(nexusUrl.toExternalForm() + LEGACY_LOGOUT_PATH);
-      }
-      else {
-        HttpPost logout = new HttpPost(nexusUrl.toExternalForm() + EXTDIRECT_PATH);
-        logout.setEntity(new StringEntity(
-            new ExtDirectTransactionBuilder().withAction("rapture_Security").withMethod("signOut").toJson()));
-        logout.setHeader(CONTENT_TYPE, "application/json");
-        logoutRequest = logout;
-      }
-      withCommonBrowserHeaders(logoutRequest);
+      HttpDelete logoutRequest = new HttpDelete(nexusUrl.toExternalForm() + LOGIN_PATH);
 
       // 2. Logout, sending valid session cookie, no credentials
       // Set-Cookie: NXSESSIONID=deleteMe; Path=/; Max-Age=0; Expires=Sun, 28-Dec-2014 15:59:11 GMT
-      try (CloseableHttpResponse response = client.execute(logoutRequest, logoutContext)) {
+      try (CloseableHttpResponse response = client.execute(withCommonBrowserHeaders(logoutRequest), logoutContext)) {
         assertThat(response.getStatusLine().getStatusCode(), is(200));
 
         // can't use client CookieStore to examine logout cookie, because the Expires header will prevent it from being
@@ -265,11 +242,11 @@ public class SimpleSessionCookieIT
       }
 
       // 3. Access a protected resource again using our original login cookie, no credentials, to verify session is dead
-      HttpGet loginFailedGet = new HttpGet(nexusUrl.toExternalForm() + LEGACY_LOGIN_PATH);
+      HttpGet loginFailedGet = new HttpGet(nexusUrl.toExternalForm() + LOGIN_PATH);
       cookieStore.addCookie(loginCookie);
       try (CloseableHttpResponse response = client.execute(loginFailedGet, HttpClientContext.create())) {
         assertThat("expected dead login session cookie to not authenticate", response.getStatusLine().getStatusCode(),
-            is(401));
+            is(403));
         Header[] setCookieHeaders = response.getHeaders(SET_COOKIE);
         assertThat("expecting no session cookie since login was unsuccessful", getSessionCookieHeader(setCookieHeaders),
             nullValue());
