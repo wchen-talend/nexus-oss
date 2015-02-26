@@ -68,15 +68,9 @@ public class SimpleSessionCookieIT
 
   // FIXME: Remove or replace with siesta/wonderland/session
 
-  private static final String LEGACY_LOGIN_PATH = "service/local/authentication/login";
   private static final String LOGIN_PATH = "service/rapture/session";
 
-  private static final String LEGACY_LOGOUT_PATH = "service/local/authentication/logout";
-
-  private static final String EXTDIRECT_PATH = "service/extdirect";
-
   private static final String TYPICAL_BROWSER_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.99 Safari/537.36";
-
 
   public SimpleSessionCookieIT(final String nexusBundleCoordinates) {
     super(nexusBundleCoordinates);
