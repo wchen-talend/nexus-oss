@@ -42,17 +42,18 @@ import org.sonatype.nexus.common.time.Clock;
 import org.sonatype.nexus.repository.FacetSupport;
 import org.sonatype.nexus.repository.MissingFacetException;
 import org.sonatype.nexus.repository.Repository;
+import org.sonatype.nexus.repository.proxy.ProxyFacet;
 import org.sonatype.nexus.repository.search.ComponentMetadataFactory;
 import org.sonatype.nexus.repository.search.SearchFacet;
 import org.sonatype.nexus.repository.storage.StorageFacet;
 import org.sonatype.nexus.repository.storage.StorageTx;
 import org.sonatype.nexus.repository.util.NestedAttributesMap;
-import org.sonatype.nexus.repository.view.Parameters;
 import org.sonatype.nexus.repository.view.Payload;
 import org.sonatype.nexus.repository.view.payloads.StreamPayload;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
+import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
@@ -67,6 +68,7 @@ import org.odata4j.producer.InlineCount;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Predicates.not;
 import static com.google.common.base.Strings.nullToEmpty;
 import static com.sonatype.nexus.repository.nuget.internal.NugetProperties.*;
 import static java.util.Arrays.asList;
@@ -122,8 +124,7 @@ public class NugetGalleryFacetImpl
 
   //@Override
   @Guarded(by = STARTED)
-  public int count(final String path, final Parameters parameters) {
-    Map<String, String> query = asMap(parameters);
+  public int count(final String path, final Map<String, String> query) {
     log.debug("Count: " + query);
 
     final ComponentQuery componentQuery = ODataUtils.query(query, true);
@@ -150,9 +151,7 @@ public class NugetGalleryFacetImpl
 
   //@Override
   @Guarded(by = STARTED)
-  public String feed(final String base, final String operation, final Parameters parameters) {
-    Map<String, String> query = asMap(parameters);
-
+  public String feed(final String base, final String operation, final Map<String, String> query) {
     log.debug("Select: " + query);
 
     final StringBuilder xml = new StringBuilder();
@@ -206,12 +205,10 @@ public class NugetGalleryFacetImpl
     return xml.append("</feed>").toString();
   }
 
-  private Map<String, String> asMap(final Parameters parameters) {
-    Map<String, String> query = Maps.newHashMap();
-    for (String param : parameters.names()) {
-      query.put(param, parameters.get(param));
-    }
-    return query;
+  @Override
+  public void putMetadata(final Map<String, String> metadata) {
+    // TODO: implement
+    throw new UnsupportedOperationException("implement me");
   }
 
   @VisibleForTesting
@@ -378,9 +375,9 @@ public class NugetGalleryFacetImpl
   {
     final OrientVertex bucket = storageTx.getBucket();
     final OrientVertex component = createOrUpdateComponent(storageTx, bucket, recordMetadata);
+    putInIndex(component);
 
     createOrUpdateAsset(storageTx, bucket, component, packageStream);
-    putInIndex(component);
   }
 
   private String blobName(OrientVertex component) {
@@ -587,10 +584,17 @@ public class NugetGalleryFacetImpl
         query.getQuerySuffix());
   }
 
-
-  private List<Repository> getRepositories() {
+  protected List<Repository> getRepositories() {
     // TODO: Consider groups
     return asList(getRepository());
+  }
+
+  protected Iterable<Repository> getHostedRepositories() {
+   return Iterables.filter(getRepositories(), not(new HasFacet(ProxyFacet.class)));
+  }
+
+  protected Iterable<Repository> getProxyRepositories() {
+    return Iterables.filter(getRepositories(), new HasFacet(ProxyFacet.class));
   }
 
   @VisibleForTesting
@@ -626,6 +630,26 @@ public class NugetGalleryFacetImpl
       }
       catch (InvalidVersionSpecificationException e) {
         throw Throwables.propagate(e);
+      }
+    }
+  }
+
+  private static class HasFacet
+      implements Predicate<Repository>
+  {
+    private final Class<ProxyFacet> facetClass;
+
+    public HasFacet(final Class<ProxyFacet> facetClass) {this.facetClass = facetClass;}
+
+    @Override
+    public boolean apply(final Repository input) {
+      try {
+
+        input.facet(facetClass);
+        return true;
+      }
+      catch (MissingFacetException e) {
+        return false;
       }
     }
   }

@@ -13,6 +13,7 @@
 package org.sonatype.nexus.repository.proxy;
 
 import java.io.IOException;
+import java.net.URI;
 
 import org.sonatype.nexus.repository.Facet;
 import org.sonatype.nexus.repository.view.Context;
@@ -26,4 +27,6 @@ public interface ProxyFacet
     extends Facet
 {
   Payload get(Context context) throws IOException;
+
+  URI getRemoteUrl();
 }

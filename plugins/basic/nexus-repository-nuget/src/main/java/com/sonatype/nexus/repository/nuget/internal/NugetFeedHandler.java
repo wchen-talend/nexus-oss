@@ -24,6 +24,7 @@ import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher.State;
 import org.sonatype.nexus.repository.view.payloads.StringPayload;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.Maps;
 
 /**
  * @since 3.0
@@ -47,11 +48,11 @@ public class NugetFeedHandler
 
     switch (state.pattern()) {
       case FEED_PATTERN:
-        final String feed = facet.feed(getRepositoryBase(context), tokens.get("operation"), queryParameters);
+        final String feed = facet.feed(getRepositoryBase(context), tokens.get("operation"), asMap(queryParameters));
         return xmlPayload(200, feed);
 
       case FEED_COUNT_PATTERN:
-        final int count = facet.count(context.getRequest().getPath(), queryParameters);
+        final int count = facet.count(context.getRequest().getPath(), asMap(queryParameters));
         return HttpResponses.ok(new StringPayload(Integer.toString(count), Charsets.UTF_8, "text/plain"));
 
       case PACKAGE_ENTRY_PATTERN:
@@ -61,5 +62,13 @@ public class NugetFeedHandler
       default:
         throw new IllegalStateException("Unexpected path pattern passed to " + getClass().getSimpleName());
     }
+  }
+
+  public static Map<String, String> asMap(final Parameters parameters) {
+    Map<String, String> query = Maps.newHashMap();
+    for (String param : parameters.names()) {
+      query.put(param, parameters.get(param));
+    }
+    return query;
   }
 }

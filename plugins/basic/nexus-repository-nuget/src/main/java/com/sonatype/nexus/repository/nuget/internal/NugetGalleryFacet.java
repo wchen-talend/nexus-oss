@@ -14,11 +14,11 @@ package com.sonatype.nexus.repository.nuget.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 
 import org.sonatype.nexus.repository.Facet;
-import org.sonatype.nexus.repository.view.Parameters;
 import org.sonatype.nexus.repository.view.Payload;
 
 /**
@@ -28,7 +28,7 @@ import org.sonatype.nexus.repository.view.Payload;
  */
 @Facet.Exposed
 public interface NugetGalleryFacet
-    extends Facet
+    extends Facet, NugetWritableGallery
 {
   /**
    * Add or update a package to the nuget gallery.
@@ -50,15 +50,16 @@ public interface NugetGalleryFacet
    * Returns named feed of packages matching the given query.
    *
    * @param base       Base URI
-   * @param operation       Feed name
+   * @param operation  Feed name
    * @param parameters OData query parameters
    * @return NuGet feed XML
    */
-  public String feed(final String base, final String operation, final Parameters parameters);
+  public String feed(final String base, final String operation, final Map<String, String> parameters);
 
   /**
    * Returns entry XML for a given package ID and version.
-   *  @param base    Base URI
+   *
+   * @param base    Base URI
    * @param id      package id
    * @param version package version
    */
@@ -70,5 +71,5 @@ public interface NugetGalleryFacet
    * @param path       typically a feed name followed by "/$count"
    * @param parameters OData query parameters
    */
-  public int count(final String path, final Parameters parameters);
+  public int count(final String path, final Map<String, String> parameters);
 }
