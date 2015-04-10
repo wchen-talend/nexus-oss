@@ -33,6 +33,7 @@ Ext.define('NX.app.PluginConfig', {
     'MenuGroup',
     'Refresh',
     'SettingsForm',
+    'Tutorial',
     'UiSessionTimeout',
     'User',
 
