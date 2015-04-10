@@ -24,6 +24,14 @@ Ext.define('NX.controller.Tutorial', {
     'header.Tutorial'
   ],
 
+  steps: [
+    'start',
+    'end'
+  ],
+
+  currentStep: -1,
+  currentTip: null,
+
   /**
    * @override
    */
@@ -34,6 +42,9 @@ Ext.define('NX.controller.Tutorial', {
       component: {
         'nx-header-tutorial menuitem[action=start]': {
           click: me.onStart
+        },
+        'nx-header-user-mode': {
+          click: me.onClickUserMode
         }
       }
     });
@@ -44,7 +55,54 @@ Ext.define('NX.controller.Tutorial', {
   /**
    * @private
    */
+  showTip: function(tip) {
+    var me = this;
+
+    if (me.currentTip) {
+      me.currentTip.destroy();
+    }
+
+    me.currentTip = Ext.create('Ext.ux.callout.Callout', tip);
+    me.currentTip.show();
+  },
+
+  /**
+   * @private
+   */
   onStart: function() {
-    console.log("Tutorial has started…");
+    var me = this;
+
+    me.currentStep = 0;
+
+    me.showTip({
+      target: 'nx-header-user-mode',
+      calloutArrowLocation: 'top',
+      relativePosition: 't-b',
+      cls: 'default',
+      width: 200,
+      autoHide: false,
+      html: 'Press this button'
+    });
+  },
+
+  /**
+   * @private
+   */
+  onClickUserMode: function() {
+    var me = this;
+
+    if (me.currentStep == 0) {
+      me.showTip({
+        target: 'nx-header-browse-mode',
+        calloutArrowLocation: 'top',
+        relativePosition: 't-b',
+        cls: 'default',
+        width: 200,
+        autoHide: false,
+        html: 'Press another button'
+      });
+
+      me.currentStep = me.currentStep + 1;
+    }
   }
 });
