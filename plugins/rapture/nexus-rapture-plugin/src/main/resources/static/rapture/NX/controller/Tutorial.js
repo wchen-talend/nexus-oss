@@ -45,6 +45,38 @@ Ext.define('NX.controller.Tutorial', {
         },
         'nx-header-user-mode': {
           click: me.onClickUserMode
+        },
+        'nx-coreui-user-account button[action=changepassword]': {
+          click: me.onClickChangePassword
+        },
+        'nx-authenticate': {
+          boxready: function() {
+            if (me.currentStep == 2) {
+              Ext.Function.defer(function() {
+                me.showTip({
+                  target: 'nx-authenticate textfield[name=password]',
+                  calloutArrowLocation: 'left',
+                  relativePosition: 'l-r',
+                  cls: 'default',
+                  width: 200,
+                  autoHide: false,
+                  html: 'Password: admin123'
+                });
+
+                me.currentStep++;
+              }, 10);
+            }
+          }
+        },
+        'nx-authenticate textfield[name=password]': {
+          change: function(cmp, val) {
+            if (val == "admin123") {
+              me.onChangePassword();
+            }
+          }
+        },
+        'nx-authenticate button[action=authenticate]': {
+          click: me.onClickAuthenticate
         }
       }
     });
@@ -64,6 +96,11 @@ Ext.define('NX.controller.Tutorial', {
 
     me.currentTip = Ext.create('Ext.ux.callout.Callout', tip);
     me.currentTip.show();
+
+    // Bring the tooltip to the front
+    Ext.Function.defer(function() {
+      me.currentTip.zIndexManager.bringToFront(me.currentTip);
+    }, 10);
   },
 
   /**
@@ -81,7 +118,7 @@ Ext.define('NX.controller.Tutorial', {
       cls: 'default',
       width: 200,
       autoHide: false,
-      html: 'Press this button'
+      html: 'Open user mode'
     });
   },
 
@@ -93,16 +130,63 @@ Ext.define('NX.controller.Tutorial', {
 
     if (me.currentStep == 0) {
       me.showTip({
-        target: 'nx-header-browse-mode',
+        target: 'nx-coreui-user-account button[action=changepassword]',
         calloutArrowLocation: 'top',
         relativePosition: 't-b',
         cls: 'default',
         width: 200,
         autoHide: false,
-        html: 'Press another button'
+        html: 'Change your password'
       });
 
-      me.currentStep = me.currentStep + 1;
+      me.currentStep++;
+    }
+  },
+
+  /**
+   * @private
+   */
+  onClickChangePassword: function() {
+    var me = this;
+
+    if (me.currentStep == 1) {
+      me.currentStep++;
+    }
+  },
+
+  /**
+   * @private
+   */
+  onChangePassword: function() {
+    var me = this;
+
+    if (me.currentStep == 3) {
+      me.showTip({
+        target: 'nx-authenticate button[action=authenticate]',
+        calloutArrowLocation: 'top',
+        relativePosition: 't-b',
+        cls: 'default',
+        width: 200,
+        autoHide: false,
+        html: 'Authenticate yourself'
+      });
+
+      me.currentStep++;
+    }
+  },
+
+  /**
+   * @private
+   */
+  onClickAuthenticate: function() {
+    var me = this;
+
+    if (me.currentStep == 4) {
+      /*me.showTip({
+
+      });*/
+
+      me.currentStep++;
     }
   }
 });
