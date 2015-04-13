@@ -21,7 +21,8 @@ Ext.define('NX.controller.Tutorial', {
   extend: 'Ext.app.Controller',
 
   views: [
-    'header.Tutorial'
+    'header.Tutorial',
+    'tutorial.Panel'
   ],
 
   steps: [
@@ -102,9 +103,7 @@ Ext.define('NX.controller.Tutorial', {
       };
 
     // Destroy existing tooltip, if it exists
-    if (me.currentTip) {
-      me.currentTip.destroy();
-    }
+    me.clearTip();
 
     // Apply defaults
     Ext.apply(defaults, tip);
@@ -124,6 +123,18 @@ Ext.define('NX.controller.Tutorial', {
     Ext.Function.defer(function() {
       me.currentTip.zIndexManager.bringToFront(me.currentTip);
     }, 10);
+  },
+
+  /**
+   * @private
+   * Helper function to clear the tooltip
+   */
+  clearTip: function() {
+    var me = this;
+
+    if (me.currentTip) {
+      me.currentTip.destroy();
+    }
   },
 
   /**
@@ -275,10 +286,17 @@ Ext.define('NX.controller.Tutorial', {
       tutorials = me.getTutorials();
 
     if (me.currentStep == 6) {
-      me.showTip({
-        dismissDelay: 3000,
-        html: 'Congratulations! You’ve changed your password.'
-      });
+      me.clearTip();
+
+      // Show the completion modal
+      Ext.defer(
+        function() {
+          Ext.create('NX.view.tutorial.Panel', {
+            title: "Tutorial complete (1/10)",
+            message: "Are you ready for the next tutorial?",
+            iconCls: "nx-icon-repositorybrowse-inIndex-x16"
+          });
+        }, 1000);
 
       // Change the tutorial icon to show completion
       tutorialMenuItem.setIconCls('nx-icon-repositorybrowse-inIndex-x16');
