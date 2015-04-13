@@ -69,11 +69,14 @@ Ext.define('NX.controller.Tutorial', {
         'nx-coreui-user-changepassword': {
           boxready: me.onStep4
         },
+        'nx-coreui-user-changepassword textfield[name=password]': {
+          blur: me.onStep5
+        },
         'nx-coreui-user-changepassword textfield:not([name=password])': {
-          change: me.onStep5
+          change: me.onStep6
         },
         'nx-coreui-user-changepassword button[action=changepassword]': {
-          click: me.onStep6
+          click: me.onStep7
         }
       }
     });
@@ -148,7 +151,7 @@ Ext.define('NX.controller.Tutorial', {
 
     me.showTip({
       target: 'nx-header-user-mode',
-      html: 'Open user mode'
+      html: 'Click the user icon'
     });
   },
 
@@ -229,7 +232,23 @@ Ext.define('NX.controller.Tutorial', {
   /**
    * @private
    */
-  onStep5: function(cmp, val) {
+  onStep5: function() {
+    var me = this;
+
+    if (me.currentStep == 5) {
+      me.showTip({
+        target: 'nx-coreui-user-changepassword textfield:not([name=password])',
+        calloutArrowLocation: 'left',
+        relativePosition: 'l-r',
+        html: 'Confirm your new password'
+      });
+    }
+  },
+
+  /**
+   * @private
+   */
+  onStep6: function(cmp, val) {
     var me = this;
 
     var password = Ext.ComponentQuery.query('nx-coreui-user-changepassword textfield[name=password]')[0];
@@ -250,7 +269,7 @@ Ext.define('NX.controller.Tutorial', {
   /**
    * @private
    */
-  onStep6: function() {
+  onStep7: function() {
     var me = this,
       tutorialMenuItem = me.getTutorial01(),
       tutorials = me.getTutorials();
