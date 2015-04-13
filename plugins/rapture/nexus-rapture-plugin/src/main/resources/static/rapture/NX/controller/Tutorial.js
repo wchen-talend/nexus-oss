@@ -29,7 +29,7 @@ Ext.define('NX.controller.Tutorial', {
     'end'
   ],
 
-  currentStep: -1,
+  currentStep: 0,
   currentTip: null,
 
   /**
@@ -41,42 +41,25 @@ Ext.define('NX.controller.Tutorial', {
     me.listen({
       component: {
         'nx-header-tutorial menuitem[action=start]': {
-          click: me.onStart
+          click: me.onInitTutorial
         },
         'nx-header-user-mode': {
-          click: me.onClickUserMode
-        },
-        'nx-coreui-user-account button[action=changepassword]': {
-          click: me.onClickChangePassword
+          click: me.onStep1
         },
         'nx-authenticate': {
-          boxready: function() {
-            if (me.currentStep == 2) {
-              Ext.Function.defer(function() {
-                me.showTip({
-                  target: 'nx-authenticate textfield[name=password]',
-                  calloutArrowLocation: 'left',
-                  relativePosition: 'l-r',
-                  cls: 'default',
-                  width: 200,
-                  autoHide: false,
-                  html: 'Password: admin123'
-                });
-
-                me.currentStep++;
-              }, 10);
-            }
-          }
+          boxready: me.onStep2
         },
         'nx-authenticate textfield[name=password]': {
-          change: function(cmp, val) {
-            if (val == "admin123") {
-              me.onChangePassword();
-            }
-          }
+          change: me.onStep3
         },
-        'nx-authenticate button[action=authenticate]': {
-          click: me.onClickAuthenticate
+        'nx-coreui-user-changepassword': {
+          boxready: me.onStep4
+        },
+        'nx-coreui-user-changepassword textfield:not([name=password])': {
+          change: me.onStep5
+        },
+        'nx-coreui-user-changepassword button[action=changepassword]': {
+          click: me.onStep6
         }
       }
     });
@@ -88,13 +71,25 @@ Ext.define('NX.controller.Tutorial', {
    * @private
    */
   showTip: function(tip) {
-    var me = this;
+    var me = this,
+      defaults = {
+        target: 'nx-header-tutorial',
+        calloutArrowLocation: 'top',
+        relativePosition: 't-b',
+        cls: 'default',
+        width: 200,
+        autoHide: false,
+        html: 'Click this'
+      };
 
+    // Destroy existing tooltip, if it exists
     if (me.currentTip) {
       me.currentTip.destroy();
     }
 
-    me.currentTip = Ext.create('Ext.ux.callout.Callout', tip);
+    // Create a tooltip (apply defaults)
+    Ext.apply(defaults, tip);
+    me.currentTip = Ext.create('Ext.ux.callout.Callout', defaults);
     me.currentTip.show();
 
     // Bring the tooltip to the front
@@ -106,18 +101,13 @@ Ext.define('NX.controller.Tutorial', {
   /**
    * @private
    */
-  onStart: function() {
+  onInitTutorial: function() {
     var me = this;
 
-    me.currentStep = 0;
+    me.currentStep = 1;
 
     me.showTip({
       target: 'nx-header-user-mode',
-      calloutArrowLocation: 'top',
-      relativePosition: 't-b',
-      cls: 'default',
-      width: 200,
-      autoHide: false,
       html: 'Open user mode'
     });
   },
@@ -125,17 +115,12 @@ Ext.define('NX.controller.Tutorial', {
   /**
    * @private
    */
-  onClickUserMode: function() {
+  onStep1: function() {
     var me = this;
 
-    if (me.currentStep == 0) {
+    if (me.currentStep == 1) {
       me.showTip({
         target: 'nx-coreui-user-account button[action=changepassword]',
-        calloutArrowLocation: 'top',
-        relativePosition: 't-b',
-        cls: 'default',
-        width: 200,
-        autoHide: false,
         html: 'Change your password'
       });
 
@@ -146,47 +131,93 @@ Ext.define('NX.controller.Tutorial', {
   /**
    * @private
    */
-  onClickChangePassword: function() {
+  onStep2: function() {
     var me = this;
 
-    if (me.currentStep == 1) {
-      me.currentStep++;
+    if (me.currentStep == 2) {
+      Ext.Function.defer(function() {
+        me.showTip({
+          target: 'nx-authenticate textfield[name=password]',
+          calloutArrowLocation: 'left',
+          relativePosition: 'l-r',
+          html: 'Password: admin123'
+        });
+
+        me.currentStep++;
+      }, 10);
     }
   },
 
   /**
    * @private
    */
-  onChangePassword: function() {
+  onStep3: function(cmp, val) {
     var me = this;
 
-    if (me.currentStep == 3) {
-      me.showTip({
-        target: 'nx-authenticate button[action=authenticate]',
-        calloutArrowLocation: 'top',
-        relativePosition: 't-b',
-        cls: 'default',
-        width: 200,
-        autoHide: false,
-        html: 'Authenticate yourself'
-      });
+    if (val == "admin123") {
+      if (me.currentStep == 3) {
+        me.showTip({
+          target: 'nx-authenticate button[action=authenticate]',
+          html: 'Authenticate yourself'
+        });
 
-      me.currentStep++;
+        me.currentStep++;
+      }
     }
   },
 
   /**
    * @private
    */
-  onClickAuthenticate: function() {
+  onStep4: function() {
     var me = this;
 
     if (me.currentStep == 4) {
-      /*me.showTip({
+      Ext.Function.defer(function() {
+        me.showTip({
+          target: 'nx-coreui-user-changepassword textfield[name=password]',
+          calloutArrowLocation: 'left',
+          relativePosition: 'l-r',
+          html: 'Choose a new password'
+        });
 
-      });*/
+        me.currentStep++;
+      }, 10);
+    }
+  },
 
-      me.currentStep++;
+  /**
+   * @private
+   */
+  onStep5: function(cmp, val) {
+    var me = this;
+
+    var password = Ext.ComponentQuery.query('nx-coreui-user-changepassword textfield[name=password]')[0];
+    var value = password.getValue();
+
+    if (val == value) {
+      if (me.currentStep == 5) {
+        me.showTip({
+          target: 'nx-coreui-user-changepassword button[action=changepassword]',
+          dismissDelay: 3000,
+          html: 'Confirm your changes'
+        });
+
+        me.currentStep++;
+      }
+    }
+  },
+
+  /**
+   * @private
+   */
+  onStep6: function() {
+    var me = this;
+
+    if (me.currentStep == 6) {
+      me.showTip({
+        html: 'Congratulations! You’ve changed your password.'
+      });
     }
   }
 });
