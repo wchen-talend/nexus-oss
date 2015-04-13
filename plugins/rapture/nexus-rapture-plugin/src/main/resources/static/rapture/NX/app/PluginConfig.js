@@ -36,6 +36,7 @@ Ext.define('NX.app.PluginConfig', {
     'Tutorial',
     'UiSessionTimeout',
     'User',
+    'Ext.ux.util.AlwaysOnTop',
 
     {
       id: 'Branding',
