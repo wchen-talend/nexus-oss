@@ -32,6 +32,17 @@ Ext.define('NX.controller.Tutorial', {
   currentStep: 0,
   currentTip: null,
 
+  refs: [
+    {
+      ref: 'tutorials',
+      selector: 'nx-header-tutorial'
+    },
+    {
+      ref: 'tutorial01',
+      selector: 'nx-header-tutorial menuitem[action=start]'
+    }
+  ],
+
   /**
    * @override
    */
@@ -111,7 +122,7 @@ Ext.define('NX.controller.Tutorial', {
 
     // Create a tutorial prompt
     me.showTip({
-      html: 'Welcome to Nexus, here are some tutorials to help you get the most from your install',
+      html: 'Welcome to Nexus. Here are some tutorials to help you get the most from your installation.',
       autoHide: true
     });
   },
@@ -230,13 +241,19 @@ Ext.define('NX.controller.Tutorial', {
    * @private
    */
   onStep6: function() {
-    var me = this;
+    var me = this,
+      tutorialMenuItem = me.getTutorial01(),
+      tutorials = me.getTutorials();
 
     if (me.currentStep == 6) {
       me.showTip({
         dismissDelay: 3000,
         html: 'Congratulations! You’ve changed your password.'
       });
+
+      // Change the tutorial icon to show completion
+      tutorialMenuItem.setIconCls('nx-icon-repositorybrowse-inIndex-x16');
+      tutorials.setTooltip('1/10 tutorials completed');
     }
   }
 });

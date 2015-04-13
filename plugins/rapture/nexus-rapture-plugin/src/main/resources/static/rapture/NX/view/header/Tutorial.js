@@ -22,13 +22,52 @@ Ext.define('NX.view.header.Tutorial', {
   alias: 'widget.nx-header-tutorial',
 
   glyph: 'xf03a@FontAwesome', // fa-bell
-  tooltip: 'Post-install checklist',
+  tooltip: '0/10 tutorials completed',
 
   // hide the menu button arrow
   arrowCls: '',
 
-  menu: [{
-    text: 'Start post-install checklist',
-    action: 'start'
-  }]
+  menu: [
+    {
+      text: 'Change the admin password',
+      iconCls: 'nx-icon-help-manual-x16',
+      action: 'start'
+    },
+    {
+      text: 'Configure the SMTP settings',
+      iconCls: 'nx-icon-help-manual-x16'
+    },
+    {
+      text: 'Configure default proxy settings',
+      iconCls: 'nx-icon-help-manual-x16'
+    },
+    {
+      text: 'Enable remote index downloads',
+      iconCls: 'nx-icon-help-manual-x16'
+    },
+    {
+      text: 'Change the deployment password',
+      iconCls: 'nx-icon-help-manual-x16'
+    },
+    {
+      text: 'Configure routes',
+      iconCls: 'nx-icon-help-manual-x16'
+    },
+    {
+      text: 'Search for components in Maven Central',
+      iconCls: 'nx-icon-help-manual-x16'
+    },
+    {
+      text: 'Proxy a remote repository',
+      iconCls: 'nx-icon-help-manual-x16'
+    },
+    {
+      text: 'Create a local user',
+      iconCls: 'nx-icon-help-manual-x16'
+    },
+    {
+      text: 'Configure user tokens',
+      iconCls: 'nx-icon-help-manual-x16'
+    }
+  ]
 });
