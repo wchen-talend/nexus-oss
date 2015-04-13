@@ -100,6 +100,7 @@ Ext.define('NX.controller.Tutorial', {
         fadeInDuration: 400,
         autoHide: false,
         alwaysOnTop: true,
+        focusOnToFront: false,
         html: 'Click this'
       };
 
