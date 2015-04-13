@@ -93,6 +93,7 @@ Ext.define('NX.controller.Tutorial', {
         relativePosition: 't-b',
         cls: 'yellow',
         width: 200,
+        fadeInDuration: 400,
         autoHide: false,
         html: 'Click this'
       };
@@ -102,8 +103,17 @@ Ext.define('NX.controller.Tutorial', {
       me.currentTip.destroy();
     }
 
-    // Create a tooltip (apply defaults)
+    // Apply defaults
     Ext.apply(defaults, tip);
+
+    // Add an offset based on the callout arrow location
+    if (defaults.calloutArrowLocation == 'top') {
+      defaults.relativeOffsets = [0, 15];
+    } else if (defaults.calloutArrowLocation == 'left') {
+      defaults.relativeOffsets = [15, 0];
+    }
+
+    // Create the tooltip
     me.currentTip = Ext.create('Ext.ux.callout.Callout', defaults);
     me.currentTip.show();
 
