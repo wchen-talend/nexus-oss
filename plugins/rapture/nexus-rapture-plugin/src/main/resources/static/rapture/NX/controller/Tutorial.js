@@ -40,6 +40,9 @@ Ext.define('NX.controller.Tutorial', {
 
     me.listen({
       component: {
+        'nx-header-tutorial': {
+          boxready: me.onTutorialPrompt
+        },
         'nx-header-tutorial menuitem[action=start]': {
           click: me.onInitTutorial
         },
@@ -69,6 +72,7 @@ Ext.define('NX.controller.Tutorial', {
 
   /**
    * @private
+   * Helper function to show a callout with some intelligent defaults
    */
   showTip: function(tip) {
     var me = this,
@@ -76,7 +80,7 @@ Ext.define('NX.controller.Tutorial', {
         target: 'nx-header-tutorial',
         calloutArrowLocation: 'top',
         relativePosition: 't-b',
-        cls: 'default',
+        cls: 'yellow',
         width: 200,
         autoHide: false,
         html: 'Click this'
@@ -100,6 +104,21 @@ Ext.define('NX.controller.Tutorial', {
 
   /**
    * @private
+   * Helper function to prompt the user to start the tutorial
+   */
+  onTutorialPrompt: function() {
+    var me = this;
+
+    // Create a tutorial prompt
+    me.showTip({
+      html: 'Welcome to Nexus, here are some tutorials to help you get the most from your install',
+      autoHide: true
+    });
+  },
+
+  /**
+   * @private
+   * Helper function to initialize the tutorial
    */
   onInitTutorial: function() {
     var me = this;
@@ -199,7 +218,6 @@ Ext.define('NX.controller.Tutorial', {
       if (me.currentStep == 5) {
         me.showTip({
           target: 'nx-coreui-user-changepassword button[action=changepassword]',
-          dismissDelay: 3000,
           html: 'Confirm your changes'
         });
 
@@ -216,6 +234,7 @@ Ext.define('NX.controller.Tutorial', {
 
     if (me.currentStep == 6) {
       me.showTip({
+        dismissDelay: 3000,
         html: 'Congratulations! You’ve changed your password.'
       });
     }
