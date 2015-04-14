@@ -41,6 +41,10 @@ Ext.define('NX.controller.Tutorial', {
     {
       ref: 'tutorial01',
       selector: 'nx-header-tutorial menuitem[action=start]'
+    },
+    {
+      ref: 'tutorial02',
+      selector: 'nx-header-tutorial menuitem[action=next]'
     }
   ],
 
@@ -49,6 +53,25 @@ Ext.define('NX.controller.Tutorial', {
    */
   init: function() {
     var me = this;
+
+    me.getApplication().getIconController().addIcons({
+      'tutorial-available': {
+        file: 'wrench.png',
+        variants: ['x16', 'x32']
+      },
+      'tutorial-in-progress': {
+        file: 'progressbar.png',
+        variants: ['x16', 'x32']
+      },
+      'tutorial-finished': {
+        file: 'tick.png',
+        variants: ['x16', 'x32']
+      },
+      'tutorial-unavailable': {
+        file: 'lock.png',
+        variants: ['x16', 'x32']
+      }
+    });
 
     me.listen({
       component: {
@@ -158,7 +181,8 @@ Ext.define('NX.controller.Tutorial', {
    * Helper function to initialize the tutorial
    */
   onInitTutorial: function() {
-    var me = this;
+    var me = this,
+      tutorial01 = me.getTutorial01();
 
     me.currentStep = 1;
 
@@ -166,6 +190,8 @@ Ext.define('NX.controller.Tutorial', {
       target: 'nx-header-user-mode',
       html: 'Click the user icon'
     });
+
+    tutorial01.setIconCls('nx-icon-tutorial-in-progress-x16');
   },
 
   /**
@@ -284,7 +310,8 @@ Ext.define('NX.controller.Tutorial', {
    */
   onStep7: function() {
     var me = this,
-      tutorialMenuItem = me.getTutorial01(),
+      tutorial01 = me.getTutorial01(),
+      tutorial02 = me.getTutorial02(),
       tutorials = me.getTutorials();
 
     if (me.currentStep == 6) {
@@ -296,12 +323,13 @@ Ext.define('NX.controller.Tutorial', {
           Ext.create('NX.view.tutorial.Panel', {
             title: "Tutorial complete (1/10)",
             message: "<p>Are you ready for the next tutorial?</p>",
-            iconCls: "nx-icon-repositorybrowse-inIndex-x16"
+            iconCls: "nx-icon-tutorial-finished-x16"
           });
         }, 1000);
 
       // Change the tutorial icon to show completion
-      tutorialMenuItem.setIconCls('nx-icon-repositorybrowse-inIndex-x16');
+      tutorial01.setIconCls('nx-icon-tutorial-finished-x16');
+      tutorial02.setIconCls('nx-icon-tutorial-available-x16');
       tutorials.setTooltip('1/10 tutorials completed');
     }
   }

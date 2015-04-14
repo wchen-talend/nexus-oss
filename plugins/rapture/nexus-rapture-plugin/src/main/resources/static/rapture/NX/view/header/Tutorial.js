@@ -30,44 +30,45 @@ Ext.define('NX.view.header.Tutorial', {
   menu: [
     {
       text: 'Change the admin password',
-      iconCls: 'nx-icon-help-manual-x16',
+      iconCls: 'nx-icon-tutorial-available-x16',
       action: 'start'
     },
     {
       text: 'Configure the SMTP settings',
-      iconCls: 'nx-icon-help-manual-x16'
+      iconCls: 'nx-icon-tutorial-unavailable-x16',
+      action: 'next'
     },
     {
       text: 'Configure default proxy settings',
-      iconCls: 'nx-icon-help-manual-x16'
+      iconCls: 'nx-icon-tutorial-unavailable-x16'
     },
     {
       text: 'Enable remote index downloads',
-      iconCls: 'nx-icon-help-manual-x16'
+      iconCls: 'nx-icon-tutorial-unavailable-x16'
     },
     {
       text: 'Change the deployment password',
-      iconCls: 'nx-icon-help-manual-x16'
+      iconCls: 'nx-icon-tutorial-unavailable-x16'
     },
     {
       text: 'Configure routes',
-      iconCls: 'nx-icon-help-manual-x16'
+      iconCls: 'nx-icon-tutorial-unavailable-x16'
     },
     {
       text: 'Search for components in Maven Central',
-      iconCls: 'nx-icon-help-manual-x16'
+      iconCls: 'nx-icon-tutorial-unavailable-x16'
     },
     {
       text: 'Proxy a remote repository',
-      iconCls: 'nx-icon-help-manual-x16'
+      iconCls: 'nx-icon-tutorial-unavailable-x16'
     },
     {
       text: 'Create a local user',
-      iconCls: 'nx-icon-help-manual-x16'
+      iconCls: 'nx-icon-tutorial-unavailable-x16'
     },
     {
       text: 'Configure user tokens',
-      iconCls: 'nx-icon-help-manual-x16'
+      iconCls: 'nx-icon-tutorial-unavailable-x16'
     }
   ]
 });
