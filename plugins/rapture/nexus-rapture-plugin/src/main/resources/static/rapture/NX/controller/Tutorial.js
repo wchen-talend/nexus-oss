@@ -45,6 +45,10 @@ Ext.define('NX.controller.Tutorial', {
     {
       ref: 'tutorial02',
       selector: 'nx-header-tutorial menuitem[action=next]'
+    },
+    {
+      ref: 'userMode',
+      selector: '#nx-header-user-mode'
     }
   ],
 
@@ -196,21 +200,40 @@ Ext.define('NX.controller.Tutorial', {
     var me = this,
       tutorial01 = me.getTutorial01();
 
-    // Set the step counter
-    me.currentStep = 1;
-
     // Navigate to a consistent starting point
     NX.getApplication().getController('Menu').changeMode('browse');
     NX.getApplication().getController('Menu').refreshModeButtons();
 
-    // Show the first tooltip
-    me.showTip({
-      target: 'nx-header-signin',
-      html: 'Sign in to the admin account'
-    });
+    // Set the step counter
+    console.log(me.getUserMode().isHidden());
+    if (me.getUserMode().isHidden()) {
+      // Log in first
+      me.currentStep = 0;
+      me.onStep0();
+    } else {
+      // No need to log in
+      me.currentStep = 4;
+      me.onStep4();
+    }
 
     // Start progress
     tutorial01.setIconCls('nx-icon-tutorial-in-progress-x16');
+  },
+
+  /**
+   * @private
+   */
+  onStep0: function() {
+    var me = this;
+
+    if (me.currentStep == 0) {
+      me.showTip({
+        target: 'nx-header-signin',
+        html: 'Sign in to the admin account'
+      });
+
+      me.currentStep++;
+    }
   },
 
   /**
