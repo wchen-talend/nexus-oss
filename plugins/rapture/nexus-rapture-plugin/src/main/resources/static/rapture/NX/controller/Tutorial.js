@@ -81,26 +81,38 @@ Ext.define('NX.controller.Tutorial', {
         'nx-header-tutorial menuitem[action=start]': {
           click: me.onInitTutorial
         },
-        'nx-header-user-mode': {
+        'nx-header-signin': {
           click: me.onStep1
         },
-        'nx-authenticate': {
-          boxready: me.onStep2
+        'nx-signin textfield[name=username]': {
+          change: me.onStep2
         },
-        'nx-authenticate textfield[name=password]': {
+        'nx-signin textfield[name=password]': {
           change: me.onStep3
         },
+        'nx-signin button[action=signin]': {
+          click: me.onStep4
+        },
+        'nx-header-user-mode': {
+          click: me.onStep5
+        },
+        'nx-authenticate': {
+          boxready: me.onStep6
+        },
+        'nx-authenticate textfield[name=password]': {
+          change: me.onStep7
+        },
         'nx-coreui-user-changepassword': {
-          boxready: me.onStep4
+          boxready: me.onStep8
         },
         'nx-coreui-user-changepassword textfield[name=password]': {
-          blur: me.onStep5
+          blur: me.onStep9
         },
         'nx-coreui-user-changepassword textfield:not([name=password])': {
-          change: me.onStep6
+          change: me.onStep10
         },
         'nx-coreui-user-changepassword button[action=changepassword]': {
-          click: me.onStep7
+          click: me.onStep11
         }
       }
     });
@@ -193,8 +205,8 @@ Ext.define('NX.controller.Tutorial', {
 
     // Show the first tooltip
     me.showTip({
-      target: 'nx-header-user-mode',
-      html: 'Click the user icon'
+      target: 'nx-header-signin',
+      html: 'Sign in to the admin account'
     });
 
     // Start progress
@@ -208,6 +220,82 @@ Ext.define('NX.controller.Tutorial', {
     var me = this;
 
     if (me.currentStep == 1) {
+      Ext.Function.defer(function () {
+        me.showTip({
+          target: 'nx-signin textfield[name=username]',
+          calloutArrowLocation: 'left',
+          relativePosition: 'l-r',
+          html: 'Username: admin'
+        });
+      }, 10);
+
+      me.currentStep++;
+    }
+  },
+
+  /**
+   * @private
+   */
+  onStep2: function(cmp, val) {
+    var me = this;
+
+    if (val == "admin") {
+      if (me.currentStep == 2) {
+        me.showTip({
+          target: 'nx-signin textfield[name=password]',
+          calloutArrowLocation: 'left',
+          relativePosition: 'l-r',
+          html: 'Password: admin123'
+        });
+
+        me.currentStep++;
+      }
+    }
+  },
+
+  /**
+   * @private
+   */
+  onStep3: function(cmp, val) {
+    var me = this;
+
+    if (val == "admin123") {
+      if (me.currentStep == 3) {
+        me.showTip({
+          target: 'nx-signin button[action=signin]',
+          html: 'Sign in to the account'
+        });
+
+        me.currentStep++;
+      }
+    }
+  },
+
+  /**
+   * @private
+   */
+  onStep4: function() {
+    var me = this;
+
+    if (me.currentStep == 4) {
+      Ext.defer(function() {
+        me.showTip({
+          target: 'nx-header-user-mode',
+          html: 'Click the user icon'
+        });
+      }, 50);
+
+      me.currentStep++;
+    }
+  },
+
+  /**
+   * @private
+   */
+  onStep5: function() {
+    var me = this;
+
+    if (me.currentStep == 5) {
       me.showTip({
         target: 'nx-coreui-user-account button[action=changepassword]',
         html: 'Change your password'
@@ -220,10 +308,10 @@ Ext.define('NX.controller.Tutorial', {
   /**
    * @private
    */
-  onStep2: function() {
+  onStep6: function() {
     var me = this;
 
-    if (me.currentStep == 2) {
+    if (me.currentStep == 6) {
       Ext.Function.defer(function() {
         me.showTip({
           target: 'nx-authenticate textfield[name=password]',
@@ -240,11 +328,11 @@ Ext.define('NX.controller.Tutorial', {
   /**
    * @private
    */
-  onStep3: function(cmp, val) {
+  onStep7: function(cmp, val) {
     var me = this;
 
     if (val == "admin123") {
-      if (me.currentStep == 3) {
+      if (me.currentStep == 7) {
         me.showTip({
           target: 'nx-authenticate button[action=authenticate]',
           html: 'Authenticate yourself'
@@ -258,10 +346,10 @@ Ext.define('NX.controller.Tutorial', {
   /**
    * @private
    */
-  onStep4: function() {
+  onStep8: function() {
     var me = this;
 
-    if (me.currentStep == 4) {
+    if (me.currentStep == 8) {
       Ext.Function.defer(function() {
         me.showTip({
           target: 'nx-coreui-user-changepassword textfield[name=password]',
@@ -278,30 +366,32 @@ Ext.define('NX.controller.Tutorial', {
   /**
    * @private
    */
-  onStep5: function() {
+  onStep9: function() {
     var me = this;
 
-    if (me.currentStep == 5) {
+    if (me.currentStep == 9) {
       me.showTip({
         target: 'nx-coreui-user-changepassword textfield:not([name=password])',
         calloutArrowLocation: 'left',
         relativePosition: 'l-r',
         html: 'Confirm your new password'
       });
+
+      me.currentStep++;
     }
   },
 
   /**
    * @private
    */
-  onStep6: function(cmp, val) {
+  onStep10: function(cmp, val) {
     var me = this;
 
     var password = Ext.ComponentQuery.query('nx-coreui-user-changepassword textfield[name=password]')[0];
     var value = password.getValue();
 
     if (val == value) {
-      if (me.currentStep == 5) {
+      if (me.currentStep == 10) {
         me.showTip({
           target: 'nx-coreui-user-changepassword button[action=changepassword]',
           html: 'Confirm your changes'
@@ -315,13 +405,13 @@ Ext.define('NX.controller.Tutorial', {
   /**
    * @private
    */
-  onStep7: function() {
+  onStep11: function() {
     var me = this,
       tutorial01 = me.getTutorial01(),
       tutorial02 = me.getTutorial02(),
       tutorials = me.getTutorials();
 
-    if (me.currentStep == 6) {
+    if (me.currentStep == 11) {
       me.clearTip();
 
       // Show the completion modal
