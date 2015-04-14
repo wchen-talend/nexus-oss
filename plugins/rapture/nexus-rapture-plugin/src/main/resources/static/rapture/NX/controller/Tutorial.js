@@ -295,7 +295,7 @@ Ext.define('NX.controller.Tutorial', {
         function() {
           Ext.create('NX.view.tutorial.Panel', {
             title: "Tutorial complete (1/10)",
-            message: "Are you ready for the next tutorial?",
+            message: "<p>Are you ready for the next tutorial?</p>",
             iconCls: "nx-icon-repositorybrowse-inIndex-x16"
           });
         }, 1000);
