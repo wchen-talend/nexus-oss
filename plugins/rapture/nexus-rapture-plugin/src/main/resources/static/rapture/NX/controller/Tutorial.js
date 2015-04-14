@@ -184,13 +184,20 @@ Ext.define('NX.controller.Tutorial', {
     var me = this,
       tutorial01 = me.getTutorial01();
 
+    // Set the step counter
     me.currentStep = 1;
 
+    // Navigate to a consistent starting point
+    NX.getApplication().getController('Menu').changeMode('browse');
+    NX.getApplication().getController('Menu').refreshModeButtons();
+
+    // Show the first tooltip
     me.showTip({
       target: 'nx-header-user-mode',
       html: 'Click the user icon'
     });
 
+    // Start progress
     tutorial01.setIconCls('nx-icon-tutorial-in-progress-x16');
   },
 
