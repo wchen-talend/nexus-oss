@@ -21,6 +21,8 @@ import javax.annotation.Nullable;
 import org.sonatype.nexus.blobstore.api.Blob;
 import org.sonatype.nexus.blobstore.api.BlobRef;
 import org.sonatype.nexus.blobstore.api.BlobStore;
+import org.sonatype.nexus.common.hash.HashAlgorithm;
+import org.sonatype.nexus.common.hash.MultiHashingInputStream;
 import org.sonatype.sisu.goodies.common.ComponentSupport;
 
 import com.google.common.collect.Sets;
@@ -38,7 +40,7 @@ class BlobTx
 {
   private final BlobStore blobStore;
 
-  private final Set<BlobRef> newlyCreatedBlobs = Sets.newHashSet();
+  private final Set<BlobHandle> newlyCreatedBlobs = Sets.newHashSet();
 
   private final Set<BlobRef> deletionRequests = Sets.newHashSet();
 
@@ -46,11 +48,16 @@ class BlobTx
     this.blobStore = checkNotNull(blobStore);
   }
 
-  public BlobRef create(InputStream inputStream, Map<String, String> headers) {
-    Blob blob = blobStore.create(inputStream, headers);
+  public BlobHandle create(final InputStream inputStream,
+                           final Map<String, String> headers,
+                           final Iterable<HashAlgorithm> hashAlgorithms,
+                           final String contentType) {
+    final MultiHashingInputStream hashingStream = new MultiHashingInputStream(hashAlgorithms, inputStream);
+    Blob blob = blobStore.create(hashingStream, headers);
     BlobRef blobRef = new BlobRef("NODE", "STORE", blob.getId().asUniqueString());
-    newlyCreatedBlobs.add(blobRef);
-    return blobRef;
+    BlobHandle blobHandle = new BlobHandle(blobRef, hashingStream.count(), contentType, hashingStream.hashes());
+    newlyCreatedBlobs.add(blobHandle);
+    return blobHandle;
   }
 
   @Nullable
@@ -63,24 +70,37 @@ class BlobTx
   }
 
   public void commit() {
-    doDeletions(deletionRequests, "Unable to delete old blob {} while committing transaction");
-    clearState();
-  }
-
-  public void rollback() {
-    doDeletions(newlyCreatedBlobs, "Unable to delete new blob {} while rolling back transaction");
-    clearState();
-  }
-
-  private void doDeletions(Set<BlobRef> blobRefs, String failureMessage) {
-    for (BlobRef blobRef : blobRefs) {
+    for (BlobRef blobRef : deletionRequests) {
       try {
         blobStore.delete(blobRef.getBlobId());
       }
       catch (Throwable t) {
-        log.warn(failureMessage, t, blobRef);
+        log.warn( "Unable to delete old blob {} while committing transaction", t, blobRef);
       }
     }
+    for (BlobHandle blobHandle : newlyCreatedBlobs) {
+      try {
+        if (!blobHandle.isAttached()) {
+          blobStore.delete(blobHandle.getBlobRef().getBlobId());
+        }
+      }
+      catch (Throwable t) {
+        log.warn("Unable to delete new orphan blob {} while committing transaction", t, blobHandle.getBlobRef());
+      }
+    }
+    clearState();
+  }
+
+  public void rollback() {
+    for (BlobHandle blobHandle : newlyCreatedBlobs) {
+      try {
+        blobStore.delete(blobHandle.getBlobRef().getBlobId());
+      }
+      catch (Throwable t) {
+        log.warn("Unable to delete new blob {} while rolling back transaction", t, blobHandle.getBlobRef());
+      }
+    }
+    clearState();
   }
 
   private void clearState() {

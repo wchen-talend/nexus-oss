@@ -25,7 +25,6 @@ import org.sonatype.nexus.blobstore.api.BlobRef;
 import org.sonatype.nexus.common.collect.NestedAttributesMap;
 import org.sonatype.nexus.common.entity.EntityId;
 import org.sonatype.nexus.common.hash.HashAlgorithm;
-import org.sonatype.nexus.common.hash.MultiHashingInputStream;
 import org.sonatype.nexus.common.stateguard.Guarded;
 import org.sonatype.nexus.common.stateguard.StateGuard;
 import org.sonatype.nexus.common.stateguard.StateGuardAware;
@@ -36,7 +35,6 @@ import org.sonatype.nexus.repository.Repository;
 import org.sonatype.sisu.goodies.common.ComponentSupport;
 
 import com.google.common.collect.Iterables;
-import com.google.common.hash.HashCode;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -368,22 +366,29 @@ public class StorageTxImpl
 
   @Override
   @Guarded(by = OPEN)
-  public BlobRef createBlob(final InputStream inputStream, Map<String, String> headers) {
-    checkNotNull(inputStream);
-    checkNotNull(headers);
-
-    return blobTx.create(inputStream, headers);
-  }
-
-  @Override
-  public BlobRef setBlob(final InputStream inputStream, final Map<String, String> headers, final Asset asset,
-                         final Iterable<HashAlgorithm> hashAlgorithms, final String contentType)
+  public BlobHandle createBlob(final InputStream inputStream,
+                               final Map<String, String> headers,
+                               final Iterable<HashAlgorithm> hashAlgorithms,
+                               final String contentType)
   {
     checkNotNull(inputStream);
     checkNotNull(headers);
-    checkNotNull(asset);
     checkNotNull(hashAlgorithms);
     checkNotNull(contentType);
+
+    if (writePolicy == WritePolicy.DENY) {
+      throw new IllegalOperationException("Repository is read only.");
+    }
+
+    return blobTx.create(inputStream, headers, hashAlgorithms, contentType);
+  }
+
+  @Override
+  @Guarded(by = OPEN)
+  public void attachBlob(final Asset asset, final BlobHandle blobHandle)
+  {
+    checkNotNull(asset);
+    checkNotNull(blobHandle);
 
     if (writePolicy == WritePolicy.DENY) {
       throw new IllegalOperationException("Repository is read only.");
@@ -398,22 +403,28 @@ public class StorageTxImpl
       deleteBlob(oldBlobRef, true);
     }
 
-    // Store new blob while calculating hashes in one pass
-    final MultiHashingInputStream hashingStream = new MultiHashingInputStream(hashAlgorithms, inputStream);
-    final BlobRef newBlobRef = createBlob(hashingStream, headers);
-
-    asset.blobRef(newBlobRef);
-    asset.size(hashingStream.count());
-    asset.contentType(contentType);
+    asset.blobRef(blobHandle.getBlobRef());
+    asset.size(blobHandle.getSize());
+    asset.contentType(blobHandle.getContentType());
 
     // Set attributes map to contain computed checksum metadata
-    Map<HashAlgorithm, HashCode> hashes = hashingStream.hashes();
     NestedAttributesMap checksums = asset.attributes().child(P_CHECKSUM);
-    for (HashAlgorithm algorithm : hashAlgorithms) {
-      checksums.set(algorithm.name(), hashes.get(algorithm).toString());
+    for (HashAlgorithm algorithm : blobHandle.getHashes().keySet()) {
+      checksums.set(algorithm.name(), blobHandle.getHashes().get(algorithm).toString());
     }
 
-    return newBlobRef;
+    blobHandle.setAttached(true);
+  }
+
+  @Override
+  public BlobRef setBlob(final InputStream inputStream, final Map<String, String> headers, final Asset asset,
+                         final Iterable<HashAlgorithm> hashAlgorithms, final String contentType)
+  {
+    checkNotNull(asset);
+
+    final BlobHandle blobHandle = createBlob(inputStream, headers, hashAlgorithms, contentType);
+    attachBlob(asset, blobHandle);
+    return blobHandle.getBlobRef();
   }
 
   @Nullable
