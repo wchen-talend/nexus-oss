@@ -36,11 +36,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * @since 3.0
  */
 class BlobTx
-  extends ComponentSupport
+    extends ComponentSupport
 {
   private final BlobStore blobStore;
 
-  private final Set<BlobHandle> newlyCreatedBlobs = Sets.newHashSet();
+  private final Set<AssetBlob> newlyCreatedBlobs = Sets.newHashSet();
 
   private final Set<BlobRef> deletionRequests = Sets.newHashSet();
 
@@ -48,16 +48,17 @@ class BlobTx
     this.blobStore = checkNotNull(blobStore);
   }
 
-  public BlobHandle create(final InputStream inputStream,
-                           final Map<String, String> headers,
-                           final Iterable<HashAlgorithm> hashAlgorithms,
-                           final String contentType) {
+  public AssetBlob create(final InputStream inputStream,
+                          final Map<String, String> headers,
+                          final Iterable<HashAlgorithm> hashAlgorithms,
+                          final String contentType)
+  {
     final MultiHashingInputStream hashingStream = new MultiHashingInputStream(hashAlgorithms, inputStream);
     Blob blob = blobStore.create(hashingStream, headers);
     BlobRef blobRef = new BlobRef("NODE", "STORE", blob.getId().asUniqueString());
-    BlobHandle blobHandle = new BlobHandle(blobRef, hashingStream.count(), contentType, hashingStream.hashes());
-    newlyCreatedBlobs.add(blobHandle);
-    return blobHandle;
+    AssetBlob assetBlob = new AssetBlob(blobRef, hashingStream.count(), contentType, hashingStream.hashes());
+    newlyCreatedBlobs.add(assetBlob);
+    return assetBlob;
   }
 
   @Nullable
@@ -75,29 +76,29 @@ class BlobTx
         blobStore.delete(blobRef.getBlobId());
       }
       catch (Throwable t) {
-        log.warn( "Unable to delete old blob {} while committing transaction", t, blobRef);
+        log.warn("Unable to delete old blob {} while committing transaction", t, blobRef);
       }
     }
-    for (BlobHandle blobHandle : newlyCreatedBlobs) {
+    for (AssetBlob assetBlob : newlyCreatedBlobs) {
       try {
-        if (!blobHandle.isAttached()) {
-          blobStore.delete(blobHandle.getBlobRef().getBlobId());
+        if (!assetBlob.isAttached()) {
+          blobStore.delete(assetBlob.getBlobRef().getBlobId());
         }
       }
       catch (Throwable t) {
-        log.warn("Unable to delete new orphan blob {} while committing transaction", t, blobHandle.getBlobRef());
+        log.warn("Unable to delete new orphan blob {} while committing transaction", t, assetBlob.getBlobRef());
       }
     }
     clearState();
   }
 
   public void rollback() {
-    for (BlobHandle blobHandle : newlyCreatedBlobs) {
+    for (AssetBlob assetBlob : newlyCreatedBlobs) {
       try {
-        blobStore.delete(blobHandle.getBlobRef().getBlobId());
+        blobStore.delete(assetBlob.getBlobRef().getBlobId());
       }
       catch (Throwable t) {
-        log.warn("Unable to delete new blob {} while rolling back transaction", t, blobHandle.getBlobRef());
+        log.warn("Unable to delete new blob {} while rolling back transaction", t, assetBlob.getBlobRef());
       }
     }
     clearState();

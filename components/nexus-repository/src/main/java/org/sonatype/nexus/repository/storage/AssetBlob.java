@@ -28,7 +28,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *
  * @since 3.0
  */
-public class BlobHandle
+public class AssetBlob
 {
   private final BlobRef blobRef;
 
@@ -40,10 +40,10 @@ public class BlobHandle
 
   private boolean attached;
 
-  public BlobHandle(final BlobRef blobRef,
-                    final long size,
-                    final String contentType,
-                    final Map<HashAlgorithm, HashCode> hashes)
+  public AssetBlob(final BlobRef blobRef,
+                   final long size,
+                   final String contentType,
+                   final Map<HashAlgorithm, HashCode> hashes)
   {
     this.blobRef = checkNotNull(blobRef);
     this.size = size;

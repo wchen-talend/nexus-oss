@@ -367,7 +367,7 @@ public class StorageTxImpl
 
   @Override
   @Guarded(by = OPEN)
-  public BlobHandle createBlob(final InputStream inputStream,
+  public AssetBlob createBlob(final InputStream inputStream,
                                final Map<String, String> headers,
                                final Iterable<HashAlgorithm> hashAlgorithms,
                                final String contentType)
@@ -389,10 +389,10 @@ public class StorageTxImpl
 
   @Override
   @Guarded(by = OPEN)
-  public void attachBlob(final Asset asset, final BlobHandle blobHandle)
+  public void attachBlob(final Asset asset, final AssetBlob assetBlob)
   {
     checkNotNull(asset);
-    checkNotNull(blobHandle);
+    checkNotNull(assetBlob);
 
     if (writePolicy == WritePolicy.DENY) {
       throw new IllegalOperationException("Repository is read only.");
@@ -407,17 +407,17 @@ public class StorageTxImpl
       deleteBlob(oldBlobRef, true);
     }
 
-    asset.blobRef(blobHandle.getBlobRef());
-    asset.size(blobHandle.getSize());
-    asset.contentType(blobHandle.getContentType());
+    asset.blobRef(assetBlob.getBlobRef());
+    asset.size(assetBlob.getSize());
+    asset.contentType(assetBlob.getContentType());
 
     // Set attributes map to contain computed checksum metadata
     NestedAttributesMap checksums = asset.attributes().child(P_CHECKSUM);
-    for (HashAlgorithm algorithm : blobHandle.getHashes().keySet()) {
-      checksums.set(algorithm.name(), blobHandle.getHashes().get(algorithm).toString());
+    for (HashAlgorithm algorithm : assetBlob.getHashes().keySet()) {
+      checksums.set(algorithm.name(), assetBlob.getHashes().get(algorithm).toString());
     }
 
-    blobHandle.setAttached(true);
+    assetBlob.setAttached(true);
   }
 
   @Override
@@ -426,9 +426,9 @@ public class StorageTxImpl
   {
     checkNotNull(asset);
 
-    final BlobHandle blobHandle = createBlob(inputStream, headers, hashAlgorithms, contentType);
-    attachBlob(asset, blobHandle);
-    return blobHandle.getBlobRef();
+    final AssetBlob assetBlob = createBlob(inputStream, headers, hashAlgorithms, contentType);
+    attachBlob(asset, assetBlob);
+    return assetBlob.getBlobRef();
   }
 
   @Nullable
