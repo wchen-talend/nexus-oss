@@ -12,6 +12,8 @@
  */
 package org.sonatype.nexus.repository.storage
 
+import org.sonatype.nexus.repository.view.ContentTypes
+
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx
 import org.junit.Test
 import org.mockito.Mock
@@ -23,6 +25,7 @@ import org.sonatype.sisu.litmus.testsupport.TestSupport
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.mockito.Matchers.any
+import static org.mockito.Matchers.anyString
 import static org.mockito.Matchers.eq
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.never
@@ -163,6 +166,8 @@ extends TestSupport
   @Test
   void 'setting blob fails on asset with blob when DENY write policy'() {
     def blobRef = mock(BlobRef)
+    def asssetBlob = mock(AssetBlob)
+    when(asssetBlob.getBlobRef()).thenReturn(blobRef)
     when(asset.blobRef()).thenReturn(blobRef)
     def underTest = new StorageTxImpl(blobTx, db, bucket, WritePolicy.DENY, bucketEntityAdapter, componentEntityAdapter, assetEntityAdapter)
     try {
@@ -171,7 +176,7 @@ extends TestSupport
     }
     catch (IllegalOperationException e) {}
     verify(blobTx, never()).delete(any(BlobRef))
-    verify(blobTx, never()).create(any(InputStream), any(Map))
+    verify(blobTx, never()).create(any(InputStream), any(Map), any(Iterable), anyString())
     verify(asset, never()).blobRef(any(BlobRef))
   }
 
@@ -195,7 +200,7 @@ extends TestSupport
     }
     catch (IllegalOperationException e) {}
     verify(blobTx, never()).delete(any(BlobRef))
-    verify(blobTx, never()).create(any(InputStream), any(Map))
+    verify(blobTx, never()).create(any(InputStream), any(Map), any(Iterable), anyString())
     verify(asset, never()).blobRef(any(BlobRef))
   }
 
@@ -214,7 +219,11 @@ extends TestSupport
   @Test
   void 'setting blob fails on asset with blob when ALLOW_ONCE write policy'() {
     def blobRef = mock(BlobRef)
+    def assetBlob = mock(AssetBlob)
+    when(assetBlob.getBlobRef()).thenReturn(blobRef)
     when(asset.blobRef()).thenReturn(blobRef)
+    when(bucket.repositoryName()).thenReturn('testRepo')
+    when(blobTx.create(any(InputStream), any(Map), any(Iterable), anyString())).thenReturn(assetBlob)
     def underTest = new StorageTxImpl(blobTx, db, bucket, WritePolicy.ALLOW_ONCE, bucketEntityAdapter, componentEntityAdapter, assetEntityAdapter)
     try {
       underTest.setBlob(inputStream, headers, asset, hashAlgorithms, "text/plain")
@@ -222,7 +231,7 @@ extends TestSupport
     }
     catch (IllegalOperationException e) {}
     verify(blobTx, never()).delete(any(BlobRef))
-    verify(blobTx, never()).create(any(InputStream), any(Map))
+    verify(blobTx, never()).create(any(InputStream), any(Map), any(Iterable), anyString())
     verify(asset, never()).blobRef(any(BlobRef))
   }
 
@@ -240,11 +249,13 @@ extends TestSupport
   void 'setting blob pass on asset without blob when ALLOW_ONCE write policy'() {
     when(asset.attributes()).thenReturn(mock(NestedAttributesMap))
     def newBlobRef = mock(BlobRef)
+    def assetBlob = mock(AssetBlob)
+    when(assetBlob.getBlobRef()).thenReturn(newBlobRef)
     when(bucket.repositoryName()).thenReturn('testRepo')
-    when(blobTx.create(any(InputStream), any(Map))).thenReturn(newBlobRef)
+    when(blobTx.create(any(InputStream), any(Map), any(Iterable), anyString())).thenReturn(assetBlob)
     def underTest = new StorageTxImpl(blobTx, db, bucket, WritePolicy.ALLOW_ONCE, bucketEntityAdapter, componentEntityAdapter, assetEntityAdapter)
     underTest.setBlob(inputStream, headers, asset, hashAlgorithms, "text/plain")
-    verify(blobTx, times(1)).create(any(InputStream), eq(expectedHeaders))
+    verify(blobTx, times(1)).create(any(InputStream), eq(expectedHeaders), eq(hashAlgorithms), eq("text/plain"))
     verify(asset, times(1)).blobRef(newBlobRef)
   }
 
@@ -262,15 +273,19 @@ extends TestSupport
   @Test
   void 'setting blob pass on asset with blob when ALLOW write policy'() {
     def blobRef = mock(BlobRef)
+    def assetBlob = mock(AssetBlob)
+    when(assetBlob.getBlobRef()).thenReturn(blobRef);
     when(asset.blobRef()).thenReturn(blobRef)
     when(asset.attributes()).thenReturn(mock(NestedAttributesMap))
     def newBlobRef = mock(BlobRef)
+    def newAssetBlob = mock(AssetBlob)
+    when(newAssetBlob.getBlobRef()).thenReturn(newBlobRef)
     when(bucket.repositoryName()).thenReturn('testRepo')
-    when(blobTx.create(any(InputStream), any(Map))).thenReturn(newBlobRef)
+    when(blobTx.create(any(InputStream), any(Map), any(Iterable), eq(ContentTypes.TEXT_PLAIN))).thenReturn(newAssetBlob)
     def underTest = new StorageTxImpl(blobTx, db, bucket, WritePolicy.ALLOW, bucketEntityAdapter, componentEntityAdapter, assetEntityAdapter)
     underTest.setBlob(inputStream, headers, asset, hashAlgorithms, "text/plain")
     verify(blobTx, times(1)).delete(blobRef)
-    verify(blobTx, times(1)).create(any(InputStream), eq(expectedHeaders))
+    verify(blobTx, times(1)).create(any(InputStream), eq(expectedHeaders), any(Iterable), eq(ContentTypes.TEXT_PLAIN))
     verify(asset, times(1)).blobRef(newBlobRef)
   }
 
@@ -288,11 +303,13 @@ extends TestSupport
   void 'setting blob pass on asset without blob when ALLOW write policy'() {
     when(asset.attributes()).thenReturn(mock(NestedAttributesMap))
     def newBlobRef = mock(BlobRef)
+    def assetBlob = mock(AssetBlob)
+    when(assetBlob.getBlobRef()).thenReturn(newBlobRef)
     when(bucket.repositoryName()).thenReturn('testRepo')
-    when(blobTx.create(any(InputStream), any(Map))).thenReturn(newBlobRef)
+    when(blobTx.create(any(InputStream), any(Map), any(Iterable), anyString())).thenReturn(assetBlob)
     def underTest = new StorageTxImpl(blobTx, db, bucket, WritePolicy.ALLOW, bucketEntityAdapter, componentEntityAdapter, assetEntityAdapter)
     underTest.setBlob(inputStream, headers, asset, hashAlgorithms, "text/plain")
-    verify(blobTx, times(1)).create(any(InputStream), eq(expectedHeaders))
+    verify(blobTx, times(1)).create(any(InputStream), eq(expectedHeaders), eq(hashAlgorithms), eq("text/plain"))
     verify(asset, times(1)).blobRef(newBlobRef)
   }
 

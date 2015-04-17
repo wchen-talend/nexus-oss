@@ -426,6 +426,13 @@ public class StorageTxImpl
   {
     checkNotNull(asset);
 
+    // Enforce write policy ahead, as we have asset here
+    BlobRef oldBlobRef = asset.blobRef();
+    if (oldBlobRef != null) {
+      if (writePolicy == WritePolicy.ALLOW_ONCE) {
+        throw new IllegalOperationException("Repository does not allow updating assets.");
+      }
+    }
     final AssetBlob assetBlob = createBlob(inputStream, headers, hashAlgorithms, contentType);
     attachBlob(asset, assetBlob);
     return assetBlob.getBlobRef();
