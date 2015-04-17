@@ -10,24 +10,25 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-package org.sonatype.nexus.common.validation
-
-import org.junit.Test
-import org.sonatype.sisu.litmus.testsupport.TestSupport
+package org.sonatype.nexus.repository;
 
 /**
- * Trials of {@link ValidationMessage}
+ * Content is of an incorrect or indeterminate type.
+ *
+ * @since 3.0
  */
-class ValidationMessageTrial
-    extends TestSupport
+public class InvalidContentException
+    extends RuntimeException
 {
-  @Test
-  void 'string representation'() {
-    log new ValidationMessage('key', 'message')
-  }
+    public InvalidContentException(final String message) {
+        super(message);
+    }
 
-  @Test
-  void 'string representation with exception'() {
-    log new ValidationMessage('key', 'message', new Throwable('TEST'))
-  }
+    public InvalidContentException(final String message, final Throwable cause) {
+        super(message, cause);
+    }
+
+    public InvalidContentException(final Throwable cause) {
+        super(cause);
+    }
 }

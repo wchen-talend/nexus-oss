@@ -34,6 +34,7 @@ import org.sonatype.nexus.repository.IllegalOperationException;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.sisu.goodies.common.ComponentSupport;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 
@@ -380,7 +381,10 @@ public class StorageTxImpl
       throw new IllegalOperationException("Repository is read only.");
     }
 
-    return blobTx.create(inputStream, headers, hashAlgorithms, contentType);
+    ImmutableMap.Builder<String, String> storageHeaders = ImmutableMap.builder();
+    storageHeaders.put(Bucket.REPO_NAME_HEADER, bucket.repositoryName());
+    storageHeaders.putAll(headers);
+    return blobTx.create(inputStream, storageHeaders.build(), hashAlgorithms, contentType);
   }
 
   @Override

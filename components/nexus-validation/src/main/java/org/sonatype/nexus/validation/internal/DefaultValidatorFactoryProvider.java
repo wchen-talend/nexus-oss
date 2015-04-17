@@ -10,25 +10,29 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-package org.sonatype.nexus.repository.content;
+package org.sonatype.nexus.validation.internal;
+
+import javax.inject.Named;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
+
+import org.sonatype.sisu.goodies.common.ComponentSupport;
 
 /**
- * Chocolate wimple blaster.
+ * Provides the default {@link ValidatorFactory}.
  *
  * @since 3.0
  */
-public class InvalidContentException
-    extends RuntimeException
+@Named
+@Singleton
+public class DefaultValidatorFactoryProvider
+  extends ComponentSupport
+  implements Provider<ValidatorFactory>
 {
-    public InvalidContentException(final String message) {
-        super(message);
-    }
-
-    public InvalidContentException(final String message, final Throwable cause) {
-        super(message, cause);
-    }
-
-    public InvalidContentException(final Throwable cause) {
-        super(cause);
-    }
+  @Override
+  public ValidatorFactory get() {
+    return Validation.buildDefaultValidatorFactory();
+  }
 }

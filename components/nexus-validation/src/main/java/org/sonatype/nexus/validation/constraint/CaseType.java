@@ -10,31 +10,15 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-package org.sonatype.nexus.repository.config;
-
-import javax.inject.Named;
-import javax.inject.Provider;
-import javax.inject.Singleton;
-import javax.validation.Validation;
-import javax.validation.ValidatorFactory;
-
-import org.sonatype.sisu.goodies.common.ComponentSupport;
-
-// TODO: This probably should live in nexus-core, or goodies-validation?
+package org.sonatype.nexus.validation.constraint;
 
 /**
- * Provides the default {@link ValidatorFactory}.
+ * String case.
  *
  * @since 3.0
  */
-@Named
-@Singleton
-public class DefaultValidatorFactoryProvider
-  extends ComponentSupport
-  implements Provider<ValidatorFactory>
+public enum CaseType
 {
-  @Override
-  public ValidatorFactory get() {
-    return Validation.buildDefaultValidatorFactory();
-  }
+  UPPER,
+  LOWER
 }

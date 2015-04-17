@@ -10,9 +10,39 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
+package org.sonatype.nexus.validation.constraint;
+
+import java.util.Locale;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+
 /**
- * Abstractions related to validating remotely-provided content.
+ * {@link Case} validator.
  *
  * @since 3.0
  */
-package org.sonatype.nexus.repository.content;
+public class CaseValidator
+  implements ConstraintValidator<Case,String>
+{
+  private CaseType type;
+
+  @Override
+  public void initialize(final Case annotation) {
+    type = annotation.value();
+  }
+
+  @Override
+  public boolean isValid(final String value, final ConstraintValidatorContext context) {
+    if (value == null) {
+      return true;
+    }
+
+    if (type == CaseType.UPPER) {
+      return value.equals(value.toUpperCase(Locale.US));
+    }
+    else {
+      return value.equals(value.toLowerCase(Locale.US));
+    }
+  }
+}
