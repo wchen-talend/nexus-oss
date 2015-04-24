@@ -20,6 +20,7 @@ import org.sonatype.nexus.validation.group.Create
 import org.sonatype.nexus.validation.group.Update
 
 import groovy.transform.ToString
+import org.hibernate.validator.constraints.NotBlank
 import org.hibernate.validator.constraints.NotEmpty
 
 /**
@@ -30,21 +31,21 @@ import org.hibernate.validator.constraints.NotEmpty
 @ToString(includePackage = false, includeNames = true)
 class UserXO
 {
-  @NotEmpty
+  @NotBlank
   String userId
 
-  @NotEmpty(groups = Update)
+  @NotBlank(groups = Update)
   String version
 
   String realm
 
-  @NotEmpty
+  @NotBlank
   String firstName
 
-  @NotEmpty
+  @NotBlank
   String lastName
 
-  @NotEmpty
+  @NotBlank
   String email
 
   @NotNull

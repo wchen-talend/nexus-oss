@@ -43,6 +43,8 @@ Ext.define('NX.app.Application', {
     'Ext.patch.Ticket_18960',
     'Ext.patch.Ticket_18964',
     'Ext.patch.Ticket_21425',
+    'Ext.patch.Ticket_22557_1',
+    'Ext.patch.Ticket_22557_2',
 
     // direct overrides
     'NX.ext.form.action.DirectLoad',
@@ -229,9 +231,16 @@ Ext.define('NX.app.Application', {
    * Initialize Ex.Direct remote providers.
    */
   initDirect: function () {
-    var me = this;
+    var me = this,
+        remotingProvider;
 
-    Ext.direct.Manager.addProvider(NX.direct.api.REMOTING_API);
+    remotingProvider = Ext.direct.Manager.addProvider(NX.direct.api.REMOTING_API);
+
+    // disable retry
+    remotingProvider.maxRetries = 0;
+
+    // default request timeout to 60 seconds
+    remotingProvider.timeout = 60 * 1000;
 
     //<if debug>
     me.logDebug('Configured Ext.Direct');

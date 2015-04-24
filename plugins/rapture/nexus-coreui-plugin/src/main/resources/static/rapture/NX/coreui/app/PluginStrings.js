@@ -206,7 +206,8 @@ Ext.define('NX.coreui.app.PluginStrings', {
     // Admin -> Repository -> Repositories
     ADMIN_REPOSITORIES_TITLE: 'Repositories',
     ADMIN_REPOSITORIES_SUBTITLE: 'Manage repositories',
-    ADMIN_REPOSITORIES_CREATE_TITLE: 'Create repository',
+    ADMIN_REPOSITORIES_CREATE_TITLE: 'Create Repository: {0}',
+    ADMIN_REPOSITORIES_SELECT_TITLE: 'Select Provider',
     ADMIN_REPOSITORIES_CREATE_SUCCESS: 'Repository created: ',
     ADMIN_REPOSITORIES_CREATE_ERROR: 'You do not have permission to create repositories',
     ADMIN_REPOSITORIES_UPDATE_SUCCESS: 'Repository updated: ',
@@ -224,7 +225,54 @@ Ext.define('NX.coreui.app.PluginStrings', {
     ADMIN_REPOSITORIES_SETTINGS_RECIPE: 'Recipe',
     ADMIN_REPOSITORIES_SETTINGS_RECIPE_PLACEHOLDER: 'Select a recipe',
     ADMIN_REPOSITORIES_SETTINGS_NAME: 'Name',
-    ADMIN_REPOSITORIES_SETTINGS_ATTRIBUTES: 'Attributes',
+    ADMIN_REPOSITORIES_SETTINGS_URL: 'URL',
+    ADMIN_REPOSITORIES_SETTINGS_MEMBERS: 'Member repositories',
+    ADMIN_REPOSITORIES_SETTINGS_MEMBERS_HELP: 'Select and order the repositories that are part of this group',
+    ADMIN_REPOSITORIES_SETTINGS_MEMBERS_FROM: 'Available',
+    ADMIN_REPOSITORIES_SETTINGS_MEMBERS_TO: 'Members',
+    ADMIN_REPOSITORIES_SETTINGS_DEPLOYMENT: 'Deployment policy',
+    ADMIN_REPOSITORIES_SETTINGS_DEPLOYMENT_HELP: 'Controls if deployments and/or updates to artifacts are allowed',
+    ADMIN_REPOSITORIES_SETTINGS_DEPLOYMENT_PLACEHOLDER: 'Select a policy',
+    ADMIN_REPOSITORIES_SETTINGS_DEPLOYMENT_ALLOW_ITEM: 'Allow redeploy',
+    ADMIN_REPOSITORIES_SETTINGS_DEPLOYMENT_DISABLE_ITEM: 'Disable redeploy',
+    ADMIN_REPOSITORIES_SETTINGS_DEPLOYMENT_RO_ITEM: 'Read-only',
+    ADMIN_REPOSITORIES_SETTINGS_REMOTE: 'Remote storage',
+    ADMIN_REPOSITORIES_SETTINGS_REMOTE_HELP: 'Location of the remote repository being proxied',
+    ADMIN_REPOSITORIES_SETTINGS_REMOTE_PLACEHOLDER: 'Enter a URL',
+    ADMIN_REPOSITORIES_SETTINGS_POLICY: 'Repository policy',
+    ADMIN_REPOSITORIES_SETTINGS_POLICY_HELP: 'What type of artifacts does this repository store?',
+    ADMIN_REPOSITORIES_SETTINGS_POLICY_PLACEHOLDER: 'Select a policy',
+    ADMIN_REPOSITORIES_SETTINGS_POLICY_RELEASE_ITEM: 'Release',
+    ADMIN_REPOSITORIES_SETTINGS_POLICY_SNAPSHOTS_ITEM: 'Snapshots',
+    ADMIN_REPOSITORIES_SETTINGS_CHECKSUM: 'Checksum policy',
+    ADMIN_REPOSITORIES_SETTINGS_CHECKSUM_PLACEHOLDER: 'Select a policy',
+    ADMIN_REPOSITORIES_SETTINGS_CHECKSUM_IGNORE_ITEM: 'Ignore',
+    ADMIN_REPOSITORIES_SETTINGS_CHECKSUM_WARN_ITEM: 'Warn',
+    ADMIN_REPOSITORIES_SETTINGS_CHECKSUM_EXISTS_ITEM: 'Strict if exists',
+    ADMIN_REPOSITORIES_SETTINGS_CHECKSUM_STRICT_ITEM: 'Strict',
+    ADMIN_REPOSITORIES_SETTINGS_FORMAT: 'Format',
+    ADMIN_REPOSITORIES_SETTINGS_TYPE: 'Type',
+    ADMIN_REPOSITORIES_SETTINGS_ONLINE: 'Online',
+    ADMIN_REPOSITORIES_SETTINGS_ONLINE_HELP: 'Whether or not the repository should accept incoming requests',
+    ADMIN_REPOSITORIES_SETTINGS_ARTIFACT_AGE: 'Maximum artifact age',
+    ADMIN_REPOSITORIES_SETTINGS_ARTIFACT_AGE_HELP: 'How long (in minutes) to cache artifacts before rechecking the remote repository. Release repositories should use -1.',
+    ADMIN_REPOSITORIES_SETTINGS_CONNECTION_RETRIES: 'Connection retries',
+    ADMIN_REPOSITORIES_SETTINGS_CONNECTION_RETRIES_HELP: 'How many times to try to connect before giving up',
+    ADMIN_REPOSITORIES_SETTINGS_CONNECTION_TIMEOUT: 'Connection timeout',
+    ADMIN_REPOSITORIES_SETTINGS_CONNECTION_TIMEOUT_HELP: 'How long (in ms) to wait before timing out connections',
+    ADMIN_REPOSITORIES_SETTINGS_CONTENT_TYPE_VALIDATION: 'Strict Content Type Validation',
+    ADMIN_REPOSITORIES_SETTINGS_NEGATIVE_CACHE_ENABLED: 'Not found cache enabled',
+    ADMIN_REPOSITORIES_SETTINGS_NEGATIVE_CACHE_TTL: 'Not found cache TTL',
+    ADMIN_REPOSITORIES_SETTINGS_NEGATIVE_CACHE_TTL_HELP: 'How long to cache the fact that a file was not found in the repository (in minutes)',
+    ADMIN_REPOSITORIES_SETTINGS_QUERY_CACHE_SIZE: 'Query cache size',
+    ADMIN_REPOSITORIES_SETTINGS_QUERY_CACHE_SIZE_HELP: 'Maximum number of cached query results',
+    ADMIN_REPOSITORIES_SETTINGS_QUERY_CACHE_ITEM_MAX_AGE: 'Query cache age',
+    ADMIN_REPOSITORIES_SETTINGS_QUERY_CACHE_ITEM_MAX_AGE_HELP: 'How long to cache query results (in seconds)',
+    ADMIN_REPOSITORIES_AUTHENTICATION_TYPE: 'Authentication type',
+    ADMIN_REPOSITORIES_AUTHENTICATION_TYPE_USERNAME: 'Username',
+    ADMIN_REPOSITORIES_AUTHENTICATION_TYPE_NTLM: 'Windows NTLM',
+    ADMIN_REPOSITORIES_SETTINGS_AUTHENTICATION: 'Authentication',
+    ADMIN_REPOSITORIES_SETTINGS_HTTP: 'HTTP request settings',
 
     // Admin -> Repository -> Blobstores
     ADMIN_BLOBSTORES_TITLE: 'Blobstores',
@@ -414,8 +462,6 @@ Ext.define('NX.coreui.app.PluginStrings', {
     ADMIN_USERS_DETAILS_DELETE_BUTTON: 'Delete user',
     ADMIN_USERS_DETAILS_DELETE_SUCCESS: 'User deleted: {0}',
     ADMIN_USERS_DETAILS_MORE_BUTTON: 'More',
-    ADMIN_USERS_DETAILS_RESET_ITEM: 'Reset password',
-    ADMIN_USERS_DETAILS_RESET_SUCCESS: 'Password reset',
     ADMIN_USERS_DETAILS_CHANGE_ITEM: 'Change password',
     ADMIN_USERS_DETAILS_CHANGE_SUCCESS: 'Password changed',
     ADMIN_USERS_DETAILS_SETTINGS_TAB: 'Settings',
@@ -449,8 +495,10 @@ Ext.define('NX.coreui.app.PluginStrings', {
     // Admin -> Security -> LDAP
     ADMIN_LDAP_TITLE: 'LDAP',
     ADMIN_LDAP_SUBTITLE: 'Manage LDAP server configuration',
+    ADMIN_LDAP_UPDATE_MASK: 'Updating LDAP connection',
     ADMIN_LDAP_UPDATE_SUCCESS: 'LDAP server updated: {0}',
     ADMIN_LDAP_UPDATE_ERROR: 'You do not have permission to update LDAP servers',
+    ADMIN_LDAP_CREATE_MASK: 'Creating LDAP connection',
     ADMIN_LDAP_CREATE_CONNECTION: 'Create LDAP Connection',
     ADMIN_LDAP_CREATE_GROUP: 'Choose Users and Groups',
     ADMIN_LDAP_CREATE_SUCCESS: 'LDAP server created: {0}',
@@ -644,7 +692,7 @@ Ext.define('NX.coreui.app.PluginStrings', {
     // Admin -> Support -> Logging
     ADMIN_LOGGING_TITLE: 'Logging',
     ADMIN_LOGGING_SUBTITLE: 'Control logging verbosity levels',
-    ADMIN_LOGGING_CREATE_TITLE: 'Save search filter',
+    ADMIN_LOGGING_CREATE_TITLE: 'Create logger',
     ADMIN_LOGGING_CREATE_NAME: 'Logger name',
     ADMIN_LOGGING_CREATE_LEVEL: 'Logging level',
     ADMIN_LOGGING_WRITE_SUCCESS: 'Logger {0}d: {1}',
@@ -723,7 +771,8 @@ Ext.define('NX.coreui.app.PluginStrings', {
     // Admin -> Support -> Support ZIP
     ADMIN_SUPPORT_ZIP_TITLE: 'Support ZIP',
     ADMIN_SUPPORT_ZIP_SUBTITLE: 'Creates a ZIP file containing useful support information about your server',
-    ADMIN_SUPPORT_ZIP_HELP: '<p>No information will be sent to Sonatype when creating the support ZIP file.</p>',
+    ADMIN_SUPPORT_ZIP_HELP: '<p>No information will be sent to Sonatype when creating the support ZIP file.</p>' +
+      '<p>Support ZIP creation may take a few minutes to complete.</p>',
     ADMIN_SUPPORT_ZIP_CONTENTS: 'Contents',
     ADMIN_SUPPORT_ZIP_REPORT: 'System information report',
     ADMIN_SUPPORT_ZIP_DUMP: 'JVM thread-dump',
@@ -736,7 +785,7 @@ Ext.define('NX.coreui.app.PluginStrings', {
     ADMIN_SUPPORT_ZIP_INCLUDED: 'Limit files in the ZIP archive to 30 MB apiece',
     ADMIN_SUPPORT_ZIP_MAX: 'Limit the ZIP archive to 20 MB',
     ADMIN_SUPPORT_ZIP_CREATE_BUTTON: 'Create support ZIP',
-    ADMIN_SUPPORT_ZIP_CREATING: 'Creating support ZIP',
+    ADMIN_SUPPORT_ZIP_CREATING: '<div align="center">Creating support ZIP <br/>(may take a few minutes)</div>',
     ADMIN_SUPPORT_ZIP_TRUNCATED: 'Contents have been truncated due to exceeded size limits.',
     ADMIN_SUPPORT_ZIP_CREATED: 'Support ZIP created',
     ADMIN_SUPPORT_ZIP_CREATED_NAME: 'Name',
@@ -761,6 +810,9 @@ Ext.define('NX.coreui.app.PluginStrings', {
     // Admin -> System -> Capabilities
     ADMIN_CAPABILITIES_TITLE: 'Capabilities',
     ADMIN_CAPABILITIES_SUBTITLE: 'Manage capabilities',
+    ADMIN_CAPABILITIES_UPDATE_MASK: 'Updating capability',
+    ADMIN_CAPABILITIES_ENABLE_MASK: 'Enabling capability',
+    ADMIN_CAPABILITIES_DISABLE_MASK: 'Disabling capability',
     ADMIN_CAPABILITIES_UPDATE_ERROR: 'You do not have permission to update capabilities',
     ADMIN_CAPABILITIES_UPDATE_SUCCESS: 'Capability updated: {0}',
     ADMIN_CAPABILITIES_CREATE_TITLE: 'Create {0} Capability',
@@ -790,7 +842,6 @@ Ext.define('NX.coreui.app.PluginStrings', {
     ADMIN_CAPABILITIES_SUMMARY_TYPE: 'Type',
     ADMIN_CAPABILITIES_SUMMARY_DESCRIPTION: 'Description',
     ADMIN_CAPABILITIES_SUMMARY_STATE: 'State',
-    ADMIN_CAPABILITIES_SUMMARY_NOTES: 'Notes',
     ADMIN_CAPABILITIES_SUMMARY_NOTES_HELP: 'Optional notes about configured capability',
     ADMIN_CAPABILITIES_STATUS_EMPTY_STATE: 'This capability does not provide any status',
 
@@ -874,6 +925,9 @@ Ext.define('NX.coreui.app.PluginStrings', {
     ADMIN_TASKS_SELECT_TITLE: 'Select a Service Type',
     ADMIN_TASKS_SELECT_LIST_FILTER_ERROR: 'No service types matched "$filter"',
     ADMIN_TASKS_SELECT_TYPE_NAME_COLUMN: 'Service type',
+    ADMIN_TASKS_UPDATE_MASK: 'Updating task',
+    ADMIN_TASKS_RUN_MASK: 'Running task',
+    ADMIN_TASKS_STOP_MASK: 'Stopping task',
     ADMIN_TASKS_CREATE_TITLE: 'Create {0} Task',
     ADMIN_TASKS_CREATE_SUCCESS: 'Task created: {0}',
     ADMIN_TASKS_LIST_NEW_BUTTON: 'Create task',
@@ -952,7 +1006,7 @@ Ext.define('NX.coreui.app.PluginStrings', {
     USER_ACCOUNT_LAST: 'Last Name',
     USER_ACCOUNT_EMAIL: 'Email',
     USER_ACCOUNT_PASSWORD_BUTTON: 'Change password',
-    
+
     // User -> NuGet Api Key
     NUGET_APIKEY_TITLE:'NuGet API Key',
     NUGET_APIKEY_SUB_TITLE: 'Configure credentials for NuGet repositories',
@@ -965,7 +1019,11 @@ Ext.define('NX.coreui.app.PluginStrings', {
     NUGET_APIKEY_DETAIL_AUTOCLOSE_MESSAGE: 'Automatically closing NuGet API Key details due to timeout',
     NUGET_APIKEY_INSTRUCTIONS : 'A new API Key will be created the first time it is accessed. Resetting your API Key will invalidate the current key.',
     NUGET_APIKEY_ACCESS_BUTTON: 'Access API Key',
-    NUGET_APIKEY_RESET_BUTTON: 'Reset API Key'
+    NUGET_APIKEY_RESET_BUTTON: 'Reset API Key',
+
+
+    // Field validation messages
+    NAME_VALIDATION_MESSAGE: 'Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed'
 
   }
 }, function(obj) {

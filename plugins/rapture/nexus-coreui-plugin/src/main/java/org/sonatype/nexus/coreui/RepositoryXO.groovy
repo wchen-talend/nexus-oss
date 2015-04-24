@@ -12,9 +12,14 @@
  */
 package org.sonatype.nexus.coreui
 
+import javax.validation.constraints.NotNull
+import javax.validation.constraints.Pattern
+
+import org.sonatype.nexus.repository.config.UniqueRepositoryName
 import org.sonatype.nexus.validation.group.Create
 
 import groovy.transform.ToString
+import org.hibernate.validator.constraints.NotBlank
 import org.hibernate.validator.constraints.NotEmpty
 
 /**
@@ -25,21 +30,28 @@ import org.hibernate.validator.constraints.NotEmpty
 @ToString(includePackage = false, includeNames = true)
 class RepositoryXO
 {
+  @Pattern(
+      regexp = /^[a-zA-Z0-9\-\.]{1}[a-zA-Z0-9_\-\.]*$/,
+      message = 'Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed'
+  )
   @NotEmpty
+  @UniqueRepositoryName(groups = Create)
   String name
 
   String type
 
   String format
 
-  @NotEmpty(groups = Create)
+  @NotBlank(groups = Create)
   String recipe
 
+  @NotNull
   Boolean online
 
-  String attributes
-  
+  @NotEmpty
+  Map<String, Map<String, Object>> attributes
+
   String url
-  
+
   RepositoryStatusXO status
 }

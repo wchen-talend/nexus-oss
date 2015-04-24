@@ -12,6 +12,7 @@
  */
 package org.sonatype.nexus.coreui
 
+import javax.annotation.Nullable
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -21,6 +22,7 @@ import javax.validation.groups.Default
 
 import org.sonatype.nexus.extdirect.DirectComponent
 import org.sonatype.nexus.extdirect.DirectComponentSupport
+import org.sonatype.nexus.extdirect.model.StoreLoadParameters
 import org.sonatype.nexus.repository.MissingFacetException
 import org.sonatype.nexus.repository.Recipe
 import org.sonatype.nexus.repository.Repository
@@ -28,7 +30,6 @@ import org.sonatype.nexus.repository.config.Configuration
 import org.sonatype.nexus.repository.group.GroupFacet
 import org.sonatype.nexus.repository.httpclient.HttpClientFacet
 import org.sonatype.nexus.repository.manager.RepositoryManager
-import org.sonatype.nexus.repository.view.ViewFacet
 import org.sonatype.nexus.validation.Validate
 import org.sonatype.nexus.validation.group.Create
 import org.sonatype.nexus.validation.group.Update
@@ -37,7 +38,9 @@ import org.sonatype.nexus.web.BaseUrlHolder
 import com.softwarementors.extjs.djn.config.annotations.DirectAction
 import com.softwarementors.extjs.djn.config.annotations.DirectMethod
 import com.softwarementors.extjs.djn.config.annotations.DirectPollMethod
+import groovy.transform.PackageScope
 import org.apache.shiro.authz.annotation.RequiresAuthentication
+import org.apache.shiro.authz.annotation.RequiresPermissions
 import org.hibernate.validator.constraints.NotEmpty
 
 /**
@@ -56,9 +59,6 @@ extends DirectComponentSupport
 
   @Inject
   Map<String, Recipe> recipes
-  
-  @Inject
-  AttributeConverter attributeConverter
 
   @DirectMethod
   List<RepositoryXO> read() {
@@ -75,6 +75,22 @@ extends DirectComponentSupport
     }
   }
 
+  /**
+   * Retrieve a list of available repositories references.
+   */
+  @DirectMethod
+  @RequiresPermissions('nexus:repositories:read')
+  List<RepositoryReferenceXO> readReferences(final @Nullable StoreLoadParameters parameters) {
+    return filter(parameters).collect { Repository repository ->
+      new RepositoryReferenceXO(
+          id: repository.name,
+          name: repository.name,
+          type: repository.type.toString(),
+          format: repository.format.toString()
+      )
+    }
+  }
+
   @DirectMethod
   @RequiresAuthentication
   @Validate(groups = [Create.class, Default.class])
@@ -82,7 +98,8 @@ extends DirectComponentSupport
     return asRepository(repositoryManager.create(new Configuration(
         repositoryName: repository.name,
         recipeName: repository.recipe,
-        attributes: attributeConverter.asAttributes(repository.attributes)
+        online: repository.online,
+        attributes: repository.attributes
     )))
   }
 
@@ -91,7 +108,8 @@ extends DirectComponentSupport
   @Validate(groups = [Update.class, Default.class])
   RepositoryXO update(final @NotNull(message = '[repository] may not be null') @Valid RepositoryXO repository) {
     return asRepository(repositoryManager.update(repositoryManager.get(repository.name).configuration.with {
-      attributes = attributeConverter.asAttributes(repository.attributes)
+      online = repository.online
+      attributes = repository.attributes
       return it
     }))
   }
@@ -108,10 +126,11 @@ extends DirectComponentSupport
         name: input.name,
         type: input.type,
         format: input.format,
-        online: input.facet(ViewFacet).online,
+        online: input.configuration.online,
+        recipe: input.configuration.recipeName,
         status: buildStatus(input),
-        attributes: attributeConverter.asAttributes(input.configuration.attributes),
-        url: "${BaseUrlHolder.get()}/repository/${input.name}"
+        attributes: input.configuration.attributes,
+        url: "${BaseUrlHolder.get()}/repository/${input.name}/" // trailing slash is important
     )
   }
 
@@ -123,7 +142,7 @@ extends DirectComponentSupport
 
   RepositoryStatusXO buildStatus(Repository input) {
     RepositoryStatusXO statusXO = new RepositoryStatusXO(repositoryName: input.name,
-        online: input.facet(ViewFacet).online)
+        online: input.configuration.online)
 
     try {
       if (input.facet(GroupFacet)) {
@@ -134,7 +153,7 @@ extends DirectComponentSupport
     catch (MissingFacetException e) {
       // no group, can refine status
     }
-    
+
     try {
       def remoteStatus = input.facet(HttpClientFacet).status
       statusXO.description = remoteStatus.description
@@ -147,5 +166,18 @@ extends DirectComponentSupport
     }
     return statusXO
   }
-  
+
+  @PackageScope
+  List<Repository> filter(final @Nullable StoreLoadParameters parameters) {
+    def repositories = repositoryManager.browse()
+    if (parameters) {
+      String format = parameters.getFilter('format')
+      if (format) {
+        return repositories.findResults { Repository repository ->
+          repository.format == format
+        }
+      }
+    }
+    return repositories
+  }
 }

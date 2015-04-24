@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
@@ -38,7 +39,6 @@ import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.Component;
 import org.sonatype.nexus.repository.storage.StorageFacet;
 import org.sonatype.nexus.repository.storage.StorageTx;
-import org.sonatype.nexus.repository.view.ViewFacet;
 import org.sonatype.nexus.security.SecurityHelper;
 import org.sonatype.sisu.goodies.common.ComponentSupport;
 
@@ -55,6 +55,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.indices.IndexMissingException;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.internal.InternalSearchResponse;
+import org.jetbrains.annotations.NotNull;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -130,7 +131,7 @@ public class SearchServiceImpl
         // update runtime configuration
         log.trace("ElasticSearch mapping: {}", source);
         log.debug("Creating index for {}", repository);
-        client.get().admin().indices().prepareCreate(repository.getName())
+        client.get().admin().indices().prepareCreate(safeIndexName(repository))
             .setSource(source)
             .execute()
             .actionGet();
@@ -146,7 +147,7 @@ public class SearchServiceImpl
     checkNotNull(repository);
     if (client.get().admin().indices().prepareExists(repository.getName()).execute().actionGet().isExists()) {
       log.debug("Removing index of {}", repository);
-      client.get().admin().indices().prepareDelete(repository.getName()).execute().actionGet();
+      client.get().admin().indices().prepareDelete(safeIndexName(repository)).execute().actionGet();
     }
   }
 
@@ -163,7 +164,7 @@ public class SearchServiceImpl
         assets = Lists.newArrayList(tx.browseAssets(component));
       }
       String json = JsonUtils.merge(componentMetadata(component, assets), JsonUtils.from(additional));
-      client.get().prepareIndex(repository.getName(), TYPE, component.getEntityMetadata().getId().toString())
+      client.get().prepareIndex(safeIndexName(repository), TYPE, component.getEntityMetadata().getId().toString())
           .setSource(json).execute();
     }
     catch (IOException e) {
@@ -176,7 +177,7 @@ public class SearchServiceImpl
     checkNotNull(repository);
     checkNotNull(component);
     log.debug("Removing indexed metadata of {} from {}", component, repository);
-    client.get().prepareDelete(repository.getName(), TYPE, component.getEntityMetadata().getId().toString()).execute();
+    client.get().prepareDelete(safeIndexName(repository), TYPE, component.getEntityMetadata().getId().toString()).execute();
   }
 
   @Override
@@ -288,9 +289,9 @@ public class SearchServiceImpl
       try {
         // check if search facet is available so avoid searching repositories without an index
         repository.facet(SearchFacet.class);
-        if (repository.facet(ViewFacet.class).isOnline()
+        if (repository.getConfiguration().isOnline()
             && securityHelper.allPermitted(new RepositoryViewPermission(repository, BreadActions.BROWSE))) {
-          indexes.add(repository.getName());
+          indexes.add(safeIndexName(repository));
         }
       }
       catch (MissingFacetException e) {
@@ -314,6 +315,15 @@ public class SearchServiceImpl
     }
     checkState(producer != null, "Could not find a component metadata producer for format: {}", format);
     return producer.getMetadata(component, assets);
+  }
+
+
+  /**
+   * Sanitize repository name in a consistent fashion to ensure that the name used for an index is safe.
+   */
+  @NotNull
+  private String safeIndexName(final Repository repository) {
+    return repository.getName().toLowerCase(Locale.ENGLISH);
   }
 
 }

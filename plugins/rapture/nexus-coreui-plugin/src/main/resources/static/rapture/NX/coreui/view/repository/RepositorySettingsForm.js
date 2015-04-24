@@ -39,24 +39,96 @@ Ext.define('NX.coreui.view.repository.RepositorySettingsForm', {
 
     me.editableCondition = me.editableCondition || NX.Conditions.isPermitted('nexus:repositories', 'update');
 
-    me.items = [
+    me.items = me.items || [];
+    Ext.Array.insert(me.items, 0, [
       {
         xtype: 'textfield',
         name: 'name',
         itemId: 'name',
         fieldLabel: NX.I18n.get('ADMIN_REPOSITORIES_SETTINGS_NAME'),
+        readOnly: true,
+        vtype: 'nx-name'
+      },
+      {
+        xtype: 'textfield',
+        name: 'format',
+        itemId: 'format',
+        fieldLabel: NX.I18n.get('ADMIN_REPOSITORIES_SETTINGS_FORMAT'),
+        allowBlank: true,
         readOnly: true
       },
       {
-        xtype: 'textarea',
-        name: 'attributes',
-        fieldLabel: NX.I18n.get('ADMIN_REPOSITORIES_SETTINGS_ATTRIBUTES'),
-        height: 300,
+        xtype: 'textfield',
+        name: 'type',
+        itemId: 'type',
+        fieldLabel: NX.I18n.get('ADMIN_REPOSITORIES_SETTINGS_TYPE'),
         allowBlank: true,
-        cls: 'nx-log-viewer-field'
+        readOnly: true
+      },
+
+      {
+        xtype: 'textfield',
+        name: 'url',
+        itemId: 'url',
+        fieldLabel: NX.I18n.get('ADMIN_REPOSITORIES_SETTINGS_URL'),
+        allowBlank: true,
+        readOnly: true
+      },
+      {
+        xtype: 'checkbox',
+        name: 'online',
+        fieldLabel: NX.I18n.get('ADMIN_REPOSITORIES_SETTINGS_ONLINE'),
+        helpText: NX.I18n.get('ADMIN_REPOSITORIES_SETTINGS_ONLINE_HELP'),
+        value: true
       }
-    ];
+    ]);
 
     me.callParent(arguments);
+
+    //map repository attributes raw map structure to/from a flattened representation
+    Ext.override(me.getForm(), {
+      getValues: function() {
+        var processed = { attributes: {} },
+            values = this.callParent(arguments);
+
+        Ext.Object.each(values, function(key, value) {
+          var segments = key.split('.'),
+              parent = processed;
+
+          Ext.each(segments, function(segment, pos) {
+            if (pos === segments.length - 1) {
+              parent[segment] = value;
+            }
+            else {
+              if (!parent[segment]) {
+                parent[segment] = {};
+              }
+              parent = parent[segment];
+            }
+          });
+        });
+
+        return processed;
+      },
+
+      setValues: function(values) {
+        var process = function(child, prefix) {
+              Ext.Object.each(child, function(key, value) {
+                var newPrefix = (prefix ? prefix + '.' : '') + key;
+                if (Ext.isObject(value)) {
+                  process(value, newPrefix);
+                }
+                else {
+                  values[newPrefix] = value;
+                }
+              });
+            };
+
+        process(values);
+
+        this.callParent(arguments);
+      }
+    });
   }
+
 });

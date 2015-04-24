@@ -23,6 +23,7 @@ import org.sonatype.nexus.orient.OIndexNameBuilder;
 import org.sonatype.nexus.orient.entity.CollectionEntityAdapter;
 import org.sonatype.nexus.orient.entity.FieldCopier;
 
+import com.orientechnologies.orient.core.collate.OCaseInsensitiveCollate;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYPE;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -47,6 +48,8 @@ public class ConfigurationEntityAdapter
 
   private static final String P_RECIPE_NAME = "recipe_name";
 
+  private static final String P_ONLINE = "online";
+
   private static final String P_ATTRIBUTES = "attributes";
 
   private static final String I_REPOSITORY_NAME = new OIndexNameBuilder()
@@ -66,8 +69,12 @@ public class ConfigurationEntityAdapter
     type.createProperty(P_RECIPE_NAME, OType.STRING)
         .setMandatory(true)
         .setNotNull(true);
+    type.createProperty(P_ONLINE, OType.BOOLEAN)
+        .setMandatory(true)
+        .setNotNull(true);
     type.createProperty(P_ATTRIBUTES, OType.EMBEDDEDMAP);
-    type.createIndex(I_REPOSITORY_NAME, INDEX_TYPE.UNIQUE, P_REPOSITORY_NAME);
+    type.createIndex(I_REPOSITORY_NAME, INDEX_TYPE.UNIQUE, P_REPOSITORY_NAME)
+        .getDefinition().setCollate(new OCaseInsensitiveCollate());
   }
 
   @Override
@@ -79,6 +86,7 @@ public class ConfigurationEntityAdapter
   protected void readFields(final ODocument document, final Configuration entity) {
     String recipeName = document.field(P_RECIPE_NAME, OType.STRING);
     String repositoryName = document.field(P_REPOSITORY_NAME, OType.STRING);
+    Boolean online = document.field(P_ONLINE, OType.BOOLEAN);
     Map<String, Map<String, Object>> attributes = document.field(P_ATTRIBUTES, OType.EMBEDDEDMAP);
 
     // deeply copy attributes to divorce from document
@@ -86,6 +94,7 @@ public class ConfigurationEntityAdapter
 
     entity.setRecipeName(recipeName);
     entity.setRepositoryName(repositoryName);
+    entity.setOnline(online);
     entity.setAttributes(attributes);
   }
 
@@ -93,6 +102,7 @@ public class ConfigurationEntityAdapter
   protected void writeFields(final ODocument document, final Configuration entity) {
     document.field(P_RECIPE_NAME, entity.getRecipeName());
     document.field(P_REPOSITORY_NAME, entity.getRepositoryName());
+    document.field(P_ONLINE, entity.isOnline());
     document.field(P_ATTRIBUTES, entity.getAttributes());
   }
 }
