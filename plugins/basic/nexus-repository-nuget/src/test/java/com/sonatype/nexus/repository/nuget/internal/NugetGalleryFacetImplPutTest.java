@@ -93,6 +93,7 @@ public class NugetGalleryFacetImplPutTest
     final InputStream packageStream = getClass().getResourceAsStream("/SONATYPE.TEST.1.0.nupkg");
 
     doNothing().when(galleryFacet).maintainAggregateInfo(any(StorageTx.class), eq("SONATYPE.TEST"));
+    doNothing().when(galleryFacet).indexForSearch(any(Component.class));
 
     Component component = mock(Component.class);
     ORID orid = mock(ORID.class);

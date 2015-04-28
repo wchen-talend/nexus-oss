@@ -244,7 +244,7 @@ public class NugetGalleryFacetImpl
       final Component component = createOrUpdatePackage(tx, metadata);
       maintainAggregateInfo(tx, metadata.get(ID));
       tx.commit();
-      getRepository().facet(SearchFacet.class).put(component);
+      indexForSearch(component);
     }
   }
 
@@ -337,7 +337,7 @@ public class NugetGalleryFacetImpl
       boolean isNew = component.isNew();  // must check before commit
       storageTx.commit();
 
-      getRepository().facet(SearchFacet.class).put(component);
+      indexForSearch(component);
 
       if (isNew) {
         getEventBus().post(new ComponentCreatedEvent(component, getRepository()));
@@ -412,6 +412,11 @@ public class NugetGalleryFacetImpl
       getEventBus().post(new ComponentDeletedEvent(component, getRepository()));
       return true;
     }
+  }
+
+  @VisibleForTesting
+  void indexForSearch(final Component component) {
+    getRepository().facet(SearchFacet.class).put(component);
   }
 
   @VisibleForTesting
