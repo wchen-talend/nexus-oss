@@ -32,9 +32,9 @@ import org.sonatype.nexus.common.hash.HashAlgorithm;
 import org.sonatype.nexus.common.io.TempStreamSupplier;
 import org.sonatype.nexus.mime.MimeSupport;
 import org.sonatype.nexus.repository.FacetSupport;
+import org.sonatype.nexus.repository.InvalidContentException;
 import org.sonatype.nexus.repository.config.Configuration;
 import org.sonatype.nexus.repository.config.ConfigurationFacet;
-import org.sonatype.nexus.repository.InvalidContentException;
 import org.sonatype.nexus.repository.maven.internal.MavenPath.Coordinates;
 import org.sonatype.nexus.repository.maven.internal.MavenPath.HashType;
 import org.sonatype.nexus.repository.maven.internal.policy.VersionPolicy;
@@ -215,82 +215,88 @@ public class MavenFacetImpl
   {
     try (StorageTx tx = getStorage().openTx()) {
       if (path.getCoordinates() != null) {
-        putArtifact(path, payload, tx);
+        putArtifact(path, payload);
       }
       else {
-        putFile(path, payload, tx);
+        putFile(path, payload);
       }
       tx.commit();
     }
   }
 
-  private void putArtifact(final MavenPath path, final Payload payload, final StorageTx tx)
+  private void putArtifact(final MavenPath path, final Payload payload)
       throws IOException, InvalidContentException
   {
-    final Coordinates coordinates = checkNotNull(path.getCoordinates());
-    Component component = findComponent(tx, tx.getBucket(), path);
-    if (component == null) {
-      // Create and set top-level properties
-      component = tx.createComponent(tx.getBucket(), getRepository().getFormat())
-          .group(coordinates.getGroupId())
-          .name(coordinates.getArtifactId())
-          .version(coordinates.getVersion());
+    try (StorageTx tx = getStorage().openTx()) {
+      final Coordinates coordinates = checkNotNull(path.getCoordinates());
+      Component component = findComponent(tx, tx.getBucket(), path);
+      if (component == null) {
+        // Create and set top-level properties
+        component = tx.createComponent(tx.getBucket(), getRepository().getFormat())
+            .group(coordinates.getGroupId())
+            .name(coordinates.getArtifactId())
+            .version(coordinates.getVersion());
 
-      // Set format specific attributes
-      final NestedAttributesMap componentAttributes = component.formatAttributes();
-      componentAttributes.set(P_COMPONENT_KEY, getComponentKey(coordinates));
-      componentAttributes.set(P_GROUP_ID, coordinates.getGroupId());
-      componentAttributes.set(P_ARTIFACT_ID, coordinates.getArtifactId());
-      componentAttributes.set(P_VERSION, coordinates.getVersion());
-      if (coordinates.isSnapshot()) {
-        componentAttributes.set(P_BASE_VERSION, coordinates.getBaseVersion());
+        // Set format specific attributes
+        final NestedAttributesMap componentAttributes = component.formatAttributes();
+        componentAttributes.set(P_COMPONENT_KEY, getComponentKey(coordinates));
+        componentAttributes.set(P_GROUP_ID, coordinates.getGroupId());
+        componentAttributes.set(P_ARTIFACT_ID, coordinates.getArtifactId());
+        componentAttributes.set(P_VERSION, coordinates.getVersion());
+        if (coordinates.isSnapshot()) {
+          componentAttributes.set(P_BASE_VERSION, coordinates.getBaseVersion());
+        }
+        tx.saveComponent(component);
       }
-      tx.saveComponent(component);
-    }
 
-    Asset asset = selectComponentAsset(tx, component, path);
-    if (asset == null) {
-      asset = tx.createAsset(tx.getBucket(), component);
+      Asset asset = selectComponentAsset(tx, component, path);
+      if (asset == null) {
+        asset = tx.createAsset(tx.getBucket(), component);
 
-      asset.name(path.getPath());
-      asset.formatAttributes().set(StorageFacet.P_PATH, path.getPath());
+        asset.name(path.getPath());
+        asset.formatAttributes().set(StorageFacet.P_PATH, path.getPath());
 
-      final NestedAttributesMap assetAttributes = asset.formatAttributes();
-      assetAttributes.set(P_ASSET_KEY, getAssetKey(path));
-      assetAttributes.set(P_GROUP_ID, coordinates.getGroupId());
-      assetAttributes.set(P_ARTIFACT_ID, coordinates.getArtifactId());
-      assetAttributes.set(P_VERSION, coordinates.getVersion());
-      if (coordinates.isSnapshot()) {
-        assetAttributes.set(P_BASE_VERSION, coordinates.getBaseVersion());
+        final NestedAttributesMap assetAttributes = asset.formatAttributes();
+        assetAttributes.set(P_ASSET_KEY, getAssetKey(path));
+        assetAttributes.set(P_GROUP_ID, coordinates.getGroupId());
+        assetAttributes.set(P_ARTIFACT_ID, coordinates.getArtifactId());
+        assetAttributes.set(P_VERSION, coordinates.getVersion());
+        if (coordinates.isSnapshot()) {
+          assetAttributes.set(P_BASE_VERSION, coordinates.getBaseVersion());
+        }
+        assetAttributes.set(P_CLASSIFIER, coordinates.getClassifier());
+        assetAttributes.set(P_EXTENSION, coordinates.getExtension());
+
+        // TODO: if subordinate asset (sha1/md5/asc), should we link it somehow to main asset?
       }
-      assetAttributes.set(P_CLASSIFIER, coordinates.getClassifier());
-      assetAttributes.set(P_EXTENSION, coordinates.getExtension());
 
-      // TODO: if subordinate asset (sha1/md5/asc), should we link it somehow to main asset?
+      putAssetPayload(path, tx, asset, payload);
+      tx.saveAsset(asset);
+      tx.commit();
+      getRepository().facet(SearchFacet.class).put(component);
     }
-
-    putAssetPayload(path, tx, asset, payload);
-    tx.saveAsset(asset);
-    getRepository().facet(SearchFacet.class).put(component);
   }
 
-  private void putFile(final MavenPath path, final Payload payload, final StorageTx tx)
+  private void putFile(final MavenPath path, final Payload payload)
       throws IOException, InvalidContentException
   {
-    Asset asset = findAsset(tx, tx.getBucket(), path);
-    if (asset == null) {
-      asset = tx.createAsset(tx.getBucket(), getRepository().getFormat());
-      asset.name(path.getPath());
-      asset.formatAttributes().set(StorageFacet.P_PATH, path.getPath());
+    try (StorageTx tx = getStorage().openTx()) {
+      Asset asset = findAsset(tx, tx.getBucket(), path);
+      if (asset == null) {
+        asset = tx.createAsset(tx.getBucket(), getRepository().getFormat());
+        asset.name(path.getPath());
+        asset.formatAttributes().set(StorageFacet.P_PATH, path.getPath());
 
-      final NestedAttributesMap assetAttributes = asset.formatAttributes();
-      assetAttributes.set(P_ASSET_KEY, getAssetKey(path));
+        final NestedAttributesMap assetAttributes = asset.formatAttributes();
+        assetAttributes.set(P_ASSET_KEY, getAssetKey(path));
 
-      // TODO: if subordinate asset (sha1/md5/asc), should we link it somehow to main asset?
+        // TODO: if subordinate asset (sha1/md5/asc), should we link it somehow to main asset?
+      }
+
+      putAssetPayload(path, tx, asset, payload);
+      tx.saveAsset(asset);
+      tx.commit();
     }
-
-    putAssetPayload(path, tx, asset, payload);
-    tx.saveAsset(asset);
   }
 
   private void putAssetPayload(final MavenPath path,

@@ -153,9 +153,10 @@ public class RawContentFacetImpl
       }
 
       tx.saveAsset(asset);
-      getRepository().facet(SearchFacet.class).put(component);
 
       tx.commit();
+
+      getRepository().facet(SearchFacet.class).put(component);
     }
   }
 
