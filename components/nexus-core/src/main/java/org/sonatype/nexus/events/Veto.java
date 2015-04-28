@@ -10,34 +10,28 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-/*global Ext, NX*/
+package org.sonatype.nexus.events;
 
-/**
- * Repository "Settings" form for a NuGet Hosted repository.
- *
- * @since 3.0
- */
-Ext.define('NX.coreui.view.repository.recipe.NugetHosted', {
-  extend: 'NX.coreui.view.repository.RepositorySettingsForm',
-  alias: 'widget.nx-coreui-repository-nuget-hosted',
-  requires: [
-    'NX.Conditions',
-    'NX.I18n',
-    'NX.coreui.view.repository.facet.StorageFacet',
-    'NX.coreui.view.repository.facet.StorageFacetHosted'
-  ],
+// FIXME: Remove event veto concept
 
-  /**
-   * @override
-   */
-  initComponent: function() {
-    var me = this;
+@Deprecated
+public class Veto
+{
+  private final Object vetoer;
 
-    me.items = [
-      { xtype: 'nx-coreui-repository-storage-facet'},
-      { xtype: 'nx-coreui-repository-storage-hosted-facet'}
-    ];
+  private final Throwable reason;
 
-    me.callParent(arguments);
+  public Veto(Object vetoer, Throwable reason) {
+    this.vetoer = vetoer;
+
+    this.reason = reason;
   }
-});
+
+  public Object getVetoer() {
+    return vetoer;
+  }
+
+  public Throwable getReason() {
+    return reason;
+  }
+}

@@ -10,34 +10,20 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-/*global Ext, NX*/
+package org.sonatype.nexus.events;
 
 /**
- * Repository "Settings" form for a NuGet Hosted repository.
+ * Event fired when Nexus has started to shutdown.
  *
- * @since 3.0
+ * This event is emitted just prior to {@link NexusStoppedEvent} and should be used only
+ * for an early hint that shutdown is going to occur, to stop network connections, etc.
+ *
+ * @since 2.0
  */
-Ext.define('NX.coreui.view.repository.recipe.NugetHosted', {
-  extend: 'NX.coreui.view.repository.RepositorySettingsForm',
-  alias: 'widget.nx-coreui-repository-nuget-hosted',
-  requires: [
-    'NX.Conditions',
-    'NX.I18n',
-    'NX.coreui.view.repository.facet.StorageFacet',
-    'NX.coreui.view.repository.facet.StorageFacetHosted'
-  ],
-
-  /**
-   * @override
-   */
-  initComponent: function() {
-    var me = this;
-
-    me.items = [
-      { xtype: 'nx-coreui-repository-storage-facet'},
-      { xtype: 'nx-coreui-repository-storage-hosted-facet'}
-    ];
-
-    me.callParent(arguments);
+public class NexusStoppingEvent
+    extends NexusStateChangeEvent
+{
+  public NexusStoppingEvent(Object sender) {
+    super(sender);
   }
-});
+}

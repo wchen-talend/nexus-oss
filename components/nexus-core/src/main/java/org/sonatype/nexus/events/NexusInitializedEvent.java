@@ -10,34 +10,15 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-/*global Ext, NX*/
+package org.sonatype.nexus.events;
 
 /**
- * Repository "Settings" form for a NuGet Hosted repository.
- *
- * @since 3.0
+ * The event that is fired as last step of nexus initialization process.
  */
-Ext.define('NX.coreui.view.repository.recipe.NugetHosted', {
-  extend: 'NX.coreui.view.repository.RepositorySettingsForm',
-  alias: 'widget.nx-coreui-repository-nuget-hosted',
-  requires: [
-    'NX.Conditions',
-    'NX.I18n',
-    'NX.coreui.view.repository.facet.StorageFacet',
-    'NX.coreui.view.repository.facet.StorageFacetHosted'
-  ],
-
-  /**
-   * @override
-   */
-  initComponent: function() {
-    var me = this;
-
-    me.items = [
-      { xtype: 'nx-coreui-repository-storage-facet'},
-      { xtype: 'nx-coreui-repository-storage-hosted-facet'}
-    ];
-
-    me.callParent(arguments);
+public class NexusInitializedEvent
+    extends NexusStateChangeEvent
+{
+  public NexusInitializedEvent(Object sender) {
+    super(sender);
   }
-});
+}
