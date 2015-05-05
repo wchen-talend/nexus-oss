@@ -10,6 +10,9 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
+// uncomment the following line to set verbose output
+//ant.project.getBuildListeners().firstElement().setMessageOutputLevel(3)
+
 def flavors = project.properties['flavors']
 if (flavors) {
   flavors = flavors.split(',')
@@ -128,6 +131,12 @@ ant.copy(todir: outputDir) {
       include(name: 'baseapp-*.js')
       include(name: 'resources/*.css')
       include(name: 'resources/images/**')
+    }
+    if (flavor == 'debug') {
+      //include diagnostic files to aid debugging, triggered with 'diagnostics' query param in addition to 'debug'
+      fileset(dir: "${project.build.directory}/baseapp") {
+        include(name: 'ext/src/diag/layout/**')
+      }
     }
   }
 }

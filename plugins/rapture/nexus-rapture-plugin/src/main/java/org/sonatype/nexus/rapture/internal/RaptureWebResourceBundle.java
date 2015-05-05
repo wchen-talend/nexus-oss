@@ -271,6 +271,27 @@ public class RaptureWebResourceBundle
   }
 
   /**
+   * Check if ?debug parameter is given on the request.
+   */
+  private boolean isDiagnostics() {
+    HttpServletRequest request = servletRequestProvider.get();
+    String value = request.getParameter("diagnostics");
+
+    // not set
+    if (value == null) {
+      return false;
+    }
+
+    // ?diagnostics
+    if (value.trim().length() == 0) {
+      return true;
+    }
+
+    // ?diagnostics=<flag>
+    return Boolean.parseBoolean(value);
+  }
+
+  /**
    * Returns the initial state for the application.
    */
   private Map<String, Object> getState() {
@@ -362,6 +383,11 @@ public class RaptureWebResourceBundle
           scripts.add(uri(path));
         }
       }
+    }
+
+    if (isDiagnostics()) {
+      scripts.add(uri("ext/src/diag/layout/Context.js"));
+      scripts.add(uri("ext/src/diag/layout/ContextItem.js"));
     }
 
     scripts.add(uri("app.js"));
