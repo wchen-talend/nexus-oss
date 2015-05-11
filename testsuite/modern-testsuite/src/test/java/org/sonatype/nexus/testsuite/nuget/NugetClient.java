@@ -18,12 +18,14 @@ import java.io.IOException;
 import java.net.URI;
 
 import org.sonatype.nexus.repository.http.HttpStatus;
+import org.sonatype.sisu.goodies.common.ComponentSupport;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
@@ -37,6 +39,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * A simple NuGet client for ITs.
  */
 public class NugetClient
+    extends ComponentSupport
 {
   private final HttpClient httpClient;
 
@@ -105,13 +108,19 @@ public class NugetClient
   public int delete(final String packageId, final String version) throws IOException {
     final URI deleteURI = repositoryBaseUri.resolve(String.format("%s/%s", packageId, version));
     final HttpDelete delete = new HttpDelete(deleteURI);
-    final HttpResponse response = httpClient.execute(delete, httpClientContext);
+    final HttpResponse response = execute(delete);
     return response.getStatusLine().getStatusCode();
   }
 
-    private String asString(final HttpResponse response) throws IOException {
+  private String asString(final HttpResponse response) throws IOException {
     assert response.getStatusLine().getStatusCode() == HttpStatus.OK;
-    return EntityUtils.toString(response.getEntity());
+    final String asString = EntityUtils.toString(response.getEntity());
+
+    String synopsis = asString.substring(0, Math.min(asString.length(), 60));
+    synopsis = asString.replaceAll("\\n", "");
+    log.info("Nuget client received {}", synopsis);
+
+    return asString;
   }
 
   /**
@@ -119,6 +128,13 @@ public class NugetClient
    */
   private HttpResponse get(final String path) throws IOException {
     final HttpGet get = new HttpGet(repositoryBaseUri.resolve(path));
-    return httpClient.execute(get, httpClientContext);
+    return execute(get);
+  }
+
+  private HttpResponse execute(final HttpUriRequest request) throws IOException {
+    log.info("Nuget client requesting {}", request);
+    final HttpResponse response = httpClient.execute(request, httpClientContext);
+    log.info("Nuget client received {}", response);
+    return response;
   }
 }

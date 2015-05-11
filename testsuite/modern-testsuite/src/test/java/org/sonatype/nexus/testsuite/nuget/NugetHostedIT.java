@@ -41,12 +41,6 @@ public class NugetHostedIT
 
   private static final String HOSTED_REPO = "nuget-test-hosted";
 
-  public static final String VISUAL_STUDIO_INITIAL_COUNT_QUERY =
-      "Search()/$count?$filter=IsLatestVersion&searchTerm=''&targetFramework='net45'&includePrerelease=false";
-
-  public static final String VISUAL_STUDIO_INITIAL_FEED_QUERY =
-      "Search()?$filter=IsLatestVersion&$orderby=DownloadCount%20desc,Id&$skip=0&$top=30&searchTerm=''&targetFramework='net45'&includePrerelease=false";
-
   private NugetClient nuget;
 
   @Before
@@ -66,7 +60,7 @@ public class NugetHostedIT
   /**
    * Simple smoke test to ensure a hosted repo is actually reachable.
    */
-    @Test
+  @Test
   public void hostedRepositoryIsAvailable() throws Exception {
     final String repositoryMetadata = nuget.getRepositoryMetadata();
     assertThat(repositoryMetadata, is(notNullValue()));
@@ -117,7 +111,6 @@ public class NugetHostedIT
     assertThat("entry count", entries.size(), is(1));
     assertThat("entry ID", entries.get(0).get("ID"), is("SONATYPE.TEST"));
   }
-
 
   /**
    * Requesting the entry for a nonexistent package should return 404.

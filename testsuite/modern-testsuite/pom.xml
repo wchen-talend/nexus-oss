@@ -75,6 +75,12 @@
       <artifactId>httpmime</artifactId>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.sonatype.http-testing-harness</groupId>
+      <artifactId>server-provider</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>

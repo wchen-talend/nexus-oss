@@ -41,16 +41,24 @@ import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
 
 /**
- * @since 3.0
+ * Support for Nuget ITs
  */
-public class NugetITSupport
+public abstract class NugetITSupport
     extends NexusHttpsITSupport
 {
+  public static final String VISUAL_STUDIO_INITIAL_COUNT_QUERY =
+      "Search()/$count?$filter=IsLatestVersion&searchTerm=''&targetFramework='net45'&includePrerelease=false";
+
+  public static final String VISUAL_STUDIO_INITIAL_FEED_QUERY =
+      "Search()?$filter=IsLatestVersion&$orderby=DownloadCount%20desc,Id&$skip=0&$top=30&searchTerm=''&targetFramework='net45'&includePrerelease=false";
+
   @org.ops4j.pax.exam.Configuration
   public static Option[] configureNexus() {
     return options(nexusDistribution("org.sonatype.nexus.assemblies", "nexus-base-template"),
         withHttps(),
         wrappedBundle(maven("org.apache.httpcomponents", "httpmime").versionAsInProject())
+            .overwriteManifest(OverwriteMode.FULL).instructions("DynamicImport-Package=*"),
+        wrappedBundle(maven("org.sonatype.http-testing-harness", "server-provider").versionAsInProject())
             .overwriteManifest(OverwriteMode.FULL).instructions("DynamicImport-Package=*")
     );
   }
