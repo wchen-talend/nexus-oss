@@ -52,11 +52,6 @@ public class NugetHostedIT
     nuget = nugetClient(repository);
   }
 
-  @After
-  public void deleteHostedRepository() throws Exception {
-    deleteRepository(HOSTED_REPO);
-  }
-
   /**
    * Simple smoke test to ensure a hosted repo is actually reachable.
    */

@@ -17,6 +17,7 @@ import org.ops4j.pax.exam.spi.reactors.PerClass;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.sonatype.tests.http.server.fluent.Behaviours.error;
 import static org.sonatype.tests.http.server.fluent.Behaviours.file;
@@ -43,8 +44,8 @@ public class NugetProxyIT
     proxyServer = Server.withPort(0)
         .serve("/*").withBehaviours(error(200))
 
-        .serve("/nuget/Packages/$count")
-        .withBehaviours(file(resolveTestFile("proxy-count.txt")))
+            //.serve("/nuget/Packages/$count")
+            //.withBehaviours(file(resolveTestFile("proxy-count.txt")))
 
         .serve("/nuget/Search()/$count")
         .withBehaviours(file(resolveTestFile("search-count.txt")))
@@ -103,9 +104,10 @@ public class NugetProxyIT
     String feed = nuget.feedXml(VISUAL_STUDIO_INITIAL_FEED_QUERY);
     final List<Map<String, String>> entries = parseFeedXml(feed);
 
+    assertThat(entries.size(), is(greaterThan(0)));
+
     final Map<String, String> jQuery = findById(entries, "jQuery");
     assertThat(jQuery, is(Matchers.notNullValue()));
-
   }
 
   private Map<String, String> findById(final List<Map<String, String>> entries, final String id) {

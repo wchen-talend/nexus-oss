@@ -34,6 +34,7 @@ import org.sonatype.nexus.testsuite.NexusHttpsITSupport;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.jetbrains.annotations.NotNull;
+import org.junit.After;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.options.WrappedUrlProvisionOption.OverwriteMode;
 
@@ -52,6 +53,11 @@ public abstract class NugetITSupport
   public static final String VISUAL_STUDIO_INITIAL_FEED_QUERY =
       "Search()?$filter=IsLatestVersion&$orderby=DownloadCount%20desc,Id&$skip=0&$top=30&searchTerm=''&targetFramework='net45'&includePrerelease=false";
 
+  private List<Repository> repositories = new ArrayList<>();
+
+  @Inject
+  private RepositoryManager repositoryManager;
+
   @org.ops4j.pax.exam.Configuration
   public static Option[] configureNexus() {
     return options(nexusDistribution("org.sonatype.nexus.assemblies", "nexus-base-template"),
@@ -62,9 +68,6 @@ public abstract class NugetITSupport
             .overwriteManifest(OverwriteMode.FULL).instructions("DynamicImport-Package=*")
     );
   }
-
-  @Inject
-  private RepositoryManager repositoryManager;
 
   @NotNull
   protected Configuration hostedConfig(final String name) {
@@ -81,11 +84,16 @@ public abstract class NugetITSupport
    */
   protected Repository createRepository(final Configuration config) throws Exception {
     waitFor(responseFrom(nexusUrl));
-    return repositoryManager.create(config);
+    final Repository repository = repositoryManager.create(config);
+    repositories.add(repository);
+    return repository;
   }
 
-  protected void deleteRepository(String name) throws Exception {
-    repositoryManager.delete(name);
+  @After
+  public void deleteRepositories() throws Exception {
+    for (Repository repository : repositories) {
+      repositoryManager.delete(repository.getName());
+    }
   }
 
   @NotNull

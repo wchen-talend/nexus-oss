@@ -227,9 +227,12 @@ public class NugetGalleryFacetImpl
   public void putMetadata(final Map<String, String> metadata) {
     try (StorageTx tx = openStorageTx()) {
       final Component component = createOrUpdatePackage(tx, metadata);
-      maintainAggregateInfo(tx, metadata.get(ID));
       tx.commit();
       getRepository().facet(SearchFacet.class).put(component);
+    }
+    try (StorageTx tx = openStorageTx()) {
+      maintainAggregateInfo(tx, metadata.get(ID));
+      tx.commit();
     }
   }
 

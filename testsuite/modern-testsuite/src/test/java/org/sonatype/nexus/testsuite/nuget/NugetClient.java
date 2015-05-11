@@ -117,7 +117,7 @@ public class NugetClient
     final String asString = EntityUtils.toString(response.getEntity());
 
     String synopsis = asString.substring(0, Math.min(asString.length(), 60));
-    synopsis = asString.replaceAll("\\n", "");
+    synopsis = synopsis.replaceAll("\\n", "");
     log.info("Nuget client received {}", synopsis);
 
     return asString;
