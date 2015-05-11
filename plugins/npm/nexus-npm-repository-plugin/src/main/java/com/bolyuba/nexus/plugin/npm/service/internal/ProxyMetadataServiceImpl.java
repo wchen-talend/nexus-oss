@@ -80,7 +80,7 @@ public class ProxyMetadataServiceImpl
         registryRoot.getProperties().put(PROP_EXPIRED, Boolean.TRUE.toString());
         metadataStore.updatePackage(getNpmRepository(), registryRoot);
       }
-      return 0 < metadataStore.updatePackages(getNpmRepository(), null, new Function<PackageRoot, PackageRoot>()
+      int count = metadataStore.updatePackages(getNpmRepository(), null, new Function<PackageRoot, PackageRoot>()
       {
         @Override
         public PackageRoot apply(@Nullable final PackageRoot input) {
@@ -88,6 +88,8 @@ public class ProxyMetadataServiceImpl
           return input;
         }
       });
+      log.info("Expired registry root of {} with {} packages", getNpmRepository().getId(), count);
+      return count > 0;
     }
   }
 
