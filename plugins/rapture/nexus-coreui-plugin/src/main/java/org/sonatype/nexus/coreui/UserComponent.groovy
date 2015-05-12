@@ -56,9 +56,8 @@ import org.hibernate.validator.constraints.NotEmpty
 @Singleton
 @DirectAction(action = 'coreui_User')
 class UserComponent
-extends DirectComponentSupport
+    extends DirectComponentSupport
 {
-
   public static final String DEFAULT_SOURCE = UserManager.DEFAULT_SOURCE
 
   @Inject
@@ -130,18 +129,19 @@ extends DirectComponentSupport
   @RequiresAuthentication
   @RequiresPermissions('security:users:create')
   @Validate(groups = [Create.class, Default.class])
-  UserXO create(final @NotNull(message = '[userXO] may not be null') @Valid UserXO userXO) {
-    asUserXO(securitySystem.addUser(new User(
+  UserXO create(final @NotNull @Valid UserXO userXO) {
+    def user = new User(
         userId: userXO.userId,
         source: DEFAULT_SOURCE,
         firstName: userXO.firstName,
         lastName: userXO.lastName,
-        emailAddress: validateEmail(userXO.email),
+        emailAddress: userXO.email,
         status: userXO.status,
-        roles: userXO.roles?.collect { id ->
+        roles: userXO.roles?.collect {id ->
           new RoleIdentifier(DEFAULT_SOURCE, id)
         }
-    ), userXO.password?.valueIfValid))
+    )
+    asUserXO(securitySystem.addUser(user, userXO.password))
   }
 
   /**
@@ -153,16 +153,16 @@ extends DirectComponentSupport
   @RequiresAuthentication
   @RequiresPermissions('security:users:update')
   @Validate(groups = [Update.class, Default.class])
-  UserXO update(final @NotNull(message = '[userXO] may not be null') @Valid UserXO userXO) {
+  UserXO update(final @NotNull @Valid UserXO userXO) {
     asUserXO(securitySystem.updateUser(new User(
         userId: userXO.userId,
         version: userXO.version,
         source: DEFAULT_SOURCE,
         firstName: userXO.firstName,
         lastName: userXO.lastName,
-        emailAddress: validateEmail(userXO.email),
+        emailAddress: userXO.email,
         status: userXO.status,
-        roles: userXO.roles?.collect { id ->
+        roles: userXO.roles?.collect {id ->
           new RoleIdentifier(DEFAULT_SOURCE, id)
         }
     )))
@@ -177,11 +177,11 @@ extends DirectComponentSupport
   @RequiresAuthentication
   @RequiresPermissions('security:users:update')
   @Validate(groups = [Update.class, Default.class])
-  UserXO updateRoleMappings(final @NotNull(message = '[UserRoleMappingsXO] may not be null') @Valid UserRoleMappingsXO userRoleMappingsXO) {
+  UserXO updateRoleMappings(final @NotNull @Valid UserRoleMappingsXO userRoleMappingsXO) {
     def mappedRoles = userRoleMappingsXO.roles
     if (mappedRoles?.size()) {
       User user = securitySystem.getUser(userRoleMappingsXO.userId, userRoleMappingsXO.realm)
-      user.roles.each { role ->
+      user.roles.each {role ->
         if (role.source == userRoleMappingsXO.realm) {
           mappedRoles.remove(role.roleId)
         }
@@ -191,8 +191,8 @@ extends DirectComponentSupport
         userRoleMappingsXO.userId,
         userRoleMappingsXO.realm,
         mappedRoles?.size() > 0
-        ? mappedRoles?.collect { roleId -> new RoleIdentifier(DEFAULT_SOURCE, roleId) } as Set
-        : null
+            ? mappedRoles?.collect {roleId -> new RoleIdentifier(DEFAULT_SOURCE, roleId)} as Set
+            : null
     )
     return asUserXO(securitySystem.getUser(userRoleMappingsXO.userId, userRoleMappingsXO.realm))
   }
@@ -206,7 +206,7 @@ extends DirectComponentSupport
   @RequiresUser
   @RequiresAuthentication
   @Validate
-  UserAccountXO updateAccount(final @NotNull(message = '[userAccountXO] may not be null') @Valid UserAccountXO userAccountXO) {
+  UserAccountXO updateAccount(final @NotNull @Valid UserAccountXO userAccountXO) {
     User user = securitySystem.currentUser().with {
       firstName = userAccountXO.firstName
       lastName = userAccountXO.lastName
@@ -228,9 +228,9 @@ extends DirectComponentSupport
   @RequiresAuthentication
   @RequiresPermissions('security:userschangepw:create')
   @Validate
-  void changePassword(final @NotEmpty(message = '[authToken] may not be empty') String authToken,
-                      final @NotEmpty(message = '[userId] may not be empty') String userId,
-                      final @NotEmpty(message = '[password] may not be empty') String password)
+  void changePassword(final @NotEmpty String authToken,
+                      final @NotEmpty String userId,
+                      final @NotEmpty String password)
   {
     if (authTickets.redeemTicket(authToken)) {
       if (isAnonymousUser(userId)) {
@@ -252,9 +252,7 @@ extends DirectComponentSupport
   @RequiresAuthentication
   @RequiresPermissions('security:users:delete')
   @Validate
-  void remove(final @NotEmpty(message = '[id] may not be empty') String id,
-              final @NotEmpty(message = '[source] may not be empty') String source)
-  {
+  void remove(final @NotEmpty String id, final @NotEmpty String source) {
     // TODO check if source is required or we always delete from default realm
     if (isAnonymousUser(id)) {
       throw new Exception("User ${id} cannot be deleted, since is marked as the Anonymous user")
@@ -301,26 +299,4 @@ extends DirectComponentSupport
     }
     return subject.principal == userId
   }
-
-  @PackageScope
-  String validateEmail(final String email) {
-//    if (email) {
-//      try {
-//        new Address(email)
-//      }
-//      catch (IllegalArgumentException e) {
-//        def validations = new ValidationResponse()
-//        def message = e.message
-//        if (e.cause?.message) {
-//          message += ': ' + e.cause.message
-//        }
-//        validations.addError(new ValidationMessage('email', message))
-//        throw new ValidationResponseException(validations)
-//      }
-//    }
-
-    // FIXME: do not use sisu-mailer junk
-    return email
-  }
-
 }
