@@ -49,11 +49,6 @@
     </dependency>
 
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
     </dependency>
@@ -61,11 +56,6 @@
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.compendium</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>javax.annotation</groupId>
-      <artifactId>javax.annotation-api</artifactId>
     </dependency>
 
     <dependency>
@@ -84,38 +74,21 @@
     </dependency>
 
     <dependency>
+      <groupId>org.apache.velocity</groupId>
+      <artifactId>velocity</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.sonatype.sisu.goodies</groupId>
       <artifactId>goodies-inject</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>commons-beanutils</groupId>
-      <artifactId>commons-beanutils</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
-    </dependency>
-
+    <!--
+    FIXME: Remove, used only by DatabaseServerImpl for WriterOutputStream to dumb config to debug log.
+    -->
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>commons-fileupload</groupId>
-      <artifactId>commons-fileupload</artifactId>
     </dependency>
 
     <dependency>
@@ -125,27 +98,7 @@
 
     <dependency>
       <groupId>org.sonatype.nexus</groupId>
-      <artifactId>nexus-formfields</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.sonatype.nexus</groupId>
       <artifactId>nexus-webresources-api</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.codehaus.plexus</groupId>
-      <artifactId>plexus-utils</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.codehaus.plexus</groupId>
-      <artifactId>plexus-interpolation</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.sonatype.nexus.xstream</groupId>
-      <artifactId>xstream</artifactId>
     </dependency>
 
     <dependency>
@@ -154,38 +107,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpclient</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.sonatype.nexus</groupId>
-      <artifactId>nexus-httpclient-api</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-model</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-repository-metadata</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.eclipse.aether</groupId>
-      <artifactId>aether-api</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.eclipse.aether</groupId>
-      <artifactId>aether-util</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.eclipse.aether</groupId>
-      <artifactId>aether-spi</artifactId>
+      <artifactId>nexus-httpclient</artifactId>
     </dependency>
 
     <dependency>
@@ -195,27 +118,12 @@
 
     <dependency>
       <groupId>org.sonatype.nexus</groupId>
-      <artifactId>nexus-scheduling</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.sonatype.sisu.inject</groupId>
-      <artifactId>guice-multibindings</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.sonatype.sisu.inject</groupId>
-      <artifactId>guice-assistedinject</artifactId>
+      <artifactId>nexus-servlet</artifactId>
     </dependency>
 
     <dependency>
       <groupId>org.sonatype.nexus</groupId>
-      <artifactId>nexus-locks</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.velocity</groupId>
-      <artifactId>velocity</artifactId>
+      <artifactId>nexus-scheduling</artifactId>
     </dependency>
 
     <dependency>
@@ -224,25 +132,17 @@
     </dependency>
 
     <dependency>
-      <groupId>org.sonatype.sisu</groupId>
-      <artifactId>sisu-mailer</artifactId>
+      <groupId>org.sonatype.nexus</groupId>
+      <artifactId>nexus-email</artifactId>
     </dependency>
 
-    <!-- FIXME: unused in core, but was in core and breaks plugins using it -->
+    <!--
+    FIXME: unused in core, but was in core and breaks plugins using it
+    FIXME: ... could be related to custom osgi metadata below?
+    -->
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
-    </dependency>
-
-    <!-- FIXME: unused in core, but was in core and breaks plugins using it -->
-    <dependency>
-      <groupId>org.sonatype.sisu</groupId>
-      <artifactId>sisu-resource-scanner</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.sonatype.nexus</groupId>
-      <artifactId>nexus-mime</artifactId>
     </dependency>
 
     <dependency>
@@ -251,8 +151,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.jsoup</groupId>
-      <artifactId>jsoup</artifactId>
+      <groupId>org.sonatype.nexus</groupId>
+      <artifactId>nexus-thread</artifactId>
     </dependency>
 
     <dependency>
@@ -278,16 +178,6 @@
     <dependency>
       <groupId>com.codahale.metrics</groupId>
       <artifactId>metrics-servlet</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.sonatype.sisu.goodies</groupId>
-      <artifactId>goodies-i18n</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>bitwalker</groupId>
-      <artifactId>UserAgentUtils</artifactId>
     </dependency>
 
     <dependency>
@@ -336,14 +226,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.codehaus.mojo</groupId>
-      <artifactId>animal-sniffer-annotations</artifactId>
-      <optional>true</optional>
-    </dependency>
-
-    <dependency>
-      <groupId>org.sonatype.nexus</groupId>
-      <artifactId>nexus-test-common</artifactId>
+      <groupId>org.sonatype.sisu.goodies</groupId>
+      <artifactId>goodies-testsupport</artifactId>
       <scope>test</scope>
     </dependency>
 
@@ -352,63 +236,10 @@
       <artifactId>jul-to-slf4j</artifactId>
       <scope>test</scope>
     </dependency>
-
-    <dependency>
-      <groupId>javax.transaction</groupId>
-      <artifactId>javax.transaction-api</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.sonatype.http-testing-harness</groupId>
-      <artifactId>junit-runner</artifactId>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.codehaus.modello</groupId>
-        <artifactId>modello-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>nexus.xml</id>
-            <goals>
-              <goal>java</goal>
-              <goal>xpp3-reader</goal>
-              <goal>xpp3-writer</goal>
-            </goals>
-            <configuration>
-              <useJava5>true</useJava5>
-              <version>2.8.0</version>
-              <models>
-                <model>src/main/mdo/nexus.xml</model>
-              </models>
-            </configuration>
-          </execution>
-
-        </executions>
-        <configuration>
-          <packageWithVersion>false</packageWithVersion>
-        </configuration>
-      </plugin>
-
-      <!--
-      FIXME: Get rid of test-jar, these artifacts cause problems with transitive dependencies.
-      -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>test-jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>

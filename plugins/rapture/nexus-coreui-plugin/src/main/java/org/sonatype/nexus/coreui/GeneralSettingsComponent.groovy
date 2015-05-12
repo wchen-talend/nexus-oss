@@ -18,8 +18,8 @@ import javax.inject.Singleton
 import javax.validation.Valid
 import javax.validation.constraints.NotNull
 
-import org.sonatype.nexus.configuration.ApplicationConfiguration
-import org.sonatype.nexus.configuration.GlobalRestApiSettings
+import org.sonatype.nexus.common.app.BaseUrlManager
+import org.sonatype.nexus.common.text.Strings2
 import org.sonatype.nexus.extdirect.DirectComponent
 import org.sonatype.nexus.extdirect.DirectComponentSupport
 import org.sonatype.nexus.validation.ValidationMessage
@@ -29,7 +29,6 @@ import org.sonatype.nexus.validation.ValidationResponseException
 import com.softwarementors.extjs.djn.config.annotations.DirectAction
 import com.softwarementors.extjs.djn.config.annotations.DirectMethod
 import groovy.transform.PackageScope
-import org.apache.commons.lang.StringUtils
 import org.apache.shiro.authz.annotation.RequiresAuthentication
 import org.apache.shiro.authz.annotation.RequiresPermissions
 
@@ -42,45 +41,40 @@ import org.apache.shiro.authz.annotation.RequiresPermissions
 @Singleton
 @DirectAction(action = 'coreui_GeneralSettings')
 class GeneralSettingsComponent
-extends DirectComponentSupport
+    extends DirectComponentSupport
 {
-
   @Inject
-  GlobalRestApiSettings globalRestApiSettings
-
-  @Inject
-  ApplicationConfiguration nexusConfiguration
+  BaseUrlManager baseUrlManager
 
   /**
    * Retrieves general system settings.
-   * @return general system settings
    */
   @DirectMethod
   @RequiresPermissions('nexus:settings:read')
   GeneralSettingsXO read() {
     return new GeneralSettingsXO(
-        baseUrl: globalRestApiSettings.baseUrl
+        baseUrl: baseUrlManager.url
     )
   }
 
   /**
    * Updates general system settings.
-   * @return updated general system settings
    */
   @DirectMethod
   @RequiresAuthentication
   @RequiresPermissions('nexus:settings:update')
-  GeneralSettingsXO update(final @NotNull(message = '[generalSettings] may not be null') @Valid GeneralSettingsXO generalSettingsXO) {
+  GeneralSettingsXO update(final @NotNull @Valid GeneralSettingsXO generalSettingsXO) {
     validate(generalSettingsXO)
-    globalRestApiSettings.baseUrl = generalSettingsXO.baseUrl
-    nexusConfiguration.saveConfiguration()
+    baseUrlManager.url = generalSettingsXO.baseUrl
     return read()
   }
 
+  // FIXME: use bean-validation constraint
+
   @PackageScope
-  validate(final GeneralSettingsXO generalSettingsXO) {
+  def validate(final GeneralSettingsXO generalSettingsXO) {
     def validations = new ValidationResponse()
-    if (!StringUtils.isBlank(generalSettingsXO.baseUrl)) {
+    if (!Strings2.isBlank(generalSettingsXO.baseUrl)) {
       try {
         new URL(generalSettingsXO.baseUrl)
       }
@@ -92,5 +86,4 @@ extends DirectComponentSupport
       throw new ValidationResponseException(validations)
     }
   }
-
 }

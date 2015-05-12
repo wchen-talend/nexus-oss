@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.sonatype.nexus.security.ClientInfo;
 import org.sonatype.nexus.security.ClientInfoProvider;
-import org.sonatype.nexus.web.RemoteIPFinder;
+import org.sonatype.nexus.servlet.RemoteIPFinder;
 
 import com.google.common.net.HttpHeaders;
 import com.google.inject.OutOfScopeException;

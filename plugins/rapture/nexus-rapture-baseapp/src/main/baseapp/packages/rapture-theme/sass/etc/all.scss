@@ -146,3 +146,19 @@ p {
   margin-top: 0;
   margin-bottom: 1em;
 }
+
+/**
+ * Tables
+ */
+
+th {
+  text-align: left;
+}
+
+td:not([class|=x]) {
+  padding-right: 5px;
+}
+
+td:not([class|=x]):last-child {
+  padding-right: 0;
+}

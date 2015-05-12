@@ -45,6 +45,7 @@ class TrustStoreComponent
 extends DirectComponentSupport
 {
 
+  // FIXME: Do not inject a REST endpoint component as a service
   @Inject
   TrustStoreResource trustStoreResource
 
@@ -64,7 +65,7 @@ extends DirectComponentSupport
    */
   @DirectMethod
   @Validate(groups = [Create.class, Default.class])
-  CertificateXO create(final @NotNull(message = '[pem] may not be null') @Valid CertificatePemXO pem) {
+  CertificateXO create(final @NotNull @Valid CertificatePemXO pem) {
     return trustStoreResource.create(pem)
   }
 
@@ -75,7 +76,7 @@ extends DirectComponentSupport
   @DirectMethod
   @RequiresAuthentication
   @Validate
-  void remove(final @NotEmpty(message = '[id] may not be empty') String id) {
+  void remove(final @NotEmpty String id) {
     trustStoreResource.delete(id)
   }
 

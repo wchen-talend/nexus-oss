@@ -35,51 +35,78 @@ Ext.define('NX.coreui.view.repository.RepositorySettingsForm', {
   editableMarker: NX.I18n.get('ADMIN_REPOSITORIES_UPDATE_ERROR'),
 
   initComponent: function() {
-    var me = this;
+    var me = this,
+        permittedCondition;
 
-    me.editableCondition = me.editableCondition || NX.Conditions.isPermitted('nexus:repositories', 'update');
+    if (!me.editableCondition) {
+      me.editableCondition = NX.Conditions.and(
+          permittedCondition = NX.Conditions.isPermitted('nexus:repository-admin:*:*', 'edit'),
+          NX.Conditions.formHasRecord('nx-coreui-repository-settings-form', function(model) {
+            var permission = 'nexus:repository-admin:' + model.get('format') + ':' + model.get('name');
+            permittedCondition.name = permission;
+            permittedCondition.evaluate();
+            return true;
+          })
+      );
+    }
 
     me.items = me.items || [];
     Ext.Array.insert(me.items, 0, [
       {
-        xtype: 'textfield',
-        name: 'name',
-        itemId: 'name',
-        fieldLabel: NX.I18n.get('ADMIN_REPOSITORIES_SETTINGS_NAME'),
-        readOnly: true,
-        vtype: 'nx-name'
-      },
-      {
-        xtype: 'textfield',
-        name: 'format',
-        itemId: 'format',
-        fieldLabel: NX.I18n.get('ADMIN_REPOSITORIES_SETTINGS_FORMAT'),
-        allowBlank: true,
-        readOnly: true
-      },
-      {
-        xtype: 'textfield',
-        name: 'type',
-        itemId: 'type',
-        fieldLabel: NX.I18n.get('ADMIN_REPOSITORIES_SETTINGS_TYPE'),
-        allowBlank: true,
-        readOnly: true
-      },
+        xtype: 'fieldset',
+        cls: 'nx-form-section nx-no-title',
 
-      {
-        xtype: 'textfield',
-        name: 'url',
-        itemId: 'url',
-        fieldLabel: NX.I18n.get('ADMIN_REPOSITORIES_SETTINGS_URL'),
-        allowBlank: true,
-        readOnly: true
-      },
-      {
-        xtype: 'checkbox',
-        name: 'online',
-        fieldLabel: NX.I18n.get('ADMIN_REPOSITORIES_SETTINGS_ONLINE'),
-        helpText: NX.I18n.get('ADMIN_REPOSITORIES_SETTINGS_ONLINE_HELP'),
-        value: true
+        items: [
+          {
+            xtype: 'textfield',
+            cls: 'nx-no-border',
+            name: 'name',
+            itemId: 'name',
+            labelAlign: 'left',
+            fieldLabel: NX.I18n.get('ADMIN_REPOSITORIES_SETTINGS_NAME'),
+            readOnly: true,
+            vtype: 'nx-name'
+          },
+          {
+            xtype: 'textfield',
+            cls: 'nx-no-border',
+            name: 'format',
+            itemId: 'format',
+            labelAlign: 'left',
+            fieldLabel: NX.I18n.get('ADMIN_REPOSITORIES_SETTINGS_FORMAT'),
+            allowBlank: true,
+            readOnly: true
+          },
+          {
+            xtype: 'textfield',
+            cls: 'nx-no-border',
+            name: 'type',
+            itemId: 'type',
+            labelAlign: 'left',
+            fieldLabel: NX.I18n.get('ADMIN_REPOSITORIES_SETTINGS_TYPE'),
+            allowBlank: true,
+            readOnly: true
+          },
+
+          {
+            xtype: 'textfield',
+            cls: 'nx-no-border',
+            name: 'url',
+            itemId: 'url',
+            labelAlign: 'left',
+            fieldLabel: NX.I18n.get('ADMIN_REPOSITORIES_SETTINGS_URL'),
+            allowBlank: true,
+            readOnly: true
+          },
+          {
+            xtype: 'checkbox',
+            name: 'online',
+            labelAlign: 'left',
+            fieldLabel: NX.I18n.get('ADMIN_REPOSITORIES_SETTINGS_ONLINE'),
+            helpText: NX.I18n.get('ADMIN_REPOSITORIES_SETTINGS_ONLINE_HELP'),
+            value: true
+          }
+        ]
       }
     ]);
 

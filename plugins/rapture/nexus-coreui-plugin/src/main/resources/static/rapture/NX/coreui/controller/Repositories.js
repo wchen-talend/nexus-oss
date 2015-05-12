@@ -60,7 +60,7 @@ Ext.define('NX.coreui.controller.Repositories', {
   ],
   icons: {
     'repository-hosted': {
-      file: 'database_green.png',
+      file: 'database.png',
       variants: ['x16', 'x32']
     },
     'repository-proxy': {
@@ -79,14 +79,13 @@ Ext.define('NX.coreui.controller.Repositories', {
     description: NX.I18n.get('ADMIN_REPOSITORIES_SUBTITLE'),
     view: { xtype: 'nx-coreui-repository-feature' },
     iconConfig: {
-      file: 'database_green.png',
+      file: 'database.png',
       variants: ['x16', 'x32']
     },
     visible: function() {
-      return NX.Permissions.check('nexus:repositories', 'read') && NX.State.getUser();
+      return NX.Permissions.checkAny('nexus:repository-admin') && NX.State.getUser();
     }
   },
-  permission: 'nexus:repositories',
 
   /**
    * @override
@@ -137,7 +136,6 @@ Ext.define('NX.coreui.controller.Repositories', {
   onSelection: function(list, model) {
     var me = this,
         settingsPanel = me.getSettings(),
-        settingsForm = settingsPanel.down('nx-settingsform'),
         formCls = Ext.ClassManager.getByAlias('widget.nx-coreui-repository-' + model.get('recipe'));
 
     if (!formCls) {
@@ -145,13 +143,15 @@ Ext.define('NX.coreui.controller.Repositories', {
     }
     else {
       if (Ext.isDefined(model)) {
-        if (!settingsForm || formCls.xtype !== settingsForm.xtype) {
-          settingsPanel.removeAllSettingsForms();
-          settingsPanel.addSettingsForm({ xtype: formCls.xtype, recipe: model });
-          Ext.Array.each(settingsPanel.query('field[readOnlyOnUpdate=true]'), function(field) {
-            field.setReadOnly(true);
-          });
-        }
+        // Show the correct icon in the breadcrumb
+        me.getFeature().setItemClass(1, NX.Icons.cls('repository-' + model.get('type'), 'x16'));
+
+        settingsPanel.removeAllSettingsForms();
+        settingsPanel.addSettingsForm({ xtype: formCls.xtype, recipe: model });
+        Ext.Array.each(settingsPanel.query('field[readOnlyOnUpdate=true]'), function(field) {
+          field.setReadOnly(true);
+          field.setDisabled(true);
+        });
         settingsPanel.loadRecord(model);
       }
     }
@@ -166,6 +166,9 @@ Ext.define('NX.coreui.controller.Repositories', {
 
     // Show the first panel in the create wizard, and set the breadcrumb
     feature.setItemName(1, NX.I18n.get('ADMIN_REPOSITORIES_SELECT_TITLE'));
+    feature.setItemClass(1, NX.Icons.cls('repository-hosted', 'x16'));
+
+    // Show the panel
     me.loadCreateWizard(1, true, Ext.widget({
       xtype: 'panel',
       layout: {
@@ -197,6 +200,7 @@ Ext.define('NX.coreui.controller.Repositories', {
     else {
       // Show the second panel in the create wizard, and set the breadcrumb
       feature.setItemName(2, NX.I18n.format('ADMIN_REPOSITORIES_CREATE_TITLE', model.get('name')));
+      feature.setItemClass(2, NX.Icons.cls('repository-hosted', 'x16'));
       me.loadCreateWizard(2, true, { xtype: 'nx-coreui-repository-add', recipe: model });
     }
   },
@@ -314,6 +318,46 @@ Ext.define('NX.coreui.controller.Repositories', {
     else {
       me.stopStatusPolling();
     }
+  },
+
+  /**
+   * @override
+   * @protected
+   * Enable 'New' when user has 'add' permission.
+   */
+  bindNewButton: function(button) {
+    button.mon(
+        NX.Conditions.isPermitted('nexus:repository-admin:*:*', 'add'),
+        {
+          satisfied: button.enable,
+          unsatisfied: button.disable,
+          scope: button
+        }
+    );
+  },
+
+  /**
+   * @protected
+   * Enable 'Delete' when user has 'delete' permission for selected repository.
+   */
+  bindDeleteButton: function(button) {
+    var permittedCondition;
+    button.mon(
+        NX.Conditions.and(
+            permittedCondition = NX.Conditions.isPermitted('nexus:repository-admin:*:*', 'delete'),
+            NX.Conditions.gridHasSelection('nx-coreui-repository-list', function(model) {
+              var permission = 'nexus:repository-admin:' + model.get('format') + ':' + model.get('name');
+              permittedCondition.name = permission;
+              permittedCondition.evaluate();
+              return true;
+            })
+        ),
+        {
+          satisfied: button.enable,
+          unsatisfied: button.disable,
+          scope: button
+        }
+    );
   }
 
 });

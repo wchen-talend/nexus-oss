@@ -25,8 +25,8 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.sonatype.nexus.ApplicationDirectories;
-import org.sonatype.nexus.events.EventSubscriberHost;
+import org.sonatype.nexus.common.app.ApplicationDirectories;
+import org.sonatype.nexus.common.event.EventSubscriberHost;
 import org.sonatype.nexus.scheduling.TaskScheduler;
 import org.sonatype.sisu.litmus.testsupport.junit.TestDataRule;
 import org.sonatype.sisu.litmus.testsupport.junit.TestIndexRule;
@@ -55,16 +55,9 @@ import static org.ops4j.pax.exam.CoreOptions.propagateSystemProperty;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import static org.ops4j.pax.exam.CoreOptions.systemTimeout;
 import static org.ops4j.pax.exam.CoreOptions.vmOptions;
+import static org.ops4j.pax.exam.CoreOptions.when;
 import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
-import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.configureConsole;
-import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.doNotModifyLogConfiguration;
-import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFileExtend;
-import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
-import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.features;
-import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
-import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
-import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.replaceConfigurationFile;
-import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.useOwnKarafExamSystemConfiguration;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.*;
 
 /**
  * Provides support for testing Nexus with Pax-Exam, test-cases can inject any component from the distribution. <br>
@@ -303,6 +296,8 @@ public abstract class NexusPaxExamSupport
       frameworkZip.classifier(System.getProperty("it.nexus.bundle.classifier"));
     }
 
+    boolean debugging = Boolean.parseBoolean(System.getProperty("it.debug"));
+
     return composite(
 
         vmOptions("-Xmx400m", "-XX:MaxPermSize=192m"), // taken from testsuite config
@@ -318,6 +313,8 @@ public abstract class NexusPaxExamSupport
             .frameworkUrl(frameworkZip) //
             .unpackDirectory(resolveBaseFile("target/it-data")) //
             .useDeployFolder(false), //
+
+        when(debugging).useOptions(debugConfiguration()), // port 5005, suspend=y
 
         configureConsole().ignoreLocalConsole().ignoreRemoteShell(), // no need for console
 

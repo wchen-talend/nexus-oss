@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.sonatype.nexus.common.app.BaseUrlHolder;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.http.HttpResponses;
 import org.sonatype.nexus.repository.httpbridge.DefaultHttpResponseSender;
@@ -38,12 +39,12 @@ import org.sonatype.nexus.repository.view.Request;
 import org.sonatype.nexus.repository.view.Response;
 import org.sonatype.nexus.repository.view.ViewFacet;
 import org.sonatype.nexus.repository.view.payloads.StringPayload;
-import org.sonatype.nexus.web.BaseUrlHolder;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
+import org.apache.shiro.authz.AuthorizationException;
 import org.jboss.logging.MDC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,7 +122,9 @@ public class ViewServlet
       log.debug("Service completed");
     }
     catch (Exception e) {
-      log.warn("Service failure", e);
+      if (!(e instanceof AuthorizationException)) {
+        log.warn("Service failure", e);
+      }
       Throwables.propagateIfPossible(e, ServletException.class, IOException.class);
       throw new ServletException(e);
     }

@@ -39,7 +39,12 @@
     </dependency>
 
     <dependency>
-      <groupId>org.sonatype.sisu.inject</groupId>
+      <groupId>org.sonatype.nexus</groupId>
+      <artifactId>nexus-mime</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.inject.extensions</groupId>
       <artifactId>guice-assistedinject</artifactId>
     </dependency>
 
@@ -70,7 +75,7 @@
 
     <dependency>
       <groupId>org.sonatype.nexus</groupId>
-      <artifactId>nexus-httpclient-api</artifactId>
+      <artifactId>nexus-httpclient</artifactId>
     </dependency>
 
     <dependency>

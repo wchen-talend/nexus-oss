@@ -32,13 +32,14 @@ import org.sonatype.nexus.common.hash.HashAlgorithm;
 import org.sonatype.nexus.common.io.TempStreamSupplier;
 import org.sonatype.nexus.mime.MimeSupport;
 import org.sonatype.nexus.repository.FacetSupport;
+import org.sonatype.nexus.repository.InvalidContentException;
 import org.sonatype.nexus.repository.config.Configuration;
 import org.sonatype.nexus.repository.config.ConfigurationFacet;
-import org.sonatype.nexus.repository.InvalidContentException;
 import org.sonatype.nexus.repository.maven.internal.MavenPath.Coordinates;
 import org.sonatype.nexus.repository.maven.internal.MavenPath.HashType;
 import org.sonatype.nexus.repository.maven.internal.policy.VersionPolicy;
 import org.sonatype.nexus.repository.search.SearchFacet;
+import org.sonatype.nexus.repository.search.SearchItemId;
 import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.Bucket;
 import org.sonatype.nexus.repository.storage.Component;
@@ -219,7 +220,6 @@ public class MavenFacetImpl
       else {
         putFile(path, payload, tx);
       }
-      tx.commit();
     }
   }
 
@@ -234,7 +234,6 @@ public class MavenFacetImpl
           .group(coordinates.getGroupId())
           .name(coordinates.getArtifactId())
           .version(coordinates.getVersion());
-      component.formatAttributes().set(StorageFacet.P_PATH, path.getPath());
 
       // Set format specific attributes
       final NestedAttributesMap componentAttributes = component.formatAttributes();
@@ -271,7 +270,9 @@ public class MavenFacetImpl
 
     putAssetPayload(path, tx, asset, payload);
     tx.saveAsset(asset);
-    getRepository().facet(SearchFacet.class).put(component);
+    tx.commit();
+
+    facet(SearchFacet.class).put(component);
   }
 
   private void putFile(final MavenPath path, final Payload payload, final StorageTx tx)
@@ -291,6 +292,7 @@ public class MavenFacetImpl
 
     putAssetPayload(path, tx, asset, payload);
     tx.saveAsset(asset);
+    tx.commit();
   }
 
   private void putAssetPayload(final MavenPath path,
@@ -352,15 +354,23 @@ public class MavenFacetImpl
     if (asset == null) {
       return false;
     }
+
+    final SearchItemId searchId = facet(SearchFacet.class).identifier(component);
+
     tx.deleteAsset(asset);
-    if (!tx.browseAssets(component).iterator().hasNext()) {
+    final boolean isEmpty = !tx.browseAssets(component).iterator().hasNext();
+    if (isEmpty) {
       tx.deleteComponent(component);
-      getRepository().facet(SearchFacet.class).delete(component);
-    }
-    else {
-      getRepository().facet(SearchFacet.class).put(component);
     }
     tx.commit();
+
+    if (!isEmpty) {
+      facet(SearchFacet.class).put(component);
+    }
+    else {
+      facet(SearchFacet.class).delete(searchId);
+    }
+
     return true;
   }
 

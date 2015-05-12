@@ -34,18 +34,18 @@
     <module>nexus-blobstore-file</module>
     <module>nexus-bootstrap</module>
     <module>nexus-client</module>
-    <!--<module>nexus-client-core</module>-->
     <module>nexus-commands</module>
     <module>nexus-core</module>
     <module>nexus-ehcache</module>
     <module>nexus-elasticsearch</module>
+    <module>nexus-email</module>
     <module>nexus-extender</module>
-    <module>nexus-httpclient-api</module>
+    <module>nexus-httpclient</module>
     <module>nexus-jmx</module>
     <module>nexus-scheduling</module>
     <module>nexus-formfields</module>
     <module>nexus-groovy</module>
-    <module>nexus-locks</module>
+    <module>nexus-guice-servlet</module>
     <module>nexus-log-api</module>
     <module>nexus-mime</module>
     <module>nexus-orient</module>
@@ -53,7 +53,9 @@
     <module>nexus-plugin-api</module>
     <module>nexus-repository</module>
     <module>nexus-security</module>
+    <module>nexus-servlet</module>
     <module>nexus-supportzip-api</module>
+    <module>nexus-thread</module>
     <module>nexus-validation</module>
     <module>nexus-webresources-api</module>
     <module>pax-logging-metrics</module>

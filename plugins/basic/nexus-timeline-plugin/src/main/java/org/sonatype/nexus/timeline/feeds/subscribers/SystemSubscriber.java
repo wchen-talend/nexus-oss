@@ -12,7 +12,6 @@
  */
 package org.sonatype.nexus.timeline.feeds.subscribers;
 
-import java.util.HashSet;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -20,18 +19,14 @@ import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
-import org.sonatype.nexus.SystemStatus;
-import org.sonatype.nexus.configuration.Configurable;
-import org.sonatype.nexus.configuration.ConfigurationChangeEvent;
-import org.sonatype.nexus.events.EventSubscriber;
-import org.sonatype.nexus.events.NexusStartedEvent;
-import org.sonatype.nexus.events.NexusStoppedEvent;
+import org.sonatype.nexus.common.app.NexusStartedEvent;
+import org.sonatype.nexus.common.app.NexusStoppedEvent;
+import org.sonatype.nexus.common.app.SystemStatus;
+import org.sonatype.nexus.common.event.EventSubscriber;
 import org.sonatype.nexus.timeline.feeds.FeedEvent;
 import org.sonatype.nexus.timeline.feeds.FeedRecorder;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -88,30 +83,30 @@ public class SystemSubscriber
     );
     getFeedRecorder().addEvent(fe);
   }
-
-  @Subscribe
-  @AllowConcurrentEvents
-  public void on(final ConfigurationChangeEvent event) {
-    if (event.getChanges().isEmpty()) {
-      return;
-    }
-    // keep list unique, one component might be reported multiple times
-    final HashSet<String> changes = Sets.newHashSet();
-    for (Configurable changed : event.getChanges()) {
-      changes.add(changed.getName());
-    }
-    final Map<String, String> data = Maps.newHashMap();
-    putIfNotNull(data, "changes", changes.toString());
-    putIfNotNull(data, "userId", event.getUserId());
-    final FeedEvent fe = new FeedEvent(
-        FeedRecorder.FAMILY_SYSTEM,
-        FeedRecorder.SYSTEM_CONFIG,
-        event.getEventDate(),
-        event.getUserId(),
-        "/", // link to UI
-        data
-    );
-    getFeedRecorder().addEvent(fe);
-  }
+  //
+  //@Subscribe
+  //@AllowConcurrentEvents
+  //public void on(final ConfigurationChangeEvent event) {
+  //  if (event.getChanges().isEmpty()) {
+  //    return;
+  //  }
+  //  // keep list unique, one component might be reported multiple times
+  //  final HashSet<String> changes = Sets.newHashSet();
+  //  for (Configurable changed : event.getChanges()) {
+  //    changes.add(changed.getName());
+  //  }
+  //  final Map<String, String> data = Maps.newHashMap();
+  //  putIfNotNull(data, "changes", changes.toString());
+  //  putIfNotNull(data, "userId", event.getUserId());
+  //  final FeedEvent fe = new FeedEvent(
+  //      FeedRecorder.FAMILY_SYSTEM,
+  //      FeedRecorder.SYSTEM_CONFIG,
+  //      event.getEventDate(),
+  //      event.getUserId(),
+  //      "/", // link to UI
+  //      data
+  //  );
+  //  getFeedRecorder().addEvent(fe);
+  //}
 
 }

@@ -17,11 +17,10 @@ import java.util.Properties;
 
 import javax.inject.Inject;
 
-import org.sonatype.nexus.ApplicationDirectories;
-import org.sonatype.nexus.configuration.ApplicationConfiguration;
+import org.sonatype.nexus.common.app.ApplicationDirectories;
+import org.sonatype.nexus.common.app.BaseUrlManager;
 import org.sonatype.nexus.quartz.internal.QuartzSupportImpl;
 import org.sonatype.nexus.scheduling.TaskScheduler;
-import org.sonatype.nexus.web.BaseUrlDetector;
 import org.sonatype.sisu.litmus.testsupport.TestSupport;
 import org.sonatype.sisu.litmus.testsupport.TestUtil;
 
@@ -63,20 +62,14 @@ public abstract class QuartzITSupport
   @Inject
   static protected QuartzSupportImpl quartzSupport;
 
-
-  // ==
-
   static protected ApplicationDirectories applicationDirectories;
 
-  static protected ApplicationConfiguration applicationConfiguration;
-
-  static protected BaseUrlDetector baseUrlDetector;
+  static protected BaseUrlManager baseUrlManager;
 
   @BeforeClass
   public static void prepare() throws Exception {
     applicationDirectories = mock(ApplicationDirectories.class);
-    applicationConfiguration = mock(ApplicationConfiguration.class);
-    baseUrlDetector = mock(BaseUrlDetector.class);
+    baseUrlManager = mock(BaseUrlManager.class);
     Guice.createInjector(new WireModule(new SetUpModule(),
         new SpaceModule(new URLClassSpace(QuartzITSupport.class.getClassLoader()), BeanScanning.INDEX)));
     quartzSupport.start();
@@ -108,10 +101,7 @@ public abstract class QuartzITSupport
       when(applicationDirectories.getWorkDirectory(anyString())).thenReturn(workDir);
       binder.bind(ApplicationDirectories.class).toInstance(applicationDirectories);
 
-      when(applicationConfiguration.getConfigurationDirectory()).thenReturn(new File(workDir, "conf"));
-      binder.bind(ApplicationConfiguration.class).toInstance(applicationConfiguration);
-
-      binder.bind(BaseUrlDetector.class).toInstance(baseUrlDetector);
+      binder.bind(BaseUrlManager.class).toInstance(baseUrlManager);
 
       binder.bind(ParameterKeys.PROPERTIES).toInstance(properties);
 

@@ -25,6 +25,11 @@ Ext.define('NX.coreui.view.privilege.PrivilegeList', {
     'NX.I18n'
   ],
 
+  config: {
+    stateful: true,
+    stateId: 'nx-coreui-privilege-list'
+  },
+
   store: 'Privilege',
 
   columns: [
@@ -38,13 +43,23 @@ Ext.define('NX.coreui.view.privilege.PrivilegeList', {
 
     // NOTE: Not including ID here as for user-created privileges these are random strings
 
-    { header: NX.I18n.get('ADMIN_PRIVILEGES_LIST_NAME_COLUMN'), dataIndex: 'name', flex: 2 },
+    { header: NX.I18n.get('ADMIN_PRIVILEGES_LIST_NAME_COLUMN'), dataIndex: 'name', stateId: 'name', flex: 2 },
 
-    { header: NX.I18n.get('ADMIN_PRIVILEGES_LIST_DESCRIPTION_COLUMN'), dataIndex: 'description', flex: 4 },
+    {
+      header: NX.I18n.get('ADMIN_PRIVILEGES_LIST_DESCRIPTION_COLUMN'),
+      dataIndex: 'description',
+      stateId: 'description',
+      flex: 4
+    },
 
-    { header: NX.I18n.get('ADMIN_PRIVILEGES_LIST_TYPE_COLUMN'), dataIndex: 'type', flex: 1 },
+    { header: NX.I18n.get('ADMIN_PRIVILEGES_LIST_TYPE_COLUMN'), dataIndex: 'type', stateId: 'type', flex: 1 },
 
-    { header: NX.I18n.get('ADMIN_PRIVILEGES_LIST_PERMISSION_COLUMN'), dataIndex: 'permission', flex: 2 }
+    {
+      header: NX.I18n.get('ADMIN_PRIVILEGES_LIST_PERMISSION_COLUMN'),
+      dataIndex: 'permission',
+      stateId: 'permission',
+      flex: 2
+    }
   ],
 
   viewConfig: {
@@ -52,38 +67,13 @@ Ext.define('NX.coreui.view.privilege.PrivilegeList', {
     deferEmptyText: false
   },
 
+  dockedItems: [{
+    xtype: 'toolbar',
+    dock: 'top',
+    cls: 'nx-actions nx-borderless'
+  }],
+
   plugins: [
     { ptype: 'gridfilterbox', emptyText: NX.I18n.get('ADMIN_PRIVILEGES_LIST_FILTER_ERROR') }
-  ],
-
-  /**
-   * @override
-   */
-  initComponent: function () {
-    var me = this;
-
-    me.dockedItems = [{
-      xtype: 'toolbar',
-      dock: 'top',
-      cls: 'nx-actions nx-borderless',
-      items: [
-        {
-          xtype: 'button',
-          text: NX.I18n.get('ADMIN_PRIVILEGES_LIST_NEW_BUTTON'),
-          glyph: 'xf055@FontAwesome' /* fa-plus-circle */,
-          action: 'new',
-          disabled: true,
-          menu: [
-            {
-              text: NX.I18n.get('ADMIN_PRIVILEGES_LIST_TARGET_ITEM'),
-              action: 'newrepositorytarget',
-              iconCls: NX.Icons.cls('privilege-target', 'x16')
-            }
-          ]
-        }
-      ]
-    }];
-
-    me.callParent();
-  }
+  ]
 });

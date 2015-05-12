@@ -43,6 +43,7 @@ class CertificateComponent
 extends DirectComponentSupport
 {
 
+  // FIXME: Do not inject a REST endpoint component as a service
   @Inject
   CertificatesResource certificatesResource
 
@@ -55,11 +56,11 @@ extends DirectComponentSupport
    */
   @DirectMethod
   @Validate
-  CertificateXO retrieveFromHost(final @NotEmpty(message = '[host] may not be empty') String host,
+  CertificateXO retrieveFromHost(final @NotEmpty String host,
                                  final @Nullable Integer port,
                                  final @Nullable String protocolHint)
   {
-    return certificatesResource.get(null, host, port as String, protocolHint) as CertificateXO
+    return certificatesResource.get(host, port as String, protocolHint) as CertificateXO
   }
 
   /**
@@ -69,7 +70,7 @@ extends DirectComponentSupport
    */
   @DirectMethod
   @Validate
-  CertificateXO details(final @NotNull(message = '[pem] may not be null') @Valid CertificatePemXO pem) {
+  CertificateXO details(final @NotNull @Valid CertificatePemXO pem) {
     return certificatesResource.details(pem)
   }
 
