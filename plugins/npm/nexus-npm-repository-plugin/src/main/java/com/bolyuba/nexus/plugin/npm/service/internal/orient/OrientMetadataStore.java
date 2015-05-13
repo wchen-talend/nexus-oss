@@ -255,7 +255,16 @@ public class OrientMetadataStore
   }
 
   @Override
+  public PackageRoot replacePackage(final NpmRepository repository, final PackageRoot packageRoot) {
+    return updatePackage(repository, packageRoot, false);
+  }
+
+  @Override
   public PackageRoot updatePackage(final NpmRepository repository, final PackageRoot packageRoot) {
+    return updatePackage(repository, packageRoot, true);
+  }
+
+  private PackageRoot updatePackage(final NpmRepository repository, final PackageRoot packageRoot, final boolean overlay) {
     checkNotNull(repository);
     checkNotNull(packageRoot);
     final EntityHandler<PackageRoot> entityHandler = getHandlerFor(PackageRoot.class);
@@ -265,7 +274,7 @@ public class OrientMetadataStore
     try (ODatabaseDocumentTx db = db()) {
       db.begin();
       try {
-        return doUpdatePackage(db, entityHandler, repository, packageRoot);
+        return doUpdatePackage(db, entityHandler, repository, packageRoot, overlay);
       }
       finally {
         db.commit();
@@ -287,7 +296,7 @@ public class OrientMetadataStore
         while (packageRootIterator.hasNext()) {
           final PackageRoot packageRoot = packageRootIterator.next();
           db.begin();
-          doUpdatePackage(db, entityHandler, repository, packageRoot);
+          doUpdatePackage(db, entityHandler, repository, packageRoot, true);
           db.commit();
           count++;
         }
@@ -379,20 +388,22 @@ public class OrientMetadataStore
   private PackageRoot doUpdatePackage(final ODatabaseDocumentTx db,
                                       final EntityHandler<PackageRoot> entityHandler,
                                       final NpmRepository repository,
-                                      final PackageRoot packageRoot)
+                                      final PackageRoot packageRoot,
+                                      final boolean overlay)
   {
-    ODocument doc = doGetPackageByName(db, entityHandler, repository, packageRoot.getName());
-    if (doc != null) {
-      final PackageRoot existing = entityHandler.toEntity(doc);
-      existing.overlay(packageRoot);
-      db.save(entityHandler.toDocument(existing, doc));
-      return existing;
+    ODocument doc;
+    if (overlay) {
+      doc = doGetPackageByName(db, entityHandler, repository, packageRoot.getName());
+      if (doc != null) {
+        final PackageRoot existing = entityHandler.toEntity(doc);
+        existing.overlay(packageRoot);
+        db.save(entityHandler.toDocument(existing, doc));
+        return existing;
+      }
     }
-    else {
-      doc = db.newInstance(entityHandler.getSchemaName());
-      db.save(entityHandler.toDocument(packageRoot, doc));
-      return packageRoot;
-    }
+    doc = db.newInstance(entityHandler.getSchemaName());
+    db.save(entityHandler.toDocument(packageRoot, doc));
+    return packageRoot;
   }
 
 }
