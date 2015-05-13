@@ -164,7 +164,6 @@ public class DefaultNpmProxyRepository
     try {
       if (!getMetadataService().isNpmMetadataServiced(storeRequest)) {
         // shut down NPM MD+tarball service completely
-        log.debug("Metadata service disabled for path {}", storeRequest.getRequestPath());
         return delegateDoRetrieveLocalItem(storeRequest);
       }
       PackageRequest packageRequest = null;
@@ -173,7 +172,6 @@ public class DefaultNpmProxyRepository
       }
       catch (IllegalArgumentException ignore) {
         // ignore, will see is this a tarball req or just do it standard way if needed
-        log.debug("Non-metadata request for path {}", storeRequest.getRequestPath(), ignore);
       }
       if (packageRequest != null) {
         packageRequest.getStoreRequest().getRequestContext().put(NpmRepository.NPM_METADATA_SERVICED, Boolean.TRUE);
@@ -236,12 +234,10 @@ public class DefaultNpmProxyRepository
           // no problem, just continue then
         }
       }
-      log.debug("No local content for path {}", storeRequest.getRequestPath());
       throw new ItemNotFoundException(
           reasonFor(storeRequest, this, "No local content for path %s", storeRequest.getRequestPath()));
     }
     catch (IOException e) {
-      log.debug("Metadata service error for path {}", storeRequest.getRequestPath(), e);
       throw new LocalStorageException("Metadata service error", e);
     }
   }

@@ -151,7 +151,6 @@ public class DefaultNpmHostedRepository
     try {
       if (!getMetadataService().isNpmMetadataServiced(storeRequest)) {
         // shut down NPM MD+tarball service completely
-        log.debug("Metadata service disabled for path {}", storeRequest.getRequestPath());
         return delegateDoRetrieveLocalItem(storeRequest);
       }
       PackageRequest packageRequest = null;
@@ -160,7 +159,6 @@ public class DefaultNpmHostedRepository
       }
       catch (IllegalArgumentException e) {
         // something completely different
-        log.debug("Non-metadata request for path {}", storeRequest.getRequestPath(), e);
         return delegateDoRetrieveLocalItem(storeRequest);
       }
       if (packageRequest != null) {
@@ -198,7 +196,6 @@ public class DefaultNpmHostedRepository
           reasonFor(storeRequest, this, "No content for path %s", storeRequest.getRequestPath()));
     }
     catch (IOException e) {
-      log.debug("Metadata service error for path {}", storeRequest.getRequestPath(), e);
       throw new LocalStorageException("Metadata service error", e);
     }
   }
