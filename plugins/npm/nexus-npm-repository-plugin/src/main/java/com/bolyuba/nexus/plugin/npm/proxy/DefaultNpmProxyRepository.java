@@ -173,7 +173,7 @@ public class DefaultNpmProxyRepository
       }
       catch (IllegalArgumentException ignore) {
         // ignore, will see is this a tarball req or just do it standard way if needed
-        log.debug("Non-metadata request for path {}", storeRequest.getRequestPath(), ignore);
+        log.debug("Non-metadata request for path {}", storeRequest.getRequestPath(), storeRequest.getRequestPath().endsWith(".tgz") ? null : ignore);
       }
       if (packageRequest != null) {
         packageRequest.getStoreRequest().getRequestContext().put(NpmRepository.NPM_METADATA_SERVICED, Boolean.TRUE);
