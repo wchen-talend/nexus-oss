@@ -21,7 +21,6 @@ import java.util.Map;
 import org.sonatype.nexus.apachehttpclient.Hc4Provider;
 import org.sonatype.nexus.configuration.application.ApplicationDirectories;
 import org.sonatype.nexus.proxy.ResourceStoreRequest;
-import org.sonatype.nexus.proxy.cache.PathCache;
 import org.sonatype.nexus.proxy.item.ContentLocator;
 import org.sonatype.nexus.proxy.item.PreparedContentLocator;
 import org.sonatype.nexus.proxy.item.RepositoryItemUid;
@@ -198,12 +197,6 @@ public class MetadataServiceIT
 
       @Override
       public RepositoryItemUid createUid(String path) { return uid; }
-
-      @Override
-      public ProxyMode getProxyMode() { return ProxyMode.ALLOW; }
-
-      @Override
-      public PathCache getNotFoundCache() { return mock(PathCache.class); }
     };
 
     // not using mock as it would OOM when it tracks invocations, as we work with large files here
@@ -254,64 +247,6 @@ public class MetadataServiceIT
 
     final PackageRoot commonjs = metadataStore.getPackageByName(npmProxyRepository, "commonjs");
     assertThat(commonjs, notNullValue());
-  }
-
-  /**
-   * Testing deletion from proxy repositories.
-   */
-  @Test
-  public void proxyPackageDeletionRoundtrip() throws Exception {
-    final ContentLocator input = new PreparedContentLocator(
-        new FileInputStream(util.resolveFile("src/test/npm/ROOT_small.json")),
-        NpmRepository.JSON_MIME_TYPE, -1);
-
-    // this is "illegal" case using internal stuff, but is for testing only
-    metadataStore
-        .updatePackages(npmProxyRepository, metadataParser.parseRegistryRoot(npmProxyRepository.getId(), input));
-
-    log("Splice done");
-    // we pushed all into DB, now query
-    assertThat(metadataStore.listPackageNames(npmProxyRepository), hasSize(4));
-    assertThat(metadataStore.getPackageByName(npmProxyRepository, "ansi-font"), notNullValue());
-    assertThat(metadataStore.getPackageByName(npmProxyRepository, "commonjs"), notNullValue());
-
-    npmProxyRepository.getMetadataService().deletePackage("commonjs");
-
-    assertThat(metadataStore.listPackageNames(npmProxyRepository), hasSize(3));
-    assertThat(metadataStore.getPackageByName(npmProxyRepository, "ansi-font"), notNullValue());
-    assertThat(metadataStore.getPackageByName(npmProxyRepository, "commonjs"), nullValue());
-
-    npmProxyRepository.getMetadataService().deleteAllMetadata();
-    assertThat(metadataStore.listPackageNames(npmProxyRepository), hasSize(0));
-  }
-
-  /**
-   * Testing deletion from hosted repositories.
-   */
-  @Test
-  public void hostedPackageDeletionRoundtrip() throws Exception {
-    final ContentLocator input = new PreparedContentLocator(
-        new FileInputStream(util.resolveFile("src/test/npm/ROOT_small.json")),
-        NpmRepository.JSON_MIME_TYPE, -1);
-
-    // this is "illegal" case using internal stuff, but is for testing only
-    metadataStore
-        .updatePackages(npmHostedRepository1, metadataParser.parseRegistryRoot(npmHostedRepository1.getId(), input));
-
-    log("Splice done");
-    // we pushed all into DB, now query
-    assertThat(metadataStore.listPackageNames(npmHostedRepository1), hasSize(4));
-    assertThat(metadataStore.getPackageByName(npmHostedRepository1, "ansi-font"), notNullValue());
-    assertThat(metadataStore.getPackageByName(npmHostedRepository1, "commonjs"), notNullValue());
-
-    npmHostedRepository1.getMetadataService().deletePackage("commonjs");
-
-    assertThat(metadataStore.listPackageNames(npmHostedRepository1), hasSize(3));
-    assertThat(metadataStore.getPackageByName(npmHostedRepository1, "ansi-font"), notNullValue());
-    assertThat(metadataStore.getPackageByName(npmHostedRepository1, "commonjs"), nullValue());
-
-    npmHostedRepository1.getMetadataService().deleteAllMetadata();
-    assertThat(metadataStore.listPackageNames(npmHostedRepository1), hasSize(0));
   }
 
   @Test
