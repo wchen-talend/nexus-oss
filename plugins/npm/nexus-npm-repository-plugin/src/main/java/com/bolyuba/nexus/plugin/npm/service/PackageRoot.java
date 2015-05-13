@@ -42,7 +42,7 @@ public class PackageRoot
     this.wrappedVersions.putAll(wrapVersions(raw));
     this.attachments = Maps.newHashMap();
 
-    log.debug("created{}package versions: {} raw: {}", isIncomplete() ? " incomplete " : " ", getVersions(), getRaw(),
+    log.debug("created{}package metadata: {}", isIncomplete() ? " incomplete " : " ", getRaw(),
         isIncomplete() ? new Throwable() : null);
   }
 
@@ -158,11 +158,11 @@ public class PackageRoot
    * maintains inner state of this document (wrappedVersions and attachments). This method ignores package origin.
    */
   public void overlayIgnoringOrigin(final PackageRoot packageRoot) {
-    log.debug("original{}package versions: {} raw: {}", isIncomplete() ? " incomplete " : " ", getVersions(), getRaw(),
+    log.debug("original{}package metadata: {}", isIncomplete() ? " incomplete " : " ", getRaw(),
         isIncomplete() ? new Throwable() : null);
 
-    log.debug("overlaying{}package versions: {} raw: {}", packageRoot.isIncomplete() ? " incomplete " : " ",
-        packageRoot.getVersions(), packageRoot.getRaw(), packageRoot.isIncomplete() ? new Throwable() : null);
+    log.debug("overlaying{}package metadata: {}", packageRoot.isIncomplete() ? " incomplete " : " ", packageRoot.getRaw(),
+        packageRoot.isIncomplete() ? new Throwable() : null);
 
     overlay(getRaw(), packageRoot.getRaw()); // this changes underlying raw map directly
     getProperties().putAll(packageRoot.getProperties()); // this is "shallow" string-string map
@@ -171,7 +171,7 @@ public class PackageRoot
     this.attachments.clear(); // TODO: is clear needed?
     this.attachments.putAll(packageRoot.getAttachments());
 
-    log.debug("resulting{}package versions: {} raw: {}", isIncomplete() ? " incomplete " : " ", getVersions(), getRaw(),
+    log.debug("resulting{}package metadata: {}", isIncomplete() ? " incomplete " : " ", getRaw(),
         isIncomplete() ? new Throwable() : null);
   }
 
