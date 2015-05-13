@@ -223,20 +223,30 @@ public class ProxyMetadataServiceImpl
    */
   private PackageRoot mayUpdatePackageRoot(final String packageName, final boolean localOnly) throws IOException {
     final long now = System.currentTimeMillis();
-    PackageRoot packageRoot = metadataStore.getPackageByName(getNpmRepository(), packageName);
-    if (!localOnly && (packageRoot == null || isExpired(packageRoot, now))) {
-      packageRoot = proxyMetadataTransport.fetchPackageRoot(getNpmRepository(), packageName, packageRoot);
-      if (packageRoot == null) {
-        return null;
+    try {
+      log.debug("Fetching local package: {}", packageName);
+      PackageRoot packageRoot = metadataStore.getPackageByName(getNpmRepository(), packageName);
+      if (!localOnly && (packageRoot == null || isExpired(packageRoot, now))) {
+        log.debug("Fetching remote package: {}", packageName);
+        packageRoot = proxyMetadataTransport.fetchPackageRoot(getNpmRepository(), packageName, packageRoot);
+        if (packageRoot == null) {
+          log.debug("Package metadata not available: {}", packageName);
+          return null;
+        }
+        log.debug("Caching remote package: {}", packageName);
+        // On remote fetch of metadata, evict /packageName and children from NFC
+        getNpmRepository().getNotFoundCache().removeWithChildren("/" + packageName);
+        packageRoot.getProperties().put(PROP_EXPIRED, Boolean.FALSE.toString());
+        packageRoot.getProperties().put(PROP_CACHED, Long.toString(now));
+        return metadataStore.updatePackage(getNpmRepository(), packageRoot);
       }
-      // On remote fetch of metadata, evict /packageName and children from NFC
-      getNpmRepository().getNotFoundCache().removeWithChildren("/" + packageName);
-      packageRoot.getProperties().put(PROP_EXPIRED, Boolean.FALSE.toString());
-      packageRoot.getProperties().put(PROP_CACHED, Long.toString(now));
-      return metadataStore.updatePackage(getNpmRepository(), packageRoot);
+      else {
+        return packageRoot;
+      }
     }
-    else {
-      return packageRoot;
+    catch (IOException | RuntimeException e) {
+      log.warn("Problem updating package: {}", packageName, e);
+      throw e;
     }
   }
 
