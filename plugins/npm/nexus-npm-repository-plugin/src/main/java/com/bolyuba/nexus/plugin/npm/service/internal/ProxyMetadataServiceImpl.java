@@ -257,19 +257,19 @@ public class ProxyMetadataServiceImpl
   private boolean isExpired(final PackageRoot packageRoot, final long now) {
     if (!REGISTRY_ROOT_PACKAGE_NAME.equals(packageRoot.getName()) && packageRoot.isIncomplete()) {
       // registry root is made incomplete for simplicity's sake
-      log.trace("EXPIRED: package {} is incomplete", packageRoot.getName());
+      log.debug("EXPIRED: package {} is incomplete", packageRoot.getName());
       return true;
     }
     if (!getNpmRepository().isItemAgingActive()) {
-      log.trace("EXPIRED: package {} owning repository item aging is inactive", packageRoot.getName());
+      log.debug("EXPIRED: package {} owning repository item aging is inactive", packageRoot.getName());
       return true;
     }
     if (Boolean.TRUE.toString().equals(packageRoot.getProperties().get(PROP_EXPIRED))) {
-      log.trace("EXPIRED: package {} flagged as expired", packageRoot.getName());
+      log.debug("EXPIRED: package {} flagged as expired", packageRoot.getName());
       return true;
     }
     if (getNpmRepository().getItemMaxAge() < 0) {
-      log.trace("NOT-EXPIRED: package {} owning repository {} has negative item max age", packageRoot.getName(),
+      log.debug("NOT-EXPIRED: package {} owning repository {} has negative item max age", packageRoot.getName(),
           getNpmRepository().getId());
       return false;
     }
@@ -277,10 +277,10 @@ public class ProxyMetadataServiceImpl
         .valueOf(packageRoot.getProperties().get(PROP_CACHED)) : now;
     final boolean result = ((now - remoteCached) > (getNpmRepository().getItemMaxAge() * 60L * 1000L));
     if (result) {
-      log.trace("EXPIRED: package {} is too old", packageRoot.getName());
+      log.debug("EXPIRED: package {} is too old", packageRoot.getName());
     }
     else {
-      log.trace("NOT-EXPIRED: package {} is fresh", packageRoot.getName());
+      log.debug("NOT-EXPIRED: package {} is fresh", packageRoot.getName());
     }
     return result;
   }
