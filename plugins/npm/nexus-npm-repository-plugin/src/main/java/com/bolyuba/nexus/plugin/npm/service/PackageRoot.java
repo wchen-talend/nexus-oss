@@ -18,8 +18,6 @@ import java.util.Map.Entry;
 import com.google.common.collect.Maps;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -27,8 +25,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class PackageRoot
     extends NpmJson
 {
-  private static final Logger log = LoggerFactory.getLogger(PackageRoot.class);
-
   private final Map<String, String> properties;
 
   private final Map<String, PackageVersion> wrappedVersions;
@@ -41,9 +37,6 @@ public class PackageRoot
     this.wrappedVersions = Maps.newHashMap();
     this.wrappedVersions.putAll(wrapVersions(raw));
     this.attachments = Maps.newHashMap();
-
-    log.debug("created{}package versions: {} raw: {}", isIncomplete() ? " incomplete " : " ", getVersions(), getRaw(),
-        isIncomplete() ? new Throwable() : null);
   }
 
   public Map<String, String> getProperties() { return properties; }
@@ -158,21 +151,12 @@ public class PackageRoot
    * maintains inner state of this document (wrappedVersions and attachments). This method ignores package origin.
    */
   public void overlayIgnoringOrigin(final PackageRoot packageRoot) {
-    log.debug("original{}package versions: {} raw: {}", isIncomplete() ? " incomplete " : " ", getVersions(), getRaw(),
-        isIncomplete() ? new Throwable() : null);
-
-    log.debug("overlaying{}package versions: {} raw: {}", packageRoot.isIncomplete() ? " incomplete " : " ",
-        packageRoot.getVersions(), packageRoot.getRaw(), packageRoot.isIncomplete() ? new Throwable() : null);
-
     overlay(getRaw(), packageRoot.getRaw()); // this changes underlying raw map directly
     getProperties().putAll(packageRoot.getProperties()); // this is "shallow" string-string map
     this.wrappedVersions.clear();
     this.wrappedVersions.putAll(wrapVersions(getRaw()));
     this.attachments.clear(); // TODO: is clear needed?
     this.attachments.putAll(packageRoot.getAttachments());
-
-    log.debug("resulting{}package versions: {} raw: {}", isIncomplete() ? " incomplete " : " ", getVersions(), getRaw(),
-        isIncomplete() ? new Throwable() : null);
   }
 
   private Map<String, Object> overlay(Map<String, Object> me, Map<String, Object> him) {
