@@ -391,17 +391,16 @@ public class OrientMetadataStore
                                       final PackageRoot packageRoot,
                                       final boolean overlay)
   {
-    ODocument doc;
-    if (overlay) {
-      doc = doGetPackageByName(db, entityHandler, repository, packageRoot.getName());
-      if (doc != null) {
-        final PackageRoot existing = entityHandler.toEntity(doc);
-        existing.overlay(packageRoot);
-        db.save(entityHandler.toDocument(existing, doc));
-        return existing;
-      }
+    ODocument doc = doGetPackageByName(db, entityHandler, repository, packageRoot.getName());
+    if (doc == null) {
+      doc = db.newInstance(entityHandler.getSchemaName());
     }
-    doc = db.newInstance(entityHandler.getSchemaName());
+    else if (overlay) {
+      final PackageRoot existing = entityHandler.toEntity(doc);
+      existing.overlay(packageRoot);
+      db.save(entityHandler.toDocument(existing, doc));
+      return existing;
+    }
     db.save(entityHandler.toDocument(packageRoot, doc));
     return packageRoot;
   }
