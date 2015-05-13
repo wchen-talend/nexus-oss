@@ -130,7 +130,7 @@ public class DefaultNpmGroupRepository
         packageRequest = new PackageRequest(storeRequest);
       } catch (IllegalArgumentException e) {
         // something completely different
-        log.debug("Non-metadata request for path {}", storeRequest.getRequestPath(), storeRequest.getRequestPath().endsWith(".tgz") ? null : e);
+        log.debug("Non-metadata request for path {}", storeRequest.getRequestPath(), e);
         return super.doRetrieveLocalItem(storeRequest);
       }
       if (packageRequest != null) {

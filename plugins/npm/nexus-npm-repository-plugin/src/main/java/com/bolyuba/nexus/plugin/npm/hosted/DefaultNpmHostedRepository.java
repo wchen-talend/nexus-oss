@@ -160,7 +160,7 @@ public class DefaultNpmHostedRepository
       }
       catch (IllegalArgumentException e) {
         // something completely different
-        log.debug("Non-metadata request for path {}", storeRequest.getRequestPath(), storeRequest.getRequestPath().endsWith(".tgz") ? null : e);
+        log.debug("Non-metadata request for path {}", storeRequest.getRequestPath(), e);
         return delegateDoRetrieveLocalItem(storeRequest);
       }
       if (packageRequest != null) {
