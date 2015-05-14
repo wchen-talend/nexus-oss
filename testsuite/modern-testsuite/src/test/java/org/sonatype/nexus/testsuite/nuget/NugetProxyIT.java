@@ -25,6 +25,9 @@ import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.testsuite.nuget.dispatch.FineGrainedDispatch;
 import org.sonatype.tests.http.server.fluent.Server;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.eclipse.jetty.http.PathMap;
 import org.hamcrest.Matchers;
 import org.jetbrains.annotations.NotNull;
@@ -38,8 +41,6 @@ import static java.lang.Integer.parseInt;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.sonatype.nexus.testsuite.nuget.dispatch.ChainedRequestMatcher.forOperation;
 import static org.sonatype.tests.http.server.fluent.Behaviours.error;
@@ -96,9 +97,6 @@ public class NugetProxyIT
     nuget = nugetClient(proxyRepo);
   }
 
-  // TODO TODO
-  // replace the nuget.org references throughout all the test content!
-
   @After
   public void stopProxyServer()
       throws Exception
@@ -131,7 +129,7 @@ public class NugetProxyIT
     String feed = nuget.feedXml(VISUAL_STUDIO_INITIAL_FEED_QUERY);
     final List<Map<String, String>> entries = parseFeedXml(feed);
 
-    assertThat(entries.size(), is(greaterThan(0)));
+    assertThat(entries.size(), is(VS_DEFAULT_PAGE_REQUEST_SIZE));
 
     final Map<String, String> jQuery = findById(entries, "jQuery");
     assertThat(jQuery, is(Matchers.notNullValue()));
@@ -144,15 +142,11 @@ public class NugetProxyIT
   public void sortOrderIsRespected() throws Exception {
     final List<Map<String, String>> entries = parseFeedXml(nuget.feedXml(FEED_ORDERED_BY_HASH));
 
-    List<String> receivedHashes = new ArrayList<>();
-
-    for (Map<String, String> entry : entries) {
-      final String hash = entry.get(NugetProperties.PACKAGE_HASH);
-      receivedHashes.add(hash);
-    }
+    List<String> receivedHashes = extractPackageHashes(entries);
 
     assertThat(receivedHashes, is(sorted(receivedHashes)));
   }
+
 
   /**
    * Ensuring the default sort order overrides database insertion order.
@@ -165,32 +159,40 @@ public class NugetProxyIT
     // Now ensure that an unspecified sort order results in default ordering (descending download count)
     final List<Map<String, String>> entries = parseFeedXml(nuget.feedXml(VISUAL_STUDIO_INITIAL_FEED_QUERY));
 
-    List<Integer> downloadCounts = new ArrayList<>();
-    for (Map<String, String> entry : entries) {
-      downloadCounts.add(parseInt(entry.get(NugetProperties.DOWNLOAD_COUNT)));
-    }
+    List<Integer> downloadCounts = extractDownloadCounts(entries);
 
     final List<Integer> sorted = sortAscending(downloadCounts);
     assertThat(downloadCounts, is(sorted));
   }
 
+  @Test
+  public void inlineCountIsProvided() throws Exception {
+    dispatch.serve(forOperation("Search").hasParam("$inlinecount", "allpages"),
+        file(resolveTestFile("packages-with-inline-count.xml")));
+
+    // Request an inline count
+    String feed = nuget.feedXml(VISUAL_STUDIO_INITIAL_FEED_QUERY + "&$inlinecount=allpages");
+    final Integer inlineCount = parseInlineCount(feed);
+
+    assertThat(inlineCount, is(Matchers.notNullValue()));
+  }
+
   /**
-   * Ensure searches cache more results than required, and still serve page 2+ when the remote is unavailable.
+   * Ensure that proxy repos still serve metadata when the remote repo is unreachable.
    */
   @Test
   public void browsingFeedsWithRemoteRepositoryUnavailable() throws Exception {
-
-    // Warm up the proxy cache with a request while the proxy server is available
+    // Warm up the proxy's metadata cache with a request
     nuget.vsSearchCount("jQuery");
     nuget.vsSearchFeedXml("jQuery");
 
     // Now the remote becomes unavailable
     proxyServer.stop();
 
+    // Entries should still be served
     final String feed = nuget.feedXml(VISUAL_STUDIO_INITIAL_FEED_QUERY);
 
     final List<Map<String, String>> entries = parseFeedXml(feed);
-    // Entries should still be served
     assertThat(entries.size(), is(VS_DEFAULT_PAGE_REQUEST_SIZE));
   }
 
@@ -209,18 +211,6 @@ public class NugetProxyIT
   }
 
   @Test
-  public void inlineCountIsProvided() throws Exception {
-    dispatch.serve(forOperation("Search").hasParam("$inlinecount", "allpages"),
-        file(resolveTestFile("packages-with-inline-count.xml")));
-
-    // Request an inline count
-    String feed = nuget.feedXml(VISUAL_STUDIO_INITIAL_FEED_QUERY + "&$inlinecount=allpages");
-    final Integer inlineCount = parseInlineCount(feed);
-
-    assertThat(inlineCount, is(Matchers.notNullValue()));
-  }
-
-  @Test
   public void paginationLoopsIgnored() throws Exception {
     // When we search for the term 'endless', we're served an XML feed with itself as the next page
     dispatch.serve(forOperation("Search").hasParam("searchTerm", "'endless'"),
@@ -230,6 +220,30 @@ public class NugetProxyIT
     final List<Map<String, String>> entries = parseFeedXml(endless);
 
     assertThat(entries.size(), is(1));
+  }
+
+  @NotNull
+  private List<String> extractPackageHashes(final List<Map<String, String>> entries) {
+    return transform(entries, new Function<Map<String, String>, String>()
+    {
+      public String apply(final Map<String, String> entry) {
+        return entry.get(NugetProperties.PACKAGE_HASH);
+      }
+    });
+  }
+
+  @NotNull
+  private List<Integer> extractDownloadCounts(final List<Map<String, String>> entries) {
+    return transform(entries, new Function<Map<String, String>, Integer>()
+    {
+      public Integer apply(final Map<String, String> entry) {
+        return parseInt(entry.get(NugetProperties.DOWNLOAD_COUNT));
+      }
+    });
+  }
+
+  private <T> List<T> transform(final List<Map<String, String>> entries, Function<Map<String, String>, T> function) {
+    return Lists.newArrayList(Iterables.transform(entries, function));
   }
 
   private Map<String, String> findById(final List<Map<String, String>> entries, final String id) {

@@ -14,7 +14,6 @@ package com.sonatype.nexus.repository.nuget.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -182,16 +181,6 @@ public class NugetGalleryFacetImpl
         result.setCount(inlineCount);
       }
 
-      // TODO: Delete all this ================
-      {
-        List<Asset> allAssets = new ArrayList<>();
-        for (Asset a : storageTx.browseAssets(storageTx.getBucket())) {
-          allAssets.add(a);
-        }
-        System.err.println(allAssets.size());
-      }
-      // ======================================
-
       final ComponentQuery componentQuery = ODataUtils.query(query, false);
       final Iterable<Asset> assets = storageTx.findAssets(componentQuery.getWhere(),
           componentQuery.getParameters(), getRepositories(), componentQuery.getQuerySuffix());
@@ -231,7 +220,7 @@ public class NugetGalleryFacetImpl
     if (result.getSkipLinkEntry() != null) {
       final String skipLink = odataLink(result.getBase(),
           result.getOperation(),
-          ODataFeedUtils.skipLinkQueryString(result.getSkipLinkEntry(), result.getQuery()));
+          ODataFeedUtils.skipLinkQueryString(result.getQuery()));
 
       xml.append("  <link rel=\"next\" href=\"")
           .append(XmlEscapers.xmlAttributeEscaper().escape(skipLink))
@@ -251,6 +240,7 @@ public class NugetGalleryFacetImpl
       tx.commit();
       getRepository().facet(SearchFacet.class).put(component);
     }
+    // Separate tx is necessary for the meantime, since the re-querying orient doesn't pick up uncommitted state
     try (StorageTx tx = openStorageTx()) {
       maintainAggregateInfo(tx, metadata.get(ID));
       tx.commit();

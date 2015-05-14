@@ -12,13 +12,13 @@
  */
 package org.sonatype.nexus.testsuite.nuget;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import com.sonatype.nexus.repository.nuget.internal.NugetHostedRecipe;
@@ -105,33 +105,57 @@ public abstract class NugetITSupport
     return new NugetClient(clientBuilder().build(), clientContext(), url.toURI());
   }
 
-  protected List<Map<String, String>> parseFeedXml(final String entryXml) throws IOException, XmlPullParserException {
-    final EntryList consumer = new EntryList();
-    final FeedSplicer splicer = new FeedSplicer(consumer);
-    try (InputStream is = IOUtils.toInputStream(entryXml, "UTF-8")) {
-      splicer.consumePage(is);
-    }
-    return consumer.getEntries();
+  protected ParsedFeed parse(final String feedXml) throws Exception {
+    return new ParsedFeed(feedXml);
+  }
+
+  protected List<Map<String, String>> parseFeedXml(final String entryXml) throws Exception {
+    return parse(entryXml).getEntries();
   }
 
   protected Integer parseInlineCount(final String entryXml) throws Exception, XmlPullParserException {
-    final EntryList consumer = new EntryList();
-    final FeedSplicer splicer = new FeedSplicer(consumer);
-    try (InputStream is = IOUtils.toInputStream(entryXml, "UTF-8")) {
-      splicer.consumePage(is);
-    }
-    return splicer.getCount();
+    return parse(entryXml).getInlineCount();
   }
 
   protected String parseNextPageUrl(final String entryXml) throws Exception, XmlPullParserException {
-    final EntryList consumer = new EntryList();
-    final FeedSplicer splicer = new FeedSplicer(consumer);
-    try (InputStream is = IOUtils.toInputStream(entryXml, "UTF-8")) {
-      return splicer.consumePage(is);
+    return parse(entryXml).getNextPageUrl();
+  }
+
+  /**
+   * A utility to parse feeds
+   */
+  protected static class ParsedFeed
+  {
+    private final FeedSplicer splicer;
+
+    private final EntryList consumer;
+
+    private final String nextPageUrl;
+
+    public ParsedFeed(final String feedXml) throws Exception {
+      consumer = new EntryList();
+      splicer = new FeedSplicer(consumer);
+      try (InputStream is = IOUtils.toInputStream(feedXml, "UTF-8")) {
+        nextPageUrl = splicer.consumePage(is);
+      }
+    }
+
+    public List<Map<String, String>> getEntries() {
+      return consumer.getEntries();
+    }
+
+    @Nullable
+    public Integer getInlineCount() {
+      return splicer.getCount();
+    }
+
+    @Nullable
+    public String getNextPageUrl() {
+      return nextPageUrl;
     }
   }
 
-  public static class EntryList
+  private static class EntryList
       implements ODataConsumer
   {
     private final List<Map<String, String>> entries = new ArrayList<>();

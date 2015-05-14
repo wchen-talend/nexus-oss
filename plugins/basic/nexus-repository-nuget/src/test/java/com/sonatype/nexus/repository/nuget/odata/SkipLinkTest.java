@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.sonatype.nexus.repository.nuget.internal.ComponentQuery;
-import com.sonatype.nexus.repository.nuget.internal.NugetProperties;
 
 import org.sonatype.sisu.litmus.testsupport.TestSupport;
 
@@ -28,15 +27,17 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.containsString;
 
 /**
- * @since 3.0
+ * Tests generation of next page 'skip links'.
  */
 public class SkipLinkTest
     extends TestSupport
 {
+  /**
+   * Can a skip link be parsed and used to generate a legal component query?
+   */
   @Test
   public void roundTripSkipLinkParsing() throws Exception {
     // A query comes in, hypothetically having enough results that we need to paginate
@@ -49,28 +50,16 @@ public class SkipLinkTest
     odataQuery.put("includePrerelease", "true");
     odataQuery.put("$orderBy", "downloadcount asc");
 
-    // The final entry in the feed is used to generate a 'skip link', the URL for the next page
-    final HashMap<String, Object> entry = hypotheticalFinalEntry();
-
     // Generate a skip link based on this entry
-    final String skipLink = ODataFeedUtils.skipLinkQueryString(entry, odataQuery);
+    final String skipLink = ODataFeedUtils.skipLinkQueryString(odataQuery);
 
     // Parse the link into odata parameters
     Map<String, String> skipOdataQuery = parseLink("http://localhost/Search()?" + skipLink);
 
     // Now create an Orient component query from
     final ComponentQuery componentQuery = ODataUtils.query(skipOdataQuery, false);
-  }
 
-  @NotNull
-  private HashMap<String, Object> hypotheticalFinalEntry() {
-    final HashMap<String, Object> entry = new HashMap<String, Object>();
-
-    entry.put(NugetProperties.P_ID, "jQuery");
-    entry.put(NugetProperties.P_VERSION, "1.3.3");
-    entry.put(NugetProperties.P_DOWNLOAD_COUNT, "2434");
-
-    return entry;
+    assertThat(componentQuery.getQuerySuffix(), containsString("OFFSET " + ODataUtils.PAGE_SIZE));
   }
 
   @NotNull

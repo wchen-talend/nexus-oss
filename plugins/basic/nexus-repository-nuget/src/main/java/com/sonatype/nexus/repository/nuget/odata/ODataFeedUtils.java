@@ -19,18 +19,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.sonatype.nexus.repository.nuget.internal.NugetProperties;
-
 import com.google.common.collect.ImmutableMap;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
-import org.odata4j.expression.EntitySimpleProperty;
-import org.odata4j.expression.OrderByExpression;
-
-import static org.odata4j.expression.Expression.asFilterString;
-import static org.odata4j.expression.Expression.literal;
-import static org.odata4j.producer.resources.OptionsQueryParser.parseOrderBy;
 
 /**
  * Helper methods for constructing NuGet XML responses.
@@ -45,11 +37,10 @@ public class ODataFeedUtils
   /**
    * Constructs an OData skip link for the given data position.
    *
-   * @param data  Current data position
    * @param query Components of the query string
    * @return Encoded skip link
    */
-  public static String skipLinkQueryString(final Map<String, ?> data, final Map<String, String> query) {
+  public static String skipLinkQueryString(final Map<String, String> query) {
     Map<String, String> nextPageQuery = queryForNextPage(query);
     return toQueryString(nextPageQuery);
 
@@ -85,31 +76,9 @@ public class ODataFeedUtils
     }
     else {
       currentSkip = 0;
-
     }
     nextPageQuery.put("$skip", Integer.toString(currentSkip + ODataUtils.PAGE_SIZE));
     return nextPageQuery;
-  }
-
-  /**
-   * Constructs an OData skip token for the given data position.
-   *
-   * @param orderBy $orderBy parameter
-   * @param data    Current data position
-   * @return Raw skip token
-   */
-  public static String skipToken(final String orderBy, final Map<String, ?> data) {
-    final StringBuilder token = new StringBuilder();
-    if (null != orderBy) {
-      for (final OrderByExpression o : parseOrderBy(orderBy)) {
-        final String name = ((EntitySimpleProperty) o.getExpression()).getPropertyName().toUpperCase();
-        final Object value = data.get(NugetProperties.ATTRIB_NAMES.get(name));
-        token.append(asFilterString(literal(value))).append(',');
-      }
-    }
-    token.append(asFilterString(literal(data.get(NugetProperties.P_ID)))).append(',');
-    token.append(asFilterString(literal(data.get(NugetProperties.P_VERSION))));
-    return token.toString();
   }
 
   /**
