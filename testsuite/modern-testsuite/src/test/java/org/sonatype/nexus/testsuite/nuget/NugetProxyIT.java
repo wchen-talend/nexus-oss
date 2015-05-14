@@ -12,6 +12,7 @@
  */
 package org.sonatype.nexus.testsuite.nuget;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,10 +20,13 @@ import java.util.Map;
 import java.util.TreeSet;
 
 import com.sonatype.nexus.repository.nuget.internal.NugetProperties;
+import com.sonatype.nexus.repository.nuget.odata.ODataUtils;
 
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.tests.http.server.fluent.Server;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
 import org.eclipse.jetty.http.PathMap;
 import org.hamcrest.Matchers;
 import org.jetbrains.annotations.NotNull;
@@ -37,6 +41,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.sonatype.tests.http.server.fluent.Behaviours.error;
 import static org.sonatype.tests.http.server.fluent.Behaviours.file;
@@ -53,6 +58,9 @@ public class NugetProxyIT
   public static final String FEED_ORDERED_BY_HASH =
       "Search()?$filter=IsLatestVersion&$orderby=PackageHash%20asc,Id&$skip=0&$top=80&searchTerm=''&targetFramework='net45'&includePrerelease=false";
 
+  public static final String TOP_100_RESULTS =
+      "Search()?$filter=IsLatestVersion&$skip=0&$top=100&searchTerm=''&targetFramework='net45'&includePrerelease=false";
+
   protected Server proxyServer;
 
   protected NugetClient nuget;
@@ -66,26 +74,14 @@ public class NugetProxyIT
     proxyServer = Server.withPort(0)
         .serve("/*").withBehaviours(error(200))
 
-            //.serve("/nuget/Packages/$count")
-            //.withBehaviours(file(resolveTestFile("proxy-count.txt")))
-
         .serve("/nuget/Search()/$count")
         .withBehaviours(file(resolveTestFile("search-count.txt")))
 
-            // TODO: This is one argument for making NugetGallery.count take a feed name instead of a path
-            //.serve("/nuget/Packages()/$count")
-            //.withBehaviours(file(resolveTestFile("proxy-count.txt")))
-            //
-            //.serve("/nuget/Packages(Id='jQuery',Version='1.7.1')")
-            //.withBehaviours(file(resolveTestFile("proxy-entry.xml")))
-            //
-            //.serve("/nuget/Packages")
-            //.withBehaviours(file(resolveTestFile("proxy-response.xml")))
-
+            // Searches return the top 80 nuget.org results for 'jquery'
         .serve("/nuget/Search()")
-        .withBehaviours(file(resolveTestFile("proxy-search.xml")))
+        .withBehaviours(file(resolveTestFile("proxy-search-jquery-top-80.xml")))
         .serve("/nuget/Search")
-        .withBehaviours(file(resolveTestFile("proxy-search.xml")))
+        .withBehaviours(file(resolveTestFile("proxy-search-jquery-top-80.xml")))
 
         .start();
 
@@ -95,6 +91,10 @@ public class NugetProxyIT
 
     nuget = nugetClient(proxyRepo);
   }
+
+
+// TODO TODO
+  // replace the nuget.org references throughout all the test content!
 
   @After
   public void stopProxyServer()
@@ -121,9 +121,11 @@ public class NugetProxyIT
   @Test
   public void visualStudioInitializationQueries() throws Exception {
     int count = nuget.count(VISUAL_STUDIO_INITIAL_COUNT_QUERY);
+
+    // Ensure the count reflects what is remotely available
     assertThat("count", count, is(32048));
 
-    String feed = nuget.feedXml(FEED_ORDERED_BY_HASH);
+    String feed = nuget.feedXml(VISUAL_STUDIO_INITIAL_FEED_QUERY);
     final List<Map<String, String>> entries = parseFeedXml(feed);
 
     assertThat(entries.size(), is(greaterThan(0)));
@@ -132,6 +134,9 @@ public class NugetProxyIT
     assertThat(jQuery, is(Matchers.notNullValue()));
   }
 
+  /**
+   * Results should arrive in the sort order we've specified.
+   */
   @Test
   public void sortOrderIsRespected() throws Exception {
     final List<Map<String, String>> entries = parseFeedXml(nuget.feedXml(FEED_ORDERED_BY_HASH));
@@ -146,12 +151,15 @@ public class NugetProxyIT
     assertThat(receivedHashes, is(sorted(receivedHashes)));
   }
 
+  /**
+   * Ensuring the default sort order overrides database insertion order.
+   */
   @Test
   public void repoImposesDefaultSortOrder() throws Exception {
     // Prime the proxy repo with a weird sort order
     final List<Map<String, String>> hashOrderedEntries = parseFeedXml(nuget.feedXml(FEED_ORDERED_BY_HASH));
 
-    // Now insure that an unspecified sort order results in the correct default
+    // Now ensure that an unspecified sort order results in default ordering (descending download count)
     final List<Map<String, String>> entries = parseFeedXml(nuget.feedXml(VISUAL_STUDIO_INITIAL_FEED_QUERY));
 
     List<Integer> downloadCounts = new ArrayList<>();
@@ -161,6 +169,55 @@ public class NugetProxyIT
 
     final List<Integer> sorted = sortAscending(downloadCounts);
     assertThat(downloadCounts, is(sorted));
+  }
+
+  /**
+   * Ensure searches cache more results than required, and still serve page 2+ when the remote is unavailable.
+   */
+  @Test
+  public void browsingFeedsWithRemoteRepositoryUnavailable() throws Exception {
+
+    // Warm up the proxy cache with a request while the proxy server is available
+    nuget.vsSearchCount("jQuery");
+    nuget.vsSearchFeedXml("jQuery");
+
+    // Now the remote becomes unavailable
+    proxyServer.stop();
+
+    final String feed = nuget.feedXml(VISUAL_STUDIO_INITIAL_FEED_QUERY);
+
+    final List<Map<String, String>> entries = parseFeedXml(feed);
+    // Entries should still be served
+    assertThat(entries.size(), is(VS_DEFAULT_PAGE_REQUEST_SIZE));
+  }
+
+  @Test
+  public void feedsArePaginated() throws Exception {
+    final String feed = nuget.feedXml(TOP_100_RESULTS);
+
+    final String nextPageUrl = parseNextPageUrl(feed);
+
+    assertThat(nextPageUrl, is(notNullValue()));
+
+    final String pageTwo = nuget.feedXml(nextPageUrl);
+    final List<Map<String, String>> entriesPageTwo = parseFeedXml(pageTwo);
+
+    assertThat(entriesPageTwo.size(), is(ODataUtils.PAGE_SIZE));
+  }
+
+  @Test
+  public void inlineCountIsProvided() throws Exception {
+    // Ensure the server responds with an inline count, which it will do if we specify the $inlinecount=allpages option
+    proxyServer.serve("/nuget/Search()").withBehaviours(file(resolveTestFile("packages-with-inline-count.xml")));
+    proxyServer.serve("/nuget/Search").withBehaviours(file(resolveTestFile("packages-with-inline-count.xml")));
+
+    // Request an inline count
+    String feed = nuget.feedXml(VISUAL_STUDIO_INITIAL_FEED_QUERY + "&$inlinecount=allpages");
+    final Integer integer = parseInlineCount(feed);
+
+    assertThat(integer, is(Matchers.notNullValue()));
+    // TODO: Packages() feeds should actually report the full result set size, not just the capped size
+    assertThat(integer, is(greaterThanOrEqualTo(40)));
   }
 
   private Map<String, String> findById(final List<Map<String, String>> entries, final String id) {

@@ -131,19 +131,17 @@ public class NugetHostedIT
   public void searchForPackage() throws Exception {
     nuget.publish(resolveTestFile("SONATYPE.TEST.1.0.nupkg"));
 
-    final int count = nuget.count(
-        "Search()/$count?$filter=IsAbsoluteLatestVersion&searchTerm='SONATYPE.TEST'&targetFramework='net45'&includePrerelease=true");
+    final String searchTerm = "SONATYPE.TEST";
+    final int count = nuget.vsSearchCount(searchTerm);
 
     assertThat("count", count, is(1));
 
-    final String feedXml = nuget.feedXml(
-        "Search()?$filter=IsAbsoluteLatestVersion&$skip=0&$top=30&searchTerm='SONATYPE.TEST'&targetFramework='net45'&includePrerelease=true");
+    final String feedXml = nuget.vsSearchFeedXml(searchTerm);
 
     final List<Map<String, String>> entries = parseFeedXml(feedXml);
     assertThat("entry count", entries.size(), is(1));
-    assertThat("entry ID", entries.get(0).get("ID"), is("SONATYPE.TEST"));
+    assertThat("entry ID", entries.get(0).get("ID"), is(searchTerm));
   }
-
 
   /**
    * Ensure that Visual Studio's 'specific packages'-style ODATA queries can find an uploaded test package.

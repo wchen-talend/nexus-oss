@@ -53,6 +53,8 @@ public abstract class NugetITSupport
   public static final String VISUAL_STUDIO_INITIAL_FEED_QUERY =
       "Search()?$filter=IsLatestVersion&$orderby=DownloadCount%20desc,Id&$skip=0&$top=30&searchTerm=''&targetFramework='net45'&includePrerelease=false";
 
+  public static final int VS_DEFAULT_PAGE_REQUEST_SIZE = 30;
+
   private List<Repository> repositories = new ArrayList<>();
 
   @Inject
@@ -105,11 +107,28 @@ public abstract class NugetITSupport
 
   protected List<Map<String, String>> parseFeedXml(final String entryXml) throws IOException, XmlPullParserException {
     final EntryList consumer = new EntryList();
-    FeedSplicer splicer = new FeedSplicer(consumer);
+    final FeedSplicer splicer = new FeedSplicer(consumer);
     try (InputStream is = IOUtils.toInputStream(entryXml, "UTF-8")) {
       splicer.consumePage(is);
     }
     return consumer.getEntries();
+  }
+
+  protected Integer parseInlineCount(final String entryXml) throws Exception, XmlPullParserException {
+    final EntryList consumer = new EntryList();
+    final FeedSplicer splicer = new FeedSplicer(consumer);
+    try (InputStream is = IOUtils.toInputStream(entryXml, "UTF-8")) {
+      splicer.consumePage(is);
+    }
+    return splicer.getCount();
+  }
+
+  protected String parseNextPageUrl(final String entryXml) throws Exception, XmlPullParserException {
+    final EntryList consumer = new EntryList();
+    final FeedSplicer splicer = new FeedSplicer(consumer);
+    try (InputStream is = IOUtils.toInputStream(entryXml, "UTF-8")) {
+      return splicer.consumePage(is);
+    }
   }
 
   public static class EntryList

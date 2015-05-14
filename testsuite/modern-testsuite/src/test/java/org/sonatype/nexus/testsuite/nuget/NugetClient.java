@@ -41,6 +41,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class NugetClient
     extends ComponentSupport
 {
+  public static final String VS_SEARCH_COUNT_TEMPLATE = "Search()/$count?$filter=IsAbsoluteLatestVersion&searchTerm='%s'&targetFramework='net45'&includePrerelease=true";
+
+  public static final String VS_SEARCH_FEED_TEMPLATE = "Search()?$filter=IsAbsoluteLatestVersion&$skip=0&$top=30&searchTerm='%s'&targetFramework='net45'&includePrerelease=true";
+
   private final HttpClient httpClient;
 
   private final HttpClientContext httpClientContext;
@@ -99,6 +103,13 @@ public class NugetClient
     return asString(entry(packageId, version));
   }
 
+  public String vsSearchFeedXml(final String searchTerm) throws IOException {
+    return feedXml(String.format(VS_SEARCH_FEED_TEMPLATE, searchTerm));
+  }
+
+  public int vsSearchCount(final String searchTerm) throws IOException {
+    return count(String.format(VS_SEARCH_COUNT_TEMPLATE, searchTerm));
+  }
 
   /**
    * Issues a delete request to the NuGet repository.
@@ -137,4 +148,6 @@ public class NugetClient
     log.info("Nuget client received {}", response);
     return response;
   }
+
+
 }

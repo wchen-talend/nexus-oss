@@ -14,6 +14,7 @@ package com.sonatype.nexus.repository.nuget.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -64,6 +65,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.xml.XmlEscapers;
 import org.eclipse.aether.util.version.GenericVersionScheme;
 import org.eclipse.aether.version.InvalidVersionSpecificationException;
 import org.eclipse.aether.version.Version;
@@ -180,6 +182,16 @@ public class NugetGalleryFacetImpl
         result.setCount(inlineCount);
       }
 
+      // TODO: Delete all this ================
+      {
+        List<Asset> allAssets = new ArrayList<>();
+        for (Asset a : storageTx.browseAssets(storageTx.getBucket())) {
+          allAssets.add(a);
+        }
+        System.err.println(allAssets.size());
+      }
+      // ======================================
+
       final ComponentQuery componentQuery = ODataUtils.query(query, false);
       final Iterable<Asset> assets = storageTx.findAssets(componentQuery.getWhere(),
           componentQuery.getParameters(), getRepositories(), componentQuery.getQuerySuffix());
@@ -217,10 +229,19 @@ public class NugetGalleryFacetImpl
     }
 
     if (result.getSkipLinkEntry() != null) {
-      xml.append("  <link rel=\"next\" href=\"").append(result.getBase()).append('/').append(result.getOperation());
-      xml.append("()?").append(ODataFeedUtils.skipLink(result.getSkipLinkEntry(), result.getQuery())).append("\"/>\n");
+      final String skipLink = odataLink(result.getBase(),
+          result.getOperation(),
+          ODataFeedUtils.skipLinkQueryString(result.getSkipLinkEntry(), result.getQuery()));
+
+      xml.append("  <link rel=\"next\" href=\"")
+          .append(XmlEscapers.xmlAttributeEscaper().escape(skipLink))
+          .append("\"/>\n");
     }
     return xml.append("</feed>").toString();
+  }
+
+  public String odataLink(final String base, final String operation, final String queryString) {
+    return String.format("%s/%s()?%s", base, operation, queryString);
   }
 
   @Override
