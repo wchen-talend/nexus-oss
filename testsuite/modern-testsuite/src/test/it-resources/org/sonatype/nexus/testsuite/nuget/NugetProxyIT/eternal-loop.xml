@@ -2,23 +2,22 @@
 <feed xml:base="https://www.nuget.org/api/v2/" xmlns="http://www.w3.org/2005/Atom"
       xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices"
       xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata">
-  <m:count>34098</m:count>
   <id>https://www.nuget.org/api/v2/Packages</id>
   <title type="text">Packages</title>
   <updated>2015-05-13T20:14:02Z</updated>
   <link rel="self" title="Packages" href="Packages"/>
   <entry>
-    <id>https://www.nuget.org/api/v2/Packages(Id='Newtonsoft.Json',Version='6.0.8')</id>
+    <id>https://www.nuget.org/api/v2/Packages(Id='endless',Version='6.0.8')</id>
     <category term="NuGetGallery.V2FeedPackage" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme"/>
-    <link rel="edit" title="V2FeedPackage" href="Packages(Id='Newtonsoft.Json',Version='6.0.8')"/>
-    <title type="text">Newtonsoft.Json</title>
+    <link rel="edit" title="V2FeedPackage" href="Packages(Id='endless',Version='6.0.8')"/>
+    <title type="text">endless</title>
     <summary type="text"></summary>
     <updated>2015-05-04T22:19:53Z</updated>
     <author>
       <name>James Newton-King</name>
     </author>
-    <link rel="edit-media" title="V2FeedPackage" href="Packages(Id='Newtonsoft.Json',Version='6.0.8')/$value"/>
-    <content type="application/zip" src="https://www.nuget.org/api/v2/package/Newtonsoft.Json/6.0.8"/>
+    <link rel="edit-media" title="V2FeedPackage" href="Packages(Id='endless',Version='6.0.8')/$value"/>
+    <content type="application/zip" src="https://www.nuget.org/api/v2/package/endless/6.0.8"/>
     <m:properties>
       <d:Version>6.0.8</d:Version>
       <d:NormalizedVersion>6.0.8</d:NormalizedVersion>
@@ -27,7 +26,7 @@
       <d:Dependencies></d:Dependencies>
       <d:Description>Json.NET is a popular high-performance JSON framework for .NET</d:Description>
       <d:DownloadCount m:type="Edm.Int32">13583504</d:DownloadCount>
-      <d:GalleryDetailsUrl>https://www.nuget.org/packages/Newtonsoft.Json/6.0.8</d:GalleryDetailsUrl>
+      <d:GalleryDetailsUrl>https://www.nuget.org/packages/endless/6.0.8</d:GalleryDetailsUrl>
       <d:IconUrl m:null="true"/>
       <d:IsLatestVersion m:type="Edm.Boolean">true</d:IsLatestVersion>
       <d:IsAbsoluteLatestVersion m:type="Edm.Boolean">false</d:IsAbsoluteLatestVersion>
@@ -39,7 +38,7 @@
       <d:PackageHashAlgorithm>SHA512</d:PackageHashAlgorithm>
       <d:PackageSize m:type="Edm.Int64">1562036</d:PackageSize>
       <d:ProjectUrl>http://james.newtonking.com/json</d:ProjectUrl>
-      <d:ReportAbuseUrl>https://www.nuget.org/package/ReportAbuse/Newtonsoft.Json/6.0.8</d:ReportAbuseUrl>
+      <d:ReportAbuseUrl>https://www.nuget.org/package/ReportAbuse/endless/6.0.8</d:ReportAbuseUrl>
       <d:ReleaseNotes m:null="true"/>
       <d:RequireLicenseAcceptance m:type="Edm.Boolean">false</d:RequireLicenseAcceptance>
       <d:Summary m:null="true"/>
@@ -48,11 +47,11 @@
       <d:VersionDownloadCount m:type="Edm.Int32">801757</d:VersionDownloadCount>
       <d:MinClientVersion m:null="true"/>
       <d:LastEdited m:type="Edm.DateTime" m:null="true"/>
-      <d:LicenseUrl>https://raw.github.com/JamesNK/Newtonsoft.Json/master/LICENSE.md</d:LicenseUrl>
+      <d:LicenseUrl>https://raw.github.com/JamesNK/endless/master/LICENSE.md</d:LicenseUrl>
       <d:LicenseNames>MIT</d:LicenseNames>
       <d:LicenseReportUrl></d:LicenseReportUrl>
     </m:properties>
   </entry>
   <link rel="next"
-        href="https://www.nuget.org/api/v2/Packages?$filter=IsLatestVersion&amp;$orderby=DownloadCount%20desc,Id&amp;$inlinecount=allpages&amp;$skiptoken=642197,'AjaxMin','AjaxMin','5.14.5506.26202'"/>
+        href="https://www.nuget.org/api/v2/Search"/>
 </feed>
