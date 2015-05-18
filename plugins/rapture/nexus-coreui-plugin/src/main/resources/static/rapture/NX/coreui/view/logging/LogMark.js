@@ -29,33 +29,32 @@ Ext.define('NX.coreui.view.logging.LogMark', {
   title: NX.I18n.get('ADMIN_LOG_VIEWER_MARK_TITLE'),
   defaultFocus: 'message',
 
-  items: {
-    xtype: 'nx-settingsform',
-    frame: false,
-    defaults: {
-      anchor: '100%'
-    },
-    settingsFormSuccessMessage: NX.I18n.get('ADMIN_LOG_VIEWER_MARK_SUCCESS'),
-    settingsFormSubmitOnEnter: true,
-    editableMarker: NX.I18n.get('ADMIN_LOG_VIEWER_MARK_ERROR'),
-    items: [
-      {
-        xtype: 'textfield',
-        name: 'message',
-        itemId: 'message',
-        fieldLabel: NX.I18n.get('ADMIN_LOG_VIEWER_MARK_MESSAGE'),
-        allowBlank: false
-      }
-    ]
-  },
-
   /**
    * @override
    */
   initComponent: function () {
     var me = this;
 
-    me.editableCondition = NX.Conditions.isPermitted('nexus:logconfig', 'update');
+    me.items = {
+      xtype: 'nx-settingsform',
+      frame: false,
+      defaults: {
+        anchor: '100%'
+      },
+      settingsFormSuccessMessage: NX.I18n.get('ADMIN_LOG_VIEWER_MARK_SUCCESS'),
+      settingsFormSubmitOnEnter: true,
+      editableMarker: NX.I18n.get('ADMIN_LOG_VIEWER_MARK_ERROR'),
+      editableCondition: NX.Conditions.isPermitted('nexus:logconfig', 'update'),
+      items: [
+        {
+          xtype: 'textfield',
+          name: 'message',
+          itemId: 'message',
+          fieldLabel: NX.I18n.get('ADMIN_LOG_VIEWER_MARK_MESSAGE'),
+          allowBlank: false
+        }
+      ]
+    };
 
     me.items.buttons = [
       { text: NX.I18n.get('ADMIN_LOG_VIEWER_MARK_BUTTON'), action: 'add', formBind: true, ui: 'nx-primary', bindToEnter: me.items.settingsFormSubmitOnEnter },
