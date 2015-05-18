@@ -35,6 +35,7 @@ import org.sonatype.nexus.repository.types.HostedType;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Supplier;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.tx.OTransaction.TXTYPE;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -163,7 +164,7 @@ public class StorageFacetImpl
   @Override
   protected void doDelete() throws Exception {
     // TODO: Make this a soft delete and cleanup later so it doesn't block for large repos.
-    try (StorageTx tx = openStorageTx()) {
+    try (StorageTx tx = openStorageTx(null)) {
       tx.deleteBucket(tx.getBucket());
     }
   }
@@ -185,17 +186,34 @@ public class StorageFacetImpl
   @Override
   @Guarded(by = STARTED)
   public StorageTx openTx() {
-    return openStorageTx();
+    return openStorageTx(null);
   }
 
-  private StorageTx openStorageTx() {
-    BlobStore blobStore = blobStoreManager.get(config.blobStoreName);
+  @Override
+  @Guarded(by = STARTED)
+  public StorageTx openTx(final ODatabaseDocumentTx db) {
+    checkNotNull(db);
+    return openStorageTx(db);
+  }
+
+  private ODatabaseDocumentTx acquireDb() {
+    final ODatabaseDocumentTx db = databaseInstanceProvider.get().acquire();
+    db.begin(TXTYPE.OPTIMISTIC);
+    return db;
+  }
+
+  private StorageTx openStorageTx(final ODatabaseDocumentTx db) {
+    ODatabaseDocumentTx database = db;
+    if (database == null) {
+      database = acquireDb();
+    }
     final List<StorageTxHook> hooks = new ArrayList<>(hookSuppliers.size());
     for (Supplier<StorageTxHook> hookSupplier : hookSuppliers) {
       hooks.add(hookSupplier.get());
     }
+    BlobStore blobStore = blobStoreManager.get(config.blobStoreName);
     return StateGuardAspect.around(new StorageTxImpl(
-        new BlobTx(blobStore), databaseInstanceProvider.get().acquire(), bucket, config.writePolicy,
+        new BlobTx(blobStore), database, db == null, bucket, config.writePolicy,
         writePolicySelector, bucketEntityAdapter, componentEntityAdapter, assetEntityAdapter, new StorageTxHooks(hooks)
     ));
   }

@@ -65,6 +65,8 @@ public class StorageTxImpl
 
   private final ODatabaseDocumentTx db;
 
+  private final boolean dbClose;
+
   private final Bucket bucket;
 
   private final WritePolicy writePolicy;
@@ -83,6 +85,7 @@ public class StorageTxImpl
 
   public StorageTxImpl(final BlobTx blobTx,
                        final ODatabaseDocumentTx db,
+                       final boolean dbClose,
                        final Bucket bucket,
                        final WritePolicy writePolicy,
                        final WritePolicySelector writePolicySelector,
@@ -93,6 +96,7 @@ public class StorageTxImpl
   {
     this.blobTx = checkNotNull(blobTx);
     this.db = checkNotNull(db);
+    this.dbClose = dbClose;
     this.bucket = checkNotNull(bucket);
     this.writePolicy = writePolicy;
     this.writePolicySelector = checkNotNull(writePolicySelector);
@@ -100,8 +104,6 @@ public class StorageTxImpl
     this.componentEntityAdapter = checkNotNull(componentEntityAdapter);
     this.assetEntityAdapter = checkNotNull(assetEntityAdapter);
     this.hook = checkNotNull(hook);
-
-    db.begin(TXTYPE.OPTIMISTIC);
   }
 
   public static final class State
@@ -150,7 +152,9 @@ public class StorageTxImpl
       rollback();
     }
 
-    db.close(); // rolls back and releases ODatabaseDocumentTx to pool
+    if (dbClose) {
+      db.close(); // rolls back and releases ODatabaseDocumentTx to pool
+    }
     blobTx.rollback(); // no-op if no changes have occurred since last commit
   }
 
