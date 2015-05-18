@@ -109,11 +109,11 @@ public class MetadataRebuilder
     final Map<String, Object> sqlParams = Maps.newHashMap();
     buildSql(sql, sqlParams, groupId, artifactId, baseVersion);
 
-    try (StorageTx tx = repository.facet(StorageFacet.class).openTx()) {
-      final ORID bucketOrid = bucketEntityAdapter.recordIdentity(tx.getBucket());
-      sqlParams.put("bucket", bucketOrid);
-    }
     try (ODatabaseDocumentTx db = databaseInstanceProvider.get().acquire()) {
+      try (StorageTx tx = repository.facet(StorageFacet.class).openTx(db)) {
+        final ORID bucketOrid = bucketEntityAdapter.recordIdentity(tx.getBucket());
+        sqlParams.put("bucket", bucketOrid);
+      }
       final Worker worker = new Worker(db, repository, update, sql.toString(), sqlParams);
       worker.rebuildMetadata();
     }
@@ -238,9 +238,11 @@ public class MetadataRebuilder
     }
 
     /**
-     * Opens StoragTx and begins OrientDB TX.
+     * Opens StorageTx and begins OrientDB TX.
      */
     private StorageTx startTx() {
+      log.debug("startTx");
+      checkArgument(!db.getTransaction().isActive(), "Nested DB TX!");
       db.begin(TXTYPE.OPTIMISTIC);
       return storageFacet.openTx(db);
     }
