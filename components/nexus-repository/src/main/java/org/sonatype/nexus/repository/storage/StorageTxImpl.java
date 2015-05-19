@@ -69,6 +69,8 @@ public class StorageTxImpl
 
   private final WritePolicy writePolicy;
 
+  private final WritePolicySelector writePolicySelector;
+
   private final StateGuard stateGuard = new StateGuard.Builder().initial(OPEN).create();
 
   private final BucketEntityAdapter bucketEntityAdapter;
@@ -77,21 +79,27 @@ public class StorageTxImpl
 
   private final AssetEntityAdapter assetEntityAdapter;
 
+  private final StorageTxHook hook;
+
   public StorageTxImpl(final BlobTx blobTx,
                        final ODatabaseDocumentTx db,
                        final Bucket bucket,
                        final WritePolicy writePolicy,
+                       final WritePolicySelector writePolicySelector,
                        final BucketEntityAdapter bucketEntityAdapter,
                        final ComponentEntityAdapter componentEntityAdapter,
-                       final AssetEntityAdapter assetEntityAdapter)
+                       final AssetEntityAdapter assetEntityAdapter,
+                       final StorageTxHook hook)
   {
     this.blobTx = checkNotNull(blobTx);
     this.db = checkNotNull(db);
     this.bucket = checkNotNull(bucket);
     this.writePolicy = writePolicy;
+    this.writePolicySelector = checkNotNull(writePolicySelector);
     this.bucketEntityAdapter = checkNotNull(bucketEntityAdapter);
     this.componentEntityAdapter = checkNotNull(componentEntityAdapter);
     this.assetEntityAdapter = checkNotNull(assetEntityAdapter);
+    this.hook = checkNotNull(hook);
 
     db.begin(TXTYPE.OPTIMISTIC);
   }
@@ -122,6 +130,7 @@ public class StorageTxImpl
   public void commit() {
     db.commit();
     blobTx.commit();
+    hook.postCommit();
   }
 
   @Override
@@ -129,6 +138,7 @@ public class StorageTxImpl
   public void rollback() {
     db.rollback();
     blobTx.rollback();
+    hook.postRollback();
   }
 
   @Override
@@ -300,9 +310,11 @@ public class StorageTxImpl
   public void saveComponent(final Component component) {
     if (component.isPersisted()) {
       componentEntityAdapter.edit(db, component);
+      hook.updateComponent(component);
     }
     else {
       componentEntityAdapter.add(db, component);
+      hook.createComponent(component);
     }
   }
 
@@ -310,9 +322,11 @@ public class StorageTxImpl
   public void saveAsset(final Asset asset) {
     if (asset.isPersisted()) {
       assetEntityAdapter.edit(db, asset);
+      hook.updateAsset(asset);
     }
     else {
       assetEntityAdapter.add(db, asset);
+      hook.createAsset(asset);
     }
   }
 
@@ -326,24 +340,26 @@ public class StorageTxImpl
     checkNotNull(component);
 
     for (Asset asset : browseAssets(component)) {
-      deleteAsset(asset, checkWritePolicy);
+      deleteAsset(asset, checkWritePolicy ? writePolicySelector.select(asset, writePolicy) : null);
     }
+    hook.deleteComponent(component);
     componentEntityAdapter.delete(db, component);
   }
 
   @Override
   @Guarded(by = OPEN)
   public void deleteAsset(Asset asset) {
-    deleteAsset(asset, true);
+    deleteAsset(asset, writePolicySelector.select(asset, writePolicy));
   }
 
-  private void deleteAsset(final Asset asset, final boolean checkWritePolicy) {
+  private void deleteAsset(final Asset asset, @Nullable final WritePolicy effectiveWritePolicy) {
     checkNotNull(asset);
 
     BlobRef blobRef = asset.blobRef();
     if (blobRef != null) {
-      deleteBlob(blobRef, checkWritePolicy);
+      deleteBlob(blobRef, effectiveWritePolicy);
     }
+    hook.deleteAsset(asset);
     assetEntityAdapter.delete(db, asset);
   }
 
@@ -366,7 +382,7 @@ public class StorageTxImpl
 
     // then delete all standalone assets
     for (Asset asset : browseAssets(bucket)) {
-      deleteAsset(asset, false);
+      deleteAsset(asset, null);
       count++;
       if (count == DELETE_BATCH_SIZE) {
         commit();
@@ -403,17 +419,18 @@ public class StorageTxImpl
     checkNotNull(hashAlgorithms);
     checkNotNull(contentType);
 
-    if (writePolicy == WritePolicy.DENY) {
-      throw new IllegalOperationException("Repository is read only.");
+    final WritePolicy effectiveWritePolicy = writePolicySelector.select(asset, writePolicy);
+    if (effectiveWritePolicy == WritePolicy.DENY) {
+      throw new IllegalOperationException("Repository is read only: " + getBucket().repositoryName());
     }
 
     // Delete old blob if necessary
     BlobRef oldBlobRef = asset.blobRef();
     if (oldBlobRef != null) {
-      if (writePolicy == WritePolicy.ALLOW_ONCE) {
-        throw new IllegalOperationException("Repository does not allow updating assets.");
+      if (effectiveWritePolicy == WritePolicy.ALLOW_ONCE) {
+        throw new IllegalOperationException("Repository does not allow updating assets: " + getBucket().repositoryName());
       }
-      deleteBlob(oldBlobRef, true);
+      deleteBlob(oldBlobRef, effectiveWritePolicy);
     }
 
     // Store new blob while calculating hashes in one pass
@@ -451,10 +468,13 @@ public class StorageTxImpl
     return blob;
   }
 
-  private void deleteBlob(final BlobRef blobRef, boolean checkWritePolicy) {
+  /**
+   * Deletes a blob w/ enforcing {@link WritePolicy} if not {@code null}. otherwise write policy will NOT be checked.
+   */
+  private void deleteBlob(final BlobRef blobRef, @Nullable WritePolicy effectiveWritePolicy) {
     checkNotNull(blobRef);
-    if (checkWritePolicy && writePolicy == WritePolicy.DENY) {
-      throw new IllegalOperationException("Repository is read only.");
+    if (effectiveWritePolicy != null && effectiveWritePolicy == WritePolicy.DENY) {
+      throw new IllegalOperationException("Repository is read only: " + getBucket().repositoryName());
     }
     blobTx.delete(blobRef);
   }

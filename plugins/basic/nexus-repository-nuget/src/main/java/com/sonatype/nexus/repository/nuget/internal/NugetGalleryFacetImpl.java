@@ -42,14 +42,9 @@ import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.config.Configuration;
 import org.sonatype.nexus.repository.group.GroupFacet;
 import org.sonatype.nexus.repository.proxy.ProxyFacet;
-import org.sonatype.nexus.repository.search.SearchFacet;
-import org.sonatype.nexus.repository.search.SearchItemId;
 import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.Bucket;
 import org.sonatype.nexus.repository.storage.Component;
-import org.sonatype.nexus.repository.storage.ComponentCreatedEvent;
-import org.sonatype.nexus.repository.storage.ComponentDeletedEvent;
-import org.sonatype.nexus.repository.storage.ComponentUpdatedEvent;
 import org.sonatype.nexus.repository.storage.StorageFacet;
 import org.sonatype.nexus.repository.storage.StorageTx;
 import org.sonatype.nexus.repository.types.HostedType;
@@ -238,7 +233,6 @@ public class NugetGalleryFacetImpl
     try (StorageTx tx = openStorageTx()) {
       final Component component = createOrUpdatePackage(tx, metadata);
       tx.commit();
-      getRepository().facet(SearchFacet.class).put(component);
     }
     // Separate tx is necessary for the meantime, since the re-querying orient doesn't pick up uncommitted state
     try (StorageTx tx = openStorageTx()) {
@@ -336,17 +330,7 @@ public class NugetGalleryFacetImpl
       }
 
       componentId = recordMetadata.get(ID);
-
-      boolean isNew = component.isNew();  // must check before commit
       storageTx.commit();
-      getRepository().facet(SearchFacet.class).put(component);
-
-      if (isNew) {
-        getEventBus().post(new ComponentCreatedEvent(component, getRepository()));
-      }
-      else {
-        getEventBus().post(new ComponentUpdatedEvent(component, getRepository()));
-      }
     }
 
     if (componentId != null) {
@@ -404,13 +388,8 @@ public class NugetGalleryFacetImpl
       if (component == null) {
         return false;
       }
-      final SearchItemId searchId = facet(SearchFacet.class).identifier(component);
       tx.deleteComponent(component);
       tx.commit();
-
-      facet(SearchFacet.class).delete(searchId);
-
-      getEventBus().post(new ComponentDeletedEvent(component, getRepository()));
       return true;
     }
   }

@@ -41,7 +41,7 @@ Ext.define('NX.coreui.view.system.HttpSettings', {
           load: 'NX.direct.coreui_HttpSettings.read',
           submit: 'NX.direct.coreui_HttpSettings.update'
         },
-        editableCondition: NX.Conditions.isPermitted('nexus:settings', 'update'),
+        editableCondition: NX.Conditions.isPermitted('nexus:settings:update'),
         editableMarker: NX.I18n.get('ADMIN_HTTP_UPDATE_ERROR'),
         items: [
           // request settings
@@ -81,13 +81,6 @@ Ext.define('NX.coreui.view.system.HttpSettings', {
                   xtype: 'nx-coreui-system-authenticationsettings',
                   namePrefix: 'http'
                 }
-              },
-              {
-                xtype: 'nx-valueset',
-                name: 'nonProxyHosts',
-                fieldLabel: NX.I18n.get('ADMIN_HTTP_PROXY_NON_PROXY'),
-                helpText: NX.I18n.get('ADMIN_HTTP_PROXY_NON_PROXY_HELP'),
-                sorted: true
               }
             ]
           },
@@ -129,6 +122,15 @@ Ext.define('NX.coreui.view.system.HttpSettings', {
                 }
               }
             ]
+          },
+          {
+            xtype: 'nx-valueset',
+            name: 'nonProxyHosts',
+            itemId: 'nonProxyHosts',
+            fieldLabel: NX.I18n.get('ADMIN_NON_PROXY_HOSTS'),
+            helpText: NX.I18n.get('ADMIN_NON_PROXY_HOSTS_HELP'),
+            sorted: true,
+            allowBlank: true
           }
         ]
       }

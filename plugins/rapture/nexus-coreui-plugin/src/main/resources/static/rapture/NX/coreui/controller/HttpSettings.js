@@ -45,7 +45,7 @@ Ext.define('NX.coreui.controller.HttpSettings', {
         variants: ['x16', 'x32']
       },
       visible: function () {
-        return NX.Permissions.check('nexus:settings', 'read');
+        return NX.Permissions.check('nexus:settings:read');
       }
     }, me);
 
@@ -63,14 +63,20 @@ Ext.define('NX.coreui.controller.HttpSettings', {
    * Enable HTTPS proxy settings only when HTTP proxy settings are enabled.
    */
   onHttpEnabledChanged: function (httpEnabled) {
-    var httpsProxy = httpEnabled.up('form').down('#httpsProxy');
+    var form = httpEnabled.up('form'),
+        httpsProxy = form.down('#httpsProxy'),
+        nonProxyHosts = form.down('#nonProxyHosts');
 
     if (!httpEnabled.getValue()) {
       httpsProxy.collapse();
       httpsProxy.disable();
+      nonProxyHosts.hide();
+      nonProxyHosts.disable();
     }
     else if (httpsProxy.isDisabled()) {
       httpsProxy.enable();
+      nonProxyHosts.enable();
+      nonProxyHosts.show();
     }
   }
 

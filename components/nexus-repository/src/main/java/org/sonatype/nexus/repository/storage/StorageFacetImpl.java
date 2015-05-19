@@ -13,6 +13,9 @@
 
 package org.sonatype.nexus.repository.storage;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
@@ -30,9 +33,12 @@ import org.sonatype.nexus.repository.config.ConfigurationFacet;
 import org.sonatype.nexus.repository.types.HostedType;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Supplier;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import org.hibernate.validator.constraints.NotEmpty;
+
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.sonatype.nexus.common.stateguard.StateGuardLifecycleSupport.State.NEW;
 import static org.sonatype.nexus.common.stateguard.StateGuardLifecycleSupport.State.STARTED;
 
 /**
@@ -54,6 +60,8 @@ public class StorageFacetImpl
   private final ComponentEntityAdapter componentEntityAdapter;
 
   private final AssetEntityAdapter assetEntityAdapter;
+
+  private final List<Supplier<StorageTxHook>> hookSuppliers;
 
   @VisibleForTesting
   static final String CONFIG_KEY = "storage";
@@ -80,6 +88,8 @@ public class StorageFacetImpl
 
   private Bucket bucket;
 
+  private WritePolicySelector writePolicySelector;
+
   @Inject
   public StorageFacetImpl(final BlobStoreManager blobStoreManager,
                           final @Named(ComponentDatabase.NAME) Provider<DatabaseInstance> databaseInstanceProvider,
@@ -93,6 +103,15 @@ public class StorageFacetImpl
     this.bucketEntityAdapter = checkNotNull(bucketEntityAdapter);
     this.componentEntityAdapter = checkNotNull(componentEntityAdapter);
     this.assetEntityAdapter = checkNotNull(assetEntityAdapter);
+
+    this.hookSuppliers = new ArrayList<>();
+    this.hookSuppliers.add(new Supplier<StorageTxHook>()
+    {
+      @Override
+      public StorageTxHook get() {
+        return new EventsHook(getEventBus(), getRepository());
+      }
+    });
   }
 
   @Override
@@ -112,6 +131,7 @@ public class StorageFacetImpl
   protected void doInit(final Configuration configuration) throws Exception {
     initSchema();
     initBucket();
+    writePolicySelector = WritePolicySelector.DEFAULT;
     super.doInit(configuration);
   }
 
@@ -149,6 +169,20 @@ public class StorageFacetImpl
   }
 
   @Override
+  @Guarded(by = NEW)
+  public void registerHookSupplier(final Supplier<StorageTxHook> hookSupplier) {
+    checkNotNull(hookSupplier);
+    hookSuppliers.add(hookSupplier);
+  }
+
+  @Override
+  @Guarded(by = NEW)
+  public void registerWritePolicySelector(final WritePolicySelector writePolicySelector) {
+    checkNotNull(writePolicySelector);
+    this.writePolicySelector = writePolicySelector;
+  }
+
+  @Override
   @Guarded(by = STARTED)
   public StorageTx openTx() {
     return openStorageTx();
@@ -156,9 +190,13 @@ public class StorageFacetImpl
 
   private StorageTx openStorageTx() {
     BlobStore blobStore = blobStoreManager.get(config.blobStoreName);
+    final List<StorageTxHook> hooks = new ArrayList<>(hookSuppliers.size());
+    for (Supplier<StorageTxHook> hookSupplier : hookSuppliers) {
+      hooks.add(hookSupplier.get());
+    }
     return StateGuardAspect.around(new StorageTxImpl(
         new BlobTx(blobStore), databaseInstanceProvider.get().acquire(), bucket, config.writePolicy,
-        bucketEntityAdapter, componentEntityAdapter, assetEntityAdapter
+        writePolicySelector, bucketEntityAdapter, componentEntityAdapter, assetEntityAdapter, new StorageTxHooks(hooks)
     ));
   }
 

@@ -23,6 +23,7 @@ import java.util.regex.PatternSyntaxException;
 import javax.annotation.Nullable;
 
 import org.sonatype.nexus.httpclient.HttpClientPlan;
+import org.sonatype.nexus.httpclient.SSLContextSelector;
 import org.sonatype.nexus.httpclient.internal.NexusHttpRoutePlanner;
 import org.sonatype.sisu.goodies.common.ComponentSupport;
 
@@ -89,9 +90,9 @@ public class ConfigurationCustomizer
 
     // TODO: user-agent (and/or custom headers?)
 
-    // TODO: query-string? (or don't do this, it may not bee a good idea anymore)
-
-    // TODO: SSL trust-store (and/or custom context attributes)?
+    if (Boolean.TRUE.equals(connection.getUseTrustStore())) {
+      plan.getAttributes().put(SSLContextSelector.USE_TRUST_STORE, Boolean.TRUE);
+    }
   }
 
   /**

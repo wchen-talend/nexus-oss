@@ -27,6 +27,7 @@ import com.sonatype.nexus.ssl.model.TrustStoreKey;
 import com.sonatype.nexus.ssl.plugin.TrustStore;
 
 import org.sonatype.nexus.common.app.NexusStoppedEvent;
+import org.sonatype.nexus.common.text.Strings2;
 import org.sonatype.nexus.ldap.internal.connector.DefaultLdapConnector;
 import org.sonatype.nexus.ldap.internal.connector.FailoverLdapConnector;
 import org.sonatype.nexus.ldap.internal.connector.LdapConnector;
@@ -52,7 +53,6 @@ import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.realm.ldap.LdapContextFactory;
-import org.codehaus.plexus.util.StringUtils;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.sonatype.nexus.ldap.model.LdapTrustStoreKey.ldapTrustStoreKey;
@@ -105,7 +105,7 @@ public class EnterpriseLdapManager
       // first build the connector
       LdapConnector testLdapConnector =
           new DefaultLdapConnector(ldapServer.getId(), this.ldapUserManager, this.ldapGroupManager,
-              this.getLdapContextFactory(ldapServer, false),
+              this.getLdapContextFactory(ldapServer),
               this.getLdapAuthConfiguration(ldapServer));
 
       LdapUser user = testLdapConnector.getUser(userId);
@@ -306,36 +306,23 @@ public class EnterpriseLdapManager
         // first get the connector for the server
         LdapConnector originalLdapConnector =
             new DefaultLdapConnector(ldapServer.getId(), ldapUserManager, ldapGroupManager,
-                getLdapContextFactory(ldapServer, false),
+                getLdapContextFactory(ldapServer),
                 getLdapAuthConfiguration(ldapServer));
-
-        LdapConnector backupLdapConnector = null;
-
-        // if we have a backup mirror defined we need to include that
-        if (ldapServer.getConnection().getBackupHost() != null) {
-          backupLdapConnector =
-              new DefaultLdapConnector(ldapServer.getId(), ldapUserManager, ldapGroupManager,
-                  getLdapContextFactory(ldapServer, true),
-                  getLdapAuthConfiguration(ldapServer));
-        }
 
         ldapConnectors.add(new FailoverLdapConnector(
             originalLdapConnector,
-            backupLdapConnector,
+            null,
             ldapServer.getConnection().getConnectionRetryDelay(),
             ldapServer.getConnection().getMaxIncidentsCount()));
-
       }
     }
     return this.ldapConnectors;
   }
 
-  private LdapContextFactory getLdapContextFactory(LdapConfiguration ldapServer, boolean useBackupUrl)
+  private LdapContextFactory getLdapContextFactory(LdapConfiguration ldapServer)
       throws LdapDAOException
   {
-    final DefaultLdapContextFactory ldapContextFactory = LdapConnectionUtils.getLdapContextFactory(
-        ldapServer, useBackupUrl
-    );
+    final DefaultLdapContextFactory ldapContextFactory = LdapConnectionUtils.getLdapContextFactory(ldapServer);
     final TrustStoreKey key = ldapTrustStoreKey(ldapServer.getId() == null ? "<unknown>" : ldapServer.getId());
     if (Protocol.ldaps == ldapServer.getConnection().getHost().getProtocol()) {
       final SSLContext sslContext = trustStore.getSSLContextFor(key);
@@ -362,7 +349,7 @@ public class EnterpriseLdapManager
                                 LdapConfiguration ldapServer)
       throws LdapServerNotFoundException, AuthenticationException, LdapDAOException
   {
-    if (StringUtils.isEmpty(ldapServer.getMapping().getUserPasswordAttribute())) {
+    if (Strings2.isEmpty(ldapServer.getMapping().getUserPasswordAttribute())) {
       // auth with bind
       log.debug("Checking auth with bind for ldap user: {}", ldapUser.getUsername());
       ldapAuthenticator.authenticateUserWithBind(ldapUser, password, ldapConnector.getLdapContextFactory(),

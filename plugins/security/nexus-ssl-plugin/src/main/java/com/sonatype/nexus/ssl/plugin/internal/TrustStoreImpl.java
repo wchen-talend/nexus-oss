@@ -34,7 +34,6 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 import com.sonatype.nexus.ssl.model.TrustStoreKey;
-import com.sonatype.nexus.ssl.plugin.SSLPlugin;
 import com.sonatype.nexus.ssl.plugin.TrustStore;
 
 import org.sonatype.sisu.goodies.common.ComponentSupport;
@@ -44,7 +43,7 @@ import org.sonatype.sisu.goodies.ssl.keystore.KeystoreException;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Sets;
-import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -74,7 +73,7 @@ public class TrustStoreImpl
 
   @Inject
   public TrustStoreImpl(
-      final @Named(SSLPlugin.ID_PREFIX) KeyStoreManager keyStoreManager)
+      final @Named(SSLConstants.ID_PREFIX) KeyStoreManager keyStoreManager)
       throws Exception
   {
     this.keyStoreManager = checkNotNull(keyStoreManager);
@@ -139,7 +138,7 @@ public class TrustStoreImpl
     SSLContext _sslcontext = this.sslcontext; // local variable allows concurrent removeTrustCertificate
     if (_sslcontext == null) {
       try {
-        _sslcontext = SSLContext.getInstance(SSLSocketFactory.TLS);
+        _sslcontext = SSLContext.getInstance(SSLConnectionSocketFactory.TLS);
         _sslcontext.init(keyManagers, trustManagers, DEFAULT_RANDOM);
         this.sslcontext = _sslcontext;
       }
