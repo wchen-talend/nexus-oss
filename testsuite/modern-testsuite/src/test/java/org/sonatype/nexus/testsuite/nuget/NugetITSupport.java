@@ -39,6 +39,7 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.options.WrappedUrlProvisionOption.OverwriteMode;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
 
 /**
@@ -66,8 +67,7 @@ public abstract class NugetITSupport
         withHttps(),
         wrappedBundle(maven("org.apache.httpcomponents", "httpmime").versionAsInProject())
             .overwriteManifest(OverwriteMode.FULL).instructions("DynamicImport-Package=*"),
-        wrappedBundle(maven("org.sonatype.http-testing-harness", "server-provider").versionAsInProject())
-            .overwriteManifest(OverwriteMode.FULL).instructions("DynamicImport-Package=*")
+        mavenBundle("org.sonatype.http-testing-harness", "server-provider").versionAsInProject()
     );
   }
 
