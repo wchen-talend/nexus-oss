@@ -70,6 +70,8 @@ public interface CapabilityDescriptor
    */
   String about();
 
+  void validate(Map<String, String> properties, ValidationMode validationMode);
+
   /**
    * Validator to be used to validate capability properties before a capability is created.
    *
@@ -102,5 +104,10 @@ public interface CapabilityDescriptor
    * @return converted
    */
   Map<String, String> convert(Map<String, String> properties, int fromVersion);
+
+  enum ValidationMode
+  {
+    CREATE, UPDATE, LOAD
+  }
 
 }

@@ -12,15 +12,20 @@
  */
 package org.sonatype.nexus.capability.support;
 
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Provider;
+import javax.validation.ConstraintViolation;
 
 import org.sonatype.nexus.capability.CapabilityDescriptor;
 import org.sonatype.nexus.capability.CapabilityIdentity;
 import org.sonatype.nexus.capability.Validator;
 import org.sonatype.nexus.capability.support.validator.Validators;
+import org.sonatype.nexus.validation.ConstraintViolations;
 import org.sonatype.sisu.goodies.common.ComponentSupport;
 import org.sonatype.sisu.goodies.template.TemplateEngine;
 import org.sonatype.sisu.goodies.template.TemplateParameters;
@@ -103,6 +108,14 @@ public abstract class CapabilityDescriptorSupport
     this.validators = checkNotNull(validators);
   }
 
+  private Provider<javax.validation.Validator> validatorProvider;
+
+  @Inject
+  public void installValidationComponents(final Provider<javax.validation.Validator> validatorProvider) {
+    checkState(this.validatorProvider == null);
+    this.validatorProvider = checkNotNull(validatorProvider);
+  }
+
   protected Validators validators() {
     checkState(validators != null);
     return validators;
@@ -116,6 +129,24 @@ public abstract class CapabilityDescriptorSupport
   @Override
   public Validator validator(final CapabilityIdentity id) {
     return null;
+  }
+
+  @Override
+  public void validate(final Map<String, String> properties, final ValidationMode validationMode) {
+    // do nothing
+  }
+
+  protected void validate(final Object value, final Class<?>... groups) {
+    checkNotNull(value);
+    checkNotNull(groups);
+
+    if (log.isTraceEnabled()) {
+      log.trace("Validating: {} in groups: {}", value, Arrays.asList(groups));
+    }
+
+    javax.validation.Validator validator = validatorProvider.get();
+    Set<ConstraintViolation<Object>> violations = validator.validate(value, groups);
+    ConstraintViolations.maybePropagate(violations, log);
   }
 
   //
