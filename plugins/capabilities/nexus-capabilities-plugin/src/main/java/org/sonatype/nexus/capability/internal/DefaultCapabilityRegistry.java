@@ -128,7 +128,7 @@ public class DefaultCapabilityRegistry
 
       final CapabilityDescriptor descriptor = capabilityDescriptorRegistry.get(type);
 
-      descriptor.validate(properties, ValidationMode.CREATE);
+      descriptor.validate(props, ValidationMode.CREATE);
 
       final Map<String, String> encryptedProps = encryptValuesIfNeeded(descriptor, props);
 
@@ -170,7 +170,7 @@ public class DefaultCapabilityRegistry
 
       final DefaultCapabilityReference reference = get(id);
 
-      reference.descriptor().validate(properties, ValidationMode.UPDATE);
+      reference.descriptor().validate(props, ValidationMode.UPDATE);
 
       final Map<String, String> encryptedProps = encryptValuesIfNeeded(reference.descriptor(), props);
 
