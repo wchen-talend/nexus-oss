@@ -24,6 +24,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Singleton;
+import javax.validation.Validator;
 
 import org.sonatype.nexus.capability.Capability;
 import org.sonatype.nexus.capability.CapabilityDescriptor;
@@ -80,7 +81,7 @@ public class DefaultCapabilityRegistry
 
   private final PasswordHelper passwordHelper;
 
-  private final Provider<javax.validation.Validator> validatorProvider;
+  private final Provider<Validator> validatorProvider;
 
   private final Map<CapabilityIdentity, DefaultCapabilityReference> references;
 
@@ -94,7 +95,7 @@ public class DefaultCapabilityRegistry
                             final ActivationConditionHandlerFactory activationConditionHandlerFactory,
                             final ValidityConditionHandlerFactory validityConditionHandlerFactory,
                             final PasswordHelper passwordHelper,
-                            final Provider<javax.validation.Validator> validatorProvider)
+                            final Provider<Validator> validatorProvider)
   {
     this.capabilityStorage = checkNotNull(capabilityStorage);
     this.capabilityFactoryRegistry = checkNotNull(capabilityFactoryRegistry);

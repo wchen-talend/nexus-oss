@@ -20,12 +20,10 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
 import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
 import javax.validation.groups.Default;
 
 import org.sonatype.nexus.capability.CapabilityDescriptor;
-import org.sonatype.nexus.capability.CapabilityIdentity;
-import org.sonatype.nexus.capability.Validator;
-import org.sonatype.nexus.capability.support.validator.Validators;
 import org.sonatype.nexus.validation.ConstraintViolations;
 import org.sonatype.nexus.validation.group.Create;
 import org.sonatype.nexus.validation.group.Update;
@@ -99,39 +97,12 @@ public abstract class CapabilityDescriptorSupport<ConfigT>
     return properties;
   }
 
-  //
-  // Validation support
-  //
-
-  private Validators validators;
+  private Provider<Validator> validatorProvider;
 
   @Inject
-  public void installValidationComponents(final Validators validators) {
-    checkState(this.validators == null);
-    this.validators = checkNotNull(validators);
-  }
-
-  private Provider<javax.validation.Validator> validatorProvider;
-
-  @Inject
-  public void installValidationComponents(final Provider<javax.validation.Validator> validatorProvider) {
+  public void installValidationComponents(final Provider<Validator> validatorProvider) {
     checkState(this.validatorProvider == null);
     this.validatorProvider = checkNotNull(validatorProvider);
-  }
-
-  protected Validators validators() {
-    checkState(validators != null);
-    return validators;
-  }
-
-  @Override
-  public Validator validator() {
-    return null;
-  }
-
-  @Override
-  public Validator validator(final CapabilityIdentity id) {
-    return null;
   }
 
   @Override
@@ -155,7 +126,7 @@ public abstract class CapabilityDescriptorSupport<ConfigT>
       log.trace("Validating: {} in groups: {}", value, Arrays.asList(groups));
     }
 
-    javax.validation.Validator validator = validatorProvider.get();
+    Validator validator = validatorProvider.get();
     Set<ConstraintViolation<Object>> violations = validator.validate(value, groups);
     ConstraintViolations.maybePropagate(violations, log);
   }

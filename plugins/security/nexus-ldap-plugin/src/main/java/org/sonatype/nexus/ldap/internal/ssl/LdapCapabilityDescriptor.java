@@ -27,13 +27,11 @@ import org.sonatype.nexus.capability.Tag;
 import org.sonatype.nexus.capability.Taggable;
 import org.sonatype.nexus.capability.support.CapabilityDescriptorSupport;
 import org.sonatype.nexus.formfields.FormField;
-import org.sonatype.nexus.ldap.internal.capabilities.LdapValidators;
 import org.sonatype.sisu.goodies.i18n.I18N;
 import org.sonatype.sisu.goodies.i18n.MessageBundle;
 
 import com.google.common.collect.Lists;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static org.sonatype.nexus.capability.CapabilityType.capabilityType;
 import static org.sonatype.nexus.capability.Tag.categoryTag;
 import static org.sonatype.nexus.capability.Tag.tags;
@@ -62,9 +60,7 @@ public class LdapCapabilityDescriptor
    */
   public static final CapabilityType TYPE = capabilityType(TYPE_ID);
 
-  private final LdapValidators ldapValidators;
-
-  private static interface Messages
+  private interface Messages
       extends MessageBundle
   {
 
@@ -84,9 +80,7 @@ public class LdapCapabilityDescriptor
   private final List<FormField> formFields;
 
   @Inject
-  public LdapCapabilityDescriptor(final LdapValidators ldapValidators) {
-    this.ldapValidators = checkNotNull(ldapValidators);
-
+  public LdapCapabilityDescriptor() {
     this.formFields = Lists.<FormField>newArrayList(
         new LdapServerCombobox(
             LDAP_SERVER_ID,
