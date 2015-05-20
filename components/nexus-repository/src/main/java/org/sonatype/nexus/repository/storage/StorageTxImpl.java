@@ -41,6 +41,7 @@ import com.google.common.hash.HashCode;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.tx.OTransaction.TXTYPE;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static org.sonatype.nexus.common.entity.EntityHelper.id;
@@ -105,9 +106,11 @@ public class StorageTxImpl
     this.assetEntityAdapter = checkNotNull(assetEntityAdapter);
     this.hook = checkNotNull(hook);
 
-    if (!userManagedDb) {
-      db.begin(TXTYPE.OPTIMISTIC);
-    }
+    // This is only here for now to yell in case of nested TX
+    // To be discussed in future, or at the point when we will have need for nested TX
+    // Note: orient DB sports some rudimentary support for nested TXes
+    checkArgument(!db.getTransaction().isActive(), "Nested DB TX!");
+    db.begin(TXTYPE.OPTIMISTIC);
   }
 
   public static final class State

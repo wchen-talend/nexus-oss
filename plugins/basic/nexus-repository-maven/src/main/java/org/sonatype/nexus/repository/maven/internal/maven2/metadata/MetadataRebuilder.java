@@ -238,20 +238,10 @@ public class MetadataRebuilder
     }
 
     /**
-     * Opens StorageTx and begins OrientDB TX.
-     */
-    private StorageTx startTx() {
-      log.debug("startTx");
-      checkArgument(!db.getTransaction().isActive(), "Nested DB TX!");
-      db.begin(TXTYPE.OPTIMISTIC);
-      return storageFacet.openTx(db);
-    }
-
-    /**
      * Process exits from group level, executed in isolation.
      */
     private void rebuildMetadataExitGroup(final String currentGroupId) {
-      try (StorageTx tx = startTx()) {
+      try (StorageTx tx = storageFacet.openTx(db)) {
         metadataUpdater.processMetadata(
             tx,
             metadataMavenPath(currentGroupId, null, null),
@@ -273,7 +263,7 @@ public class MetadataRebuilder
       metadataBuilder.onEnterArtifactId(artifactId);
       for (String baseVersion : baseVersions) {
         metadataBuilder.onEnterBaseVersion(baseVersion);
-        try (StorageTx tx = startTx()) {
+        try (StorageTx tx = storageFacet.openTx(db)) {
           final Iterable<Component> components = tx.findComponents(
               "group = :groupId and name = :artifactId and attributes.maven2.baseVersion = :baseVersion",
               ImmutableMap.<String, Object>of(
@@ -316,7 +306,7 @@ public class MetadataRebuilder
           tx.commit();
         }
       }
-      try (StorageTx tx = startTx()) {
+      try (StorageTx tx = storageFacet.openTx(db)) {
         metadataUpdater.processMetadata(
             tx,
             metadataMavenPath(groupId, artifactId, null),
