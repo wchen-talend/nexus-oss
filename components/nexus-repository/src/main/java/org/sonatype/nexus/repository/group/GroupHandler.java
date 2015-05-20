@@ -21,8 +21,6 @@ import javax.annotation.Nonnull;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import org.sonatype.nexus.repository.IllegalOperationException;
-import org.sonatype.nexus.repository.InvalidContentException;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.http.HttpResponses;
 import org.sonatype.nexus.repository.http.HttpStatus;
@@ -117,15 +115,10 @@ public class GroupHandler
       }
       dispatched.add(member);
 
-      try {
-        final ViewFacet view = member.facet(ViewFacet.class);
-        final Response response = view.dispatch(request);
-        if (response.getStatus().isSuccessful()) {
-          return response;
-        }
-      } catch (IllegalOperationException | InvalidContentException e) {
-        // skip member
-        log.debug("Skipping member {}", member, e);
+      final ViewFacet view = member.facet(ViewFacet.class);
+      final Response response = view.dispatch(request);
+      if (response.getStatus().isSuccessful()) {
+        return response;
       }
     }
     return HttpResponses.notFound();
@@ -149,15 +142,10 @@ public class GroupHandler
       }
       dispatched.add(member);
 
-      try {
-        final ViewFacet view = member.facet(ViewFacet.class);
-        final Response response = view.dispatch(request);
+      final ViewFacet view = member.facet(ViewFacet.class);
+      final Response response = view.dispatch(request);
 
-        responses.put(member, response);
-      } catch (IllegalOperationException | InvalidContentException e) {
-        // skip member
-        log.debug("Skipping member {}", member, e);
-      }
+      responses.put(member, response);
     }
     return responses;
   }

@@ -27,9 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.sonatype.nexus.common.app.BaseUrlHolder;
 import org.sonatype.nexus.repository.IllegalOperationException;
-import org.sonatype.nexus.repository.InvalidContentException;
 import org.sonatype.nexus.repository.Repository;
-import org.sonatype.nexus.repository.http.HttpMethods;
 import org.sonatype.nexus.repository.http.HttpResponses;
 import org.sonatype.nexus.repository.httpbridge.DefaultHttpResponseSender;
 import org.sonatype.nexus.repository.httpbridge.HttpResponseSender;
@@ -130,15 +128,6 @@ public class ViewServlet
     catch (IllegalOperationException e) {
       log.info("Illegal operation {} {}: {}", httpRequest.getMethod(), httpRequest.getRequestURI(), e.getMessage());
       send(null, HttpResponses.badRequest(e.getMessage()), httpResponse);
-    }
-    catch (InvalidContentException e) {
-      log.info("Invalid content {} {}: {}", httpRequest.getMethod(), httpRequest.getRequestURI(), e.getMessage());
-      if (HttpMethods.PUT.equals(httpRequest.getMethod())) {
-        send(null, HttpResponses.badRequest(e.getMessage()), httpResponse);
-      }
-      else {
-        send(null, HttpResponses.notFound(e.getMessage()), httpResponse);
-      }
     }
     catch (Exception e) {
       log.warn("Service failure", e);
