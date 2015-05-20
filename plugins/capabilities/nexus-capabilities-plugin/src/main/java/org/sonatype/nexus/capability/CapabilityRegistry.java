@@ -112,7 +112,7 @@ public interface CapabilityRegistry
    * @return collection of capabilities, never null
    * @since capabilities 2.0
    */
-  public Collection<? extends CapabilityReference> get(Predicate<CapabilityReference> filter);
+  Collection<? extends CapabilityReference> get(Predicate<CapabilityReference> filter);
 
   /**
    * Retrieves all capabilities from registry. If no capability exists, result will be empty.
