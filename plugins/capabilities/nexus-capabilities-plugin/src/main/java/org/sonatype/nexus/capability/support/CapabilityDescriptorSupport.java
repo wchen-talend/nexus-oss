@@ -20,12 +20,15 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
 import javax.validation.ConstraintViolation;
+import javax.validation.groups.Default;
 
 import org.sonatype.nexus.capability.CapabilityDescriptor;
 import org.sonatype.nexus.capability.CapabilityIdentity;
 import org.sonatype.nexus.capability.Validator;
 import org.sonatype.nexus.capability.support.validator.Validators;
 import org.sonatype.nexus.validation.ConstraintViolations;
+import org.sonatype.nexus.validation.group.Create;
+import org.sonatype.nexus.validation.group.Update;
 import org.sonatype.sisu.goodies.common.ComponentSupport;
 import org.sonatype.sisu.goodies.template.TemplateEngine;
 import org.sonatype.sisu.goodies.template.TemplateParameters;
@@ -41,7 +44,7 @@ import static com.google.common.base.Preconditions.checkState;
  *
  * @since 2.7
  */
-public abstract class CapabilityDescriptorSupport
+public abstract class CapabilityDescriptorSupport<ConfigT>
     extends ComponentSupport
     implements CapabilityDescriptor
 {
@@ -133,7 +136,15 @@ public abstract class CapabilityDescriptorSupport
 
   @Override
   public void validate(final Map<String, String> properties, final ValidationMode validationMode) {
-    // do nothing
+    ConfigT config = createConfig(properties);
+    if (config != null) {
+      if (validationMode == ValidationMode.CREATE) {
+        validate(config, Create.class, Default.class);
+      }
+      else {
+        validate(config, Update.class, Default.class);
+      }
+    }
   }
 
   protected void validate(final Object value, final Class<?>... groups) {
@@ -148,6 +159,8 @@ public abstract class CapabilityDescriptorSupport
     Set<ConstraintViolation<Object>> violations = validator.validate(value, groups);
     ConstraintViolations.maybePropagate(violations, log);
   }
+
+  protected ConfigT createConfig(final Map<String, String> properties) { return null; }
 
   //
   // Template support
