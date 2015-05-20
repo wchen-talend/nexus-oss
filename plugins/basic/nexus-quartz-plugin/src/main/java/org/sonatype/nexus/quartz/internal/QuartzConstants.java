@@ -33,6 +33,11 @@ public class QuartzConstants
   public static final String CONFIG_PREFIX = "${" + ID_PREFIX;
 
   /**
+   * Scheduler capability ID.
+   */
+  public static final String CAPABILITY_ID = ID_PREFIX + ".scheduler";
+
+  /**
    * Capabilities tag.
    */
   public static final String CAPABILITY_CATEGORY_TAG = "Quartz";

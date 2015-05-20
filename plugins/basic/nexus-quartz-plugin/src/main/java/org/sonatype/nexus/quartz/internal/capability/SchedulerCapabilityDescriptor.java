@@ -46,7 +46,7 @@ public class SchedulerCapabilityDescriptor
     extends CapabilityDescriptorSupport<SchedulerCapabilityConfiguration>
     implements Taggable
 {
-  public static final String TYPE_ID = QuartzConstants.ID_PREFIX + ".scheduler";
+  public static final String TYPE_ID = QuartzConstants.CAPABILITY_ID;
 
   public static final CapabilityType TYPE = capabilityType(TYPE_ID);
 
