@@ -32,7 +32,7 @@ import static org.sonatype.nexus.capability.support.WithoutConfiguration.WITHOUT
  *
  * @since 3.0
  */
-@Named(ForceBaseUrlDescriptor.TYPE_ID)
+@Named(ForceBaseUrlCapabilityDescriptor.TYPE_ID)
 public class ForceBaseUrlCapability
     extends CapabilitySupport<WithoutConfiguration>
 {
