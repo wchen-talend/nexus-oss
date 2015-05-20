@@ -89,6 +89,7 @@ public class StorageFacetImpl
       return getClass().getSimpleName() + "{" +
           "blobStoreName='" + blobStoreName + '\'' +
           ", writePolicy=" + writePolicy +
+          ", strictContentTypeValidation=" + strictContentTypeValidation +
           '}';
     }
   }
