@@ -12,15 +12,9 @@
  */
 package org.sonatype.nexus.capability.internal.capability;
 
-import java.util.Map;
-
 import org.sonatype.nexus.capability.UniquePerCapabilityType;
 import org.sonatype.nexus.capability.support.CapabilityConfigurationSupport;
 import org.sonatype.nexus.validation.group.Create;
-
-import com.google.common.collect.Maps;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * {@link ForceBaseUrlCapability} configuration.
@@ -31,19 +25,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class ForceBaseUrlCapabilityConfiguration
     extends CapabilityConfigurationSupport
 {
-
-  public ForceBaseUrlCapabilityConfiguration(final Map<String, String> properties) {
-    checkNotNull(properties);
-  }
-
-  public Map<String, String> asMap() {
-    Map<String, String> props = Maps.newHashMap();
-    return props;
-  }
-
   @Override
   public String toString() {
-    return "ForceBaseUrlCapabilityConfiguration{" +
-        '}';
+    return "ForceBaseUrlCapabilityConfiguration{}";
   }
 }

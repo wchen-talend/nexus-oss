@@ -85,7 +85,7 @@ public class SMTPCapabilityDescriptor
 
   @Override
   protected SMTPCapabilityConfiguration createConfig(final Map<String, String> properties) {
-    return new SMTPCapabilityConfiguration(properties);
+    return new SMTPCapabilityConfiguration();
   }
 
   @Override

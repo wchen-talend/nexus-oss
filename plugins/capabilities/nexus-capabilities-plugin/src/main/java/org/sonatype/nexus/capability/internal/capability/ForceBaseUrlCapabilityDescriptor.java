@@ -67,7 +67,7 @@ public class ForceBaseUrlCapabilityDescriptor
 
   @Override
   protected ForceBaseUrlCapabilityConfiguration createConfig(final Map<String, String> properties) {
-    return new ForceBaseUrlCapabilityConfiguration(properties);
+    return new ForceBaseUrlCapabilityConfiguration();
   }
 
   @Override
