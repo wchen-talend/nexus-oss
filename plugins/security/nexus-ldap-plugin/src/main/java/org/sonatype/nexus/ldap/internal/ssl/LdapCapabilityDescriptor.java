@@ -13,6 +13,7 @@
 package org.sonatype.nexus.ldap.internal.ssl;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -21,11 +22,9 @@ import javax.inject.Singleton;
 
 import com.sonatype.nexus.ssl.plugin.internal.SSLConstants;
 
-import org.sonatype.nexus.capability.CapabilityIdentity;
 import org.sonatype.nexus.capability.CapabilityType;
 import org.sonatype.nexus.capability.Tag;
 import org.sonatype.nexus.capability.Taggable;
-import org.sonatype.nexus.capability.Validator;
 import org.sonatype.nexus.capability.support.CapabilityDescriptorSupport;
 import org.sonatype.nexus.formfields.FormField;
 import org.sonatype.nexus.ldap.internal.capabilities.LdapValidators;
@@ -49,7 +48,7 @@ import static org.sonatype.nexus.ldap.internal.ssl.LdapCapabilityConfiguration.L
 @Named(LdapCapabilityDescriptor.TYPE_ID)
 @Singleton
 public class LdapCapabilityDescriptor
-    extends CapabilityDescriptorSupport
+    extends CapabilityDescriptorSupport<LdapCapabilityConfiguration>
     implements Taggable
 {
 
@@ -99,23 +98,8 @@ public class LdapCapabilityDescriptor
   }
 
   @Override
-  public Validator validator() {
-    return validators().logical().and(
-        validators().capability().uniquePer(TYPE, LDAP_SERVER_ID),
-        ldapServerExists()
-    );
-  }
-
-  @Override
-  public Validator validator(final CapabilityIdentity id) {
-    return validators().logical().and(
-        validators().capability().uniquePerExcluding(id, TYPE, LDAP_SERVER_ID),
-        ldapServerExists()
-    );
-  }
-
-  public Validator ldapServerExists() {
-    return ldapValidators.ldapServerExists(LDAP_SERVER_ID);
+  protected LdapCapabilityConfiguration createConfig(final Map<String, String> properties) {
+    return new LdapCapabilityConfiguration(properties);
   }
 
   @Override
