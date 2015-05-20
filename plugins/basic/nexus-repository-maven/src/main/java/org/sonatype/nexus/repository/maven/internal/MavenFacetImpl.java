@@ -113,16 +113,13 @@ public class MavenFacetImpl
   @VisibleForTesting
   static class Config
   {
-    public boolean strictContentTypeValidation = false;
-
     @NotNull(groups = {HostedType.ValidationGroup.class, ProxyType.ValidationGroup.class})
     public VersionPolicy versionPolicy;
 
     @Override
     public String toString() {
       return getClass().getSimpleName() + "{" +
-          "strictContentTypeValidation=" + strictContentTypeValidation +
-          ", versionPolicy=" + versionPolicy +
+          "versionPolicy=" + versionPolicy +
           '}';
     }
   }
