@@ -63,7 +63,6 @@ public class NugetPushHandler
       }
     }
     catch (Exception e) {
-      log.error("Unexptected error", e);
       return convertToXmlError(e);
     }
   }
